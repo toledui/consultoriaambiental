@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Consultoría Ambiental | Cumplimiento y Sostenibilidad</title>
+  
+  <!-- Tailwind CSS & Plugins -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+  
+  <!-- FontAwesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ca-green': '#2E7D32',
+            'ca-light-green': '#66BB6A',
+            'ca-navy': '#1B3A4B',
+            'ca-dark-gray': '#263238',
+            'ca-light-gray': '#90A4AE',
+            'ca-bg': '#f8f9fa',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles for Backgrounds -->
+  <style>
+    body {
+      scroll-behavior: smooth;
+    }
+    .hero-bg {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+    }
+    .pattern-bg {
+      background-color: #f8f9fa;
+      background-image: radial-gradient(#90A4AE 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+<body class="font-sans text-ca-dark-gray antialiased bg-ca-bg flex flex-col min-h-screen">
+
+  <!-- Navigation -->
+  <header class="fixed w-full top-0 z-50 bg-ca-green/10 backdrop-blur-md shadow-lg transition-all duration-300 border-b border-ca-green/30">
+    <div class="container mx-auto px-4 md:px-8 py-3 flex justify-between items-center">
+      
+      <!-- Logo -->
+      <a class="flex items-center group" href="#">
+        <img alt="Consultoría Ambiental" class="h-16 w-auto object-contain" src="images/consultoria-ambiental-logo.png"/>
+      </a>
+      
+      <!-- Desktop Menu -->
+      <nav class="hidden lg:flex items-center space-x-8 text-sm font-medium">
+        <a class="text-ca-light-green border-b-2 border-ca-light-green pb-1" href="#">Inicio</a>
+        <a class="text-ca-navy hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all" href="#">Nosotros</a>
+        <a class="text-ca-navy hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all" href="#">Servicios</a>
+        <a class="text-ca-navy hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all" href="#">Certificaciones</a>
+        <a class="text-ca-navy hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all" href="#">Blog</a>
+      </nav>
+
+      <!-- Desktop Actions -->
+      <div class="hidden lg:flex items-center space-x-5">
+        <div class="flex space-x-3 text-lg">
+          <a class="text-ca-navy hover:text-ca-light-green transition-colors" href="#"><i class="fab fa-linkedin-in"></i></a>
+          <a class="text-ca-navy hover:text-ca-light-green transition-colors" href="#"><i class="fab fa-whatsapp"></i></a>
+        </div>
+        <a class="bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2.5 px-6 rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all" href="#">
+          Contacto
+        </a>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button class="lg:hidden text-2xl text-ca-navy focus:outline-none">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-bg min-h-screen relative flex items-center pt-20">
+    <!-- Video Background -->
+    <video autoplay class="hero-video" loop muted playsinline>
+      <source src="images/videobanner.mp4" type="video/mp4">
+      Tu navegador no soporta video.
+    </video>
+    <!-- Overlay gradient -->
+    <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
+    
+    <div class="container mx-auto px-4 md:px-8 relative z-10 py-20">
+      <div class="max-w-3xl text-left">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ca-light-green/20 border border-ca-light-green/30 text-ca-light-green font-medium text-sm mb-6 backdrop-blur-sm">
+          <span class="w-2 h-2 rounded-full bg-ca-light-green animate-pulse"></span>
+          Especialistas en Gestión y Cumplimiento
+        </div>
+        
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight">
+          Cumplimiento Ambiental con <span class="text-ca-light-green">Respaldo Técnico</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl leading-relaxed">
+          Estudios ambientales para proyectos industriales e inmobiliarios. Brindamos soluciones integrales, legales y operativas orientadas a reducir riesgos y garantizar el cumplimiento normativo.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a class="inline-flex justify-center items-center bg-ca-green hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all" href="#">
+            Nuestros Servicios <i class="fas fa-arrow-right ml-2 text-sm"></i>
+          </a>
+          <a class="inline-flex justify-center items-center bg-transparent border-2 border-white hover:bg-white hover:text-ca-navy text-white font-bold py-4 px-8 rounded-full shadow-lg transform hover:-translate-y-1 transition-all" href="#">
+            Solicitar Diagnóstico
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Inspection Alert Banner -->
+  <div class="bg-gradient-to-r from-ca-light-green to-ca-green py-4 shadow-inner relative z-20">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row justify-center items-center text-ca-navy font-bold text-center gap-4">
+      <div class="flex items-center text-white text-sm md:text-base">
+        <div class="bg-white/20 p-2 rounded-full mr-3 animate-bounce">
+          <i class="fas fa-exclamation-triangle text-yellow-300"></i>
+        </div>
+        ¿Tuviste visita de inspección de PROEPA / PROFEPA? Te ayudamos a regularizar tu empresa.
+      </div>
+      <a href="#" class="text-sm bg-ca-navy text-white px-5 py-2 rounded-full hover:bg-ca-dark-gray transition-colors shadow-md whitespace-nowrap">
+        Evita multas y ahorra <i class="fas fa-shield-alt ml-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <section class="py-12 bg-white border-b border-gray-100 relative -mt-4 rounded-t-3xl z-20 shadow-sm mx-4 md:mx-8">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+        <div class="text-center p-4">
+          <div class="flex justify-center items-center mb-2">
+            <span class="text-5xl font-extrabold text-ca-navy">+10</span>
+          </div>
+          <h3 class="text-ca-dark-gray font-bold text-lg uppercase tracking-wide">Años de experiencia</h3>
+          <p class="text-sm text-gray-500 mt-1">Especializada en el medio</p>
+        </div>
+        <div class="text-center p-4">
+          <div class="flex justify-center items-center mb-2">
+            <span class="text-5xl font-extrabold text-ca-navy">+1,000</span>
+          </div>
+          <h3 class="text-ca-dark-gray font-bold text-lg uppercase tracking-wide">Proyectos de gestión</h3>
+          <p class="text-sm text-gray-500 mt-1">Y regularización ambiental</p>
+        </div>
+        <div class="text-center p-4">
+          <div class="flex justify-center items-center mb-2">
+            <i class="fas fa-map-marked-alt text-4xl text-ca-green mb-1"></i>
+          </div>
+          <h3 class="text-ca-dark-gray font-bold text-lg uppercase tracking-wide">Cobertura Nacional</h3>
+          <p class="text-sm text-gray-500 mt-1">Atención en distintos sectores</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Value Proposition Section -->
+  <section class="py-24 pattern-bg relative">
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="flex flex-col lg:flex-row items-center gap-16">
+        
+        <!-- Text Content -->
+        <div class="w-full lg:w-1/2">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="h-1 w-12 bg-ca-green rounded"></span>
+            <h4 class="text-ca-green font-bold tracking-widest uppercase text-sm">Por qué elegirnos</h4>
+          </div>
+          <h2 class="text-3xl md:text-5xl font-bold text-ca-navy mb-6 leading-tight">
+            Experiencia técnica aplicada a <span class="text-ca-green relative inline-block">proyectos reales
+              <svg class="absolute w-full h-3 -bottom-1 left-0 text-ca-light-green/30" viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="8" fill="transparent"/></svg>
+            </span>
+          </h2>
+          <p class="text-ca-dark-gray text-lg mb-6 leading-relaxed">
+            Somos un equipo multidisciplinario de ingenieros y biólogos especializados en consultoría, auditoría, regulación y cumplimiento normativo.
+          </p>
+          <p class="text-gray-600 text-base mb-8 leading-relaxed">
+            A diferencia de una consultoría tradicional, te acompañamos durante todo el proceso. Conocemos las obligaciones de distintos sectores económicos y brindamos propuestas efectivas, garantizando la conclusión de gestiones y licencias con total transparencia.
+          </p>
+          
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-ca-green text-xl"></i>
+              <span class="font-semibold text-ca-navy">Honestidad</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-ca-green text-xl"></i>
+              <span class="font-semibold text-ca-navy">Responsabilidad</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-ca-green text-xl"></i>
+              <span class="font-semibold text-ca-navy">Compromiso</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-ca-green text-xl"></i>
+              <span class="font-semibold text-ca-navy">Efectividad</span>
+            </div>
+          </div>
+          
+          <a href="#" class="inline-flex font-bold text-ca-green hover:text-ca-navy transition-colors items-center group">
+            Conoce más sobre nosotros 
+            <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
+          </a>
+        </div>
+
+        <!-- Image Layout -->
+        <div class="w-full lg:w-1/2 relative">
+          <!-- Image Slideshow -->
+          <div class="rounded-2xl overflow-hidden shadow-2xl relative z-10 border-4 border-white">
+            <div id="aboutSlideshow" class="relative w-full aspect-[4/3]">
+              <img alt="Impacto ambiental imagen 1" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="images/impacto ambiental imagen1.jpg" data-index="0"/>
+              <img alt="Impacto ambiental imagen 2" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="images/impacto ambiental imagen2.jpg" data-index="1"/>
+              <img alt="Impacto ambiental imagen 3" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="images/impacto ambiental imagen3.jpg" data-index="2"/>
+            </div>
+          </div>
+          <!-- Decorative element -->
+          <div class="absolute -bottom-8 -left-8 bg-ca-navy p-6 rounded-xl shadow-xl z-20 hidden md:block">
+            <div class="flex items-center gap-4 text-white">
+              <div class="bg-ca-light-green p-3 rounded-full">
+                <i class="fas fa-award text-2xl"></i>
+              </div>
+              <div>
+                <p class="font-bold text-xl">+60</p>
+                <p class="text-xs uppercase tracking-wider text-gray-300">MIA's Aprobadas</p>
+              </div>
+            </div>
+          </div>
+          <!-- Background accent -->
+          <div class="absolute top-8 -right-8 w-full h-full border-2 border-ca-green rounded-2xl z-0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  <section class="py-24 bg-white relative">
+    <div class="container mx-auto px-4 text-center mb-16">
+      <h4 class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Soluciones Integrales</h4>
+      <h2 class="text-3xl md:text-5xl font-bold text-ca-navy mb-4">
+        Servicios Principales
+      </h2>
+      <p class="text-gray-500 max-w-2xl mx-auto text-lg">
+        Gestión integral, cumplimiento, permisos y seguimiento técnico para empresas, industrias y desarrollos inmobiliarios.
+      </p>
+    </div>
+
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        
+        <!-- Service 1 -->
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full">
+          <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
+            <i class="fas fa-file-signature"></i>
+          </div>
+          <h4 class="font-bold text-ca-navy text-xl mb-3 group-hover:text-ca-green transition-colors">Gestión de trámites</h4>
+          <p class="text-gray-600 text-sm mb-6 flex-grow">Atención y gestión ante autoridades municipales, estatales y federales. Licencias, registros y COA.</p>
+          <a href="#" class="text-ca-navy font-semibold text-sm inline-flex items-center group-hover:text-ca-green">
+            Ver detalles <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full">
+          <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <h4 class="font-bold text-ca-navy text-xl mb-3 group-hover:text-ca-green transition-colors">Impacto Ambiental</h4>
+          <p class="text-gray-600 text-sm mb-6 flex-grow">Seguimiento ambiental para proyectos nuevos y operaciones en funcionamiento. MIA's y regularización.</p>
+          <a href="#" class="text-ca-navy font-semibold text-sm inline-flex items-center group-hover:text-ca-green">
+            Ver detalles <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full">
+          <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
+            <i class="fas fa-truck"></i>
+          </div>
+          <h4 class="font-bold text-ca-navy text-xl mb-3 group-hover:text-ca-green transition-colors">Recolección de Residuos</h4>
+          <p class="text-gray-600 text-sm mb-6 flex-grow">Servicio especializado de recolección de manejo especial en la ZMG y distintas regiones de Jalisco.</p>
+          <a href="#" class="text-ca-navy font-semibold text-sm inline-flex items-center group-hover:text-ca-green">
+            Ver detalles <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full">
+          <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
+            <i class="fas fa-microscope"></i>
+          </div>
+          <h4 class="font-bold text-ca-navy text-xl mb-3 group-hover:text-ca-green transition-colors">Estudios y análisis</h4>
+          <p class="text-gray-600 text-sm mb-6 flex-grow">Gestión de análisis de laboratorio y cumplimiento técnico ambiental en emisiones, agua y ruido.</p>
+          <a href="#" class="text-ca-navy font-semibold text-sm inline-flex items-center group-hover:text-ca-green">
+            Ver detalles <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full">
+          <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
+            <i class="fas fa-award"></i>
+          </div>
+          <h4 class="font-bold text-ca-navy text-xl mb-3 group-hover:text-ca-green transition-colors">Certificaciones ambientales</h4>
+          <p class="text-gray-600 text-sm mb-6 flex-grow">Acompañamiento integral para procesos y certificaciones ("Compromiso Ambiental") ante SEMADET.</p>
+          <a href="#" class="text-ca-navy font-semibold text-sm inline-flex items-center group-hover:text-ca-green">
+            Ver detalles <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full">
+          <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
+            <i class="fas fa-hard-hat"></i>
+          </div>
+          <h4 class="font-bold text-ca-navy text-xl mb-3 group-hover:text-ca-green transition-colors">Seguridad e higiene</h4>
+          <p class="text-gray-600 text-sm mb-6 flex-grow">Gestión, auditorías y cumplimiento normativo en materia de seguridad ambiental y ocupacional.</p>
+          <a href="#" class="text-ca-navy font-semibold text-sm inline-flex items-center group-hover:text-ca-green">
+            Ver detalles <i class="fas fa-chevron-right ml-1 text-xs"></i>
+          </a>
+        </div>
+
+      </div>
+      
+      <div class="text-center mt-12">
+        <a href="#" class="inline-flex justify-center items-center bg-ca-navy hover:bg-gray-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-colors">
+          Ver Catálogo Completo de Servicios
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sectors Section -->
+  <section class="py-20 bg-ca-navy text-white relative border-t border-ca-green">
+    <!-- Decor bg -->
+    <div class="absolute inset-0 opacity-5 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+    
+    <div class="container mx-auto px-4 relative z-10 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-10">
+        Sectores de Atención Especializada
+      </h2>
+      <div class="flex flex-wrap justify-center gap-3 md:gap-4 max-w-5xl mx-auto">
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Inmobiliario</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Tequilero</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Alimenticio</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Agropecuario</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Tratamiento de Residuos</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Industrial (Ligero, Mediano, Pesado)</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Químico</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Metalurgia</span>
+        <span class="px-6 py-3 bg-white/5 hover:bg-ca-green border border-ca-light-gray/30 hover:border-ca-green rounded-full text-sm font-medium transition-colors cursor-default">Farmacéutica</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clients / Success Cases Section -->
+  <section class="py-24 bg-white">
+    <div class="container mx-auto px-4 text-center max-w-6xl">
+      <h4 class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Confianza que respalda</h4>
+      <h2 class="text-3xl md:text-4xl font-bold text-ca-navy mb-16">
+        Nuestros Clientes y Proyectos
+      </h2>
+      
+      <!-- Typographic Client Grid (as logos weren't fully provided, text representations are used in an elegant way) -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 items-center text-ca-light-gray font-bold text-lg md:text-xl uppercase tracking-wider">
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4 grayscale hover:grayscale-0">CONDUMEX</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">FAMESA</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">ETIPRESS</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">SAL PEGASO</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">GALLETAS CAYRO</div>
+        
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">CAMPANARIO TEQUILA</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">DIDEZMA</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4">PIGAMEX</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4 text-sm leading-tight">LA<br/>CHICHARRONERA</div>
+        <div class="hover:text-ca-navy hover:scale-105 transition-all p-4 text-sm leading-tight text-center">PLAZAS COMERCIALES<br/><span class="text-[10px] text-gray-400 font-normal">Midtown, Revolución, Pto Vallarta</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Pre-Footer -->
+  <section class="bg-ca-green py-12 relative overflow-hidden">
+    <div class="absolute right-0 top-0 opacity-10 transform translate-x-1/3 -translate-y-1/4">
+        <i class="fas fa-leaf text-[200px] text-white"></i>
+    </div>
+    <div class="container mx-auto px-4 relative z-10 flex flex-col md:flex-row items-center justify-between">
+      <div class="text-white mb-6 md:mb-0">
+        <h3 class="text-2xl md:text-3xl font-bold mb-2">¿Necesitas regularizar tu empresa?</h3>
+        <p class="text-green-100">Contacta a nuestros especialistas para un diagnóstico confidencial.</p>
+      </div>
+      <div class="flex gap-4">
+        <a href="#" class="bg-white text-ca-green font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition-colors">
+          Contáctanos Ahora
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest News Section -->
+  <section class="py-24 bg-white relative">
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="text-center mb-12">
+        <h4 class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Mantente Informado</h4>
+        <h2 class="text-3xl md:text-5xl font-bold text-ca-navy">
+          Últimas Noticias
+        </h2>
+      </div>
+
+      <!-- Carousel Container -->
+      <div class="relative max-w-5xl mx-auto overflow-hidden">
+        <!-- Carousel Track -->
+        <div id="newsCarousel" class="flex" style="will-change: transform;">
+          
+          <!-- News Card 1 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Nueva regulación ambiental para el sector industrial en 2026
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 2 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1569163139599-0f4517e36f51?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Beneficios fiscales por prácticas de economía circular
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 3 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  PROEPA actualiza requisitos para manifestación de impacto ambiental
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 4 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Certificación ambiental: requisitos clave para tu empresa
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 5 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Manejo de residuos: nuevas disposiciones en Jalisco
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 6 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1576086213369-97a306d36557?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Seminario gratuito: cumplimiento ambiental para PyMEs
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 7 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Nueva normativa de calidad del aire entra en vigor este año
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 8 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  Guía completa para obtener tu licencia ambiental única
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Card 9 -->
+          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden cursor-pointer group h-24">
+              <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
+                <img alt="Noticia" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"/>
+              </div>
+              <div class="w-0 flex-1 p-3 overflow-hidden">
+                <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words">
+                  SEMARNAT anuncia nuevos lineamientos para evaluación de impacto
+                </h3>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-ca-dark-gray text-ca-light-gray pt-16 pb-8 border-t-4 border-ca-navy mt-auto">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+      
+      <!-- Brand & About -->
+      <div>
+        <a class="flex items-center mb-6" href="#">
+          <img alt="Consultoría Ambiental" class="h-20 w-auto object-contain" src="images/consultoria-ambiental-logo.png"/>
+        </a>
+        <p class="text-sm mb-6 leading-relaxed">
+          Especialistas en soluciones integrales para el cumplimiento ambiental. Protegiendo tu inversión, garantizando resultados y cuidando el entorno con responsabilidad técnica.
+        </p>
+        <a href="#" class="inline-flex items-center bg-ca-navy border border-gray-600 hover:border-ca-light-green text-white font-semibold text-xs px-5 py-2.5 rounded shadow transition-colors group">
+          <i class="fas fa-file-download mr-2 text-ca-light-green group-hover:animate-bounce"></i> Checklist Ambiental
+        </a>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Enlaces</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-ca-light-green transition flex items-center"><i class="fas fa-angle-right mr-2 text-xs"></i> Inicio</a></li>
+          <li><a href="#" class="hover:text-ca-light-green transition flex items-center"><i class="fas fa-angle-right mr-2 text-xs"></i> Nosotros</a></li>
+          <li><a href="#" class="hover:text-ca-light-green transition flex items-center"><i class="fas fa-angle-right mr-2 text-xs"></i> Servicios</a></li>
+          <li><a href="#" class="hover:text-ca-light-green transition flex items-center"><i class="fas fa-angle-right mr-2 text-xs"></i> Cobertura</a></li>
+          <li><a href="#" class="hover:text-ca-light-green transition flex items-center"><i class="fas fa-angle-right mr-2 text-xs"></i> Aviso de Privacidad</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Contacto</h4>
+        <ul class="space-y-4 text-sm">
+          <li class="flex items-start gap-3">
+            <div class="bg-ca-navy p-2 rounded text-ca-light-green"><i class="fas fa-phone-alt"></i></div>
+            <div class="pt-1">
+              <span class="block text-xs text-gray-500 uppercase">Teléfono</span>
+              <a href="#" class="hover:text-white transition">+52 (33) 1234-5678</a>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="bg-ca-navy p-2 rounded text-ca-light-green"><i class="fab fa-whatsapp"></i></div>
+            <div class="pt-1">
+              <span class="block text-xs text-gray-500 uppercase">WhatsApp</span>
+              <a href="#" class="hover:text-white transition">+52 (33) 8765-4321</a>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="bg-ca-navy p-2 rounded text-ca-light-green"><i class="fas fa-envelope"></i></div>
+            <div class="pt-1">
+              <span class="block text-xs text-gray-500 uppercase">Correo</span>
+              <a href="mailto:contacto@consultoria-ca.com" class="hover:text-white transition">contacto@consultoria-ca.com</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Social / News -->
+      <div>
+        <h4 class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Síguenos</h4>
+        <div class="flex items-center space-x-3 mb-8">
+          <a class="w-10 h-10 rounded bg-ca-navy flex items-center justify-center hover:bg-ca-green hover:text-white transition-colors shadow" href="#"><i class="fab fa-linkedin-in"></i></a>
+          <a class="w-10 h-10 rounded bg-ca-navy flex items-center justify-center hover:bg-ca-green hover:text-white transition-colors shadow" href="#"><i class="fab fa-facebook-f"></i></a>
+        </div>
+        
+        <!-- Latest News Banner -->
+        <div class="bg-ca-navy/50 p-4 rounded-lg border-l-4 border-ca-light-green text-xs shadow-inner">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase animate-pulse">Nuevo</span>
+            <span class="text-white font-bold">Ley de Economía Circular</span>
+          </div>
+          <p class="text-gray-300 leading-relaxed">Prepárate para las nuevas obligaciones ambientales. Impulsamos un modelo empresarial enfocado en la reducción de residuos.</p>
+        </div>
+      </div>
+
+    </div>
+    
+    <div class="container mx-auto px-4 pt-6 border-t border-gray-700/50 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+      <p>Derechos reservados &copy; 2026 Consultoría Ambiental CA.</p>
+      <p class="mt-2 md:mt-0 font-medium">Cumplimiento <span class="text-ca-green mx-1">+</span> Sostenibilidad <span class="text-ca-green mx-1">+</span> Compromiso</p>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="https://wa.me/523387654321" target="_blank" class="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_4px_14px_0_rgba(37,211,102,0.5)] hover:scale-110 hover:shadow-[0_6px_20px_rgba(37,211,102,0.6)] transition-all duration-300 animate-bounce">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <!-- Carousel Script - Continuous scrolling right to left -->
+  <script>
+    (function() {
+      const track = document.getElementById('newsCarousel');
+      if (!track) return;
+      
+      // Clone all cards for seamless infinite loop
+      const cards = Array.from(track.children);
+      cards.forEach(function(card) {
+        const clone = card.cloneNode(true);
+        track.appendChild(clone);
+      });
+      
+      let scrollPosition = 0;
+      const speed = 1.0; // pixels per frame (doubled)
+      let animationId = null;
+      
+      // Calculate card width including gap (min-w-[33.333%] + padding)
+      function getCardWidth() {
+        if (track.children.length === 0) return 0;
+        const first = track.children[0];
+        const style = window.getComputedStyle(first);
+        const width = first.offsetWidth;
+        const paddingLeft = parseFloat(style.paddingLeft) || 0;
+        const paddingRight = parseFloat(style.paddingRight) || 0;
+        return width;
+      }
+      
+      function getTotalWidth() {
+        const cardWidth = getCardWidth();
+        // Original cards count is half of total (since we cloned)
+        const originalCount = track.children.length / 2;
+        return cardWidth * originalCount;
+      }
+      
+      function animate() {
+        scrollPosition -= speed;
+        
+        const totalWidth = getTotalWidth();
+        if (totalWidth <= 0) {
+          animationId = requestAnimationFrame(animate);
+          return;
+        }
+        
+        // When we've scrolled past the original set, reset to 0
+        if (Math.abs(scrollPosition) >= totalWidth) {
+          scrollPosition = 0;
+        }
+        
+        track.style.transform = 'translateX(' + scrollPosition + 'px)';
+        animationId = requestAnimationFrame(animate);
+      }
+      
+      // Start animation
+      animationId = requestAnimationFrame(animate);
+      
+      // Pause/resume on visibility change (tab switch)
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+          if (animationId) cancelAnimationFrame(animationId);
+        } else {
+          animationId = requestAnimationFrame(animate);
+        }
+      });
+      
+      // Handle resize
+      let resizeTimeout;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+          // Reset position on resize to avoid layout jumps
+          scrollPosition = 0;
+          track.style.transform = 'translateX(0px)';
+        }, 200);
+      });
+    })();
+  </script>
+
+  <!-- About Slideshow Script -->
+  <script>
+    (function() {
+      const container = document.getElementById('aboutSlideshow');
+      if (!container) return;
+      const images = container.querySelectorAll('img');
+      if (images.length === 0) return;
+      
+      let current = 0;
+      let interval;
+      const delay = 4000; // 4 seconds
+      
+      // Show first image immediately
+      images[0].classList.remove('opacity-0');
+      images[0].classList.add('opacity-100');
+      
+      function nextSlide() {
+        images[current].classList.remove('opacity-100');
+        images[current].classList.add('opacity-0');
+        current = (current + 1) % images.length;
+        images[current].classList.remove('opacity-0');
+        images[current].classList.add('opacity-100');
+      }
+      
+      function startSlideshow() {
+        stopSlideshow();
+        interval = setInterval(nextSlide, delay);
+      }
+      
+      function stopSlideshow() {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+      }
+      
+      // Pause on hover
+      container.addEventListener('mouseenter', stopSlideshow);
+      container.addEventListener('mouseleave', startSlideshow);
+      
+      startSlideshow();
+    })();
+  </script>
+
+</body>
+</html>

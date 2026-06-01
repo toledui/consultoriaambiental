@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ca-green: #2E7D32;
+  --color-ca-light-green: #66BB6A;
+  --color-ca-navy: #1B3A4B;
+  --color-ca-dark-gray: #263238;
+  --color-ca-light-gray: #90A4AE;
+  --color-ca-bg: #f8f9fa;
+  --font-family-sans: 'Inter', sans-serif;
+}

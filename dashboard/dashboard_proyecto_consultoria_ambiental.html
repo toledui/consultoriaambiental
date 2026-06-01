@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Dashboard de Proyecto | Consultoría Ambiental CA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ca-green': '#2E7D32',
+            'ca-light-green': '#66BB6A',
+            'ca-navy': '#1B3A4B',
+            'ca-dark-gray': '#263238',
+            'ca-light-gray': '#90A4AE',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex overflow-hidden">
+
+  <!-- Sidebar (Main Navigation) -->
+  <aside class="w-64 bg-ca-navy text-white flex flex-col shadow-xl z-20 hidden md:flex">
+    <div class="p-6 border-b border-gray-700">
+      <h1 class="text-xl font-bold tracking-wider">THagencia</h1>
+      <p class="text-xs text-ca-light-green mt-1 tracking-widest uppercase">Brief Dashboard</p>
+      <div class="mt-4 pt-4 border-t border-gray-700">
+        <span class="text-sm font-semibold block">Cliente:</span>
+        <span class="text-lg font-bold text-white">Consultoría Ambiental</span>
+      </div>
+    </div>
+    
+    <nav class="flex-1 overflow-y-auto py-4">
+      <ul class="space-y-1">
+        <li>
+          <button id="btn-tab-diseno" onclick="openMainTab('tab-diseno')" class="main-tab-btn w-full text-left px-6 py-3 bg-ca-green text-white font-medium transition-colors">
+            <i class="fas fa-paint-brush w-5 text-center mr-2"></i> Diseño y Estilos
+          </button>
+        </li>
+        <li>
+          <button id="btn-tab-home" onclick="openMainTab('tab-home')" class="main-tab-btn w-full text-left px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white font-medium transition-colors">
+            <i class="fas fa-home w-5 text-center mr-2"></i> Estructura Home
+          </button>
+        </li>
+        <li>
+          <button id="btn-tab-nosotros" onclick="openMainTab('tab-nosotros')" class="main-tab-btn w-full text-left px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white font-medium transition-colors">
+            <i class="fas fa-users w-5 text-center mr-2"></i> Nosotros CA
+          </button>
+        </li>
+        <li>
+          <button id="btn-tab-servicios" onclick="openMainTab('tab-servicios')" class="main-tab-btn w-full text-left px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white font-medium transition-colors">
+            <i class="fas fa-cogs w-5 text-center mr-2"></i> Servicios (Catálogo)
+          </button>
+        </li>
+        <li>
+          <button id="btn-tab-extras" onclick="openMainTab('tab-extras')" class="main-tab-btn w-full text-left px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white font-medium transition-colors">
+            <i class="fas fa-envelope w-5 text-center mr-2"></i> Contacto y Extras
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Mobile Header -->
+  <div class="md:hidden fixed top-0 w-full bg-ca-navy text-white z-50 flex justify-between items-center p-4">
+    <h1 class="text-lg font-bold">Dashboard CA</h1>
+    <select onchange="openMainTab(this.value)" class="bg-gray-800 text-white border border-gray-600 rounded p-1 text-sm">
+      <option value="tab-diseno">Diseño y Estilos</option>
+      <option value="tab-home">Estructura Home</option>
+      <option value="tab-nosotros">Nosotros CA</option>
+      <option value="tab-servicios">Servicios (Catálogo)</option>
+      <option value="tab-extras">Contacto y Extras</option>
+    </select>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 flex flex-col h-screen overflow-hidden pt-16 md:pt-0">
+    
+    <!-- Topbar -->
+    <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center z-10">
+      <h2 id="current-tab-title" class="text-2xl font-bold text-ca-dark-gray">Diseño y Estilos</h2>
+      <div class="text-sm text-gray-500 font-medium">
+        <i class="fas fa-info-circle text-ca-light-green mr-1"></i> Regla estricta: NO usar la palabra "Resultados". Usar "Compromiso" o "Responsabilidad".
+      </div>
+    </header>
+
+    <!-- Content Container -->
+    <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 scrollbar-hide">
+      
+      <!-- TAB 1: DISEÑO Y ESTILOS -->
+      <div id="tab-diseno" class="main-tab-content space-y-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Colores -->
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">Paleta de Colores</h3>
+            <div class="space-y-3">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded shadow-inner bg-[#2E7D32]"></div>
+                <div><p class="font-bold text-sm">Verde Principal</p><p class="text-xs text-gray-500">HEX: #2E7D32 | RGB: 46, 125, 50</p></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded shadow-inner bg-[#66BB6A]"></div>
+                <div><p class="font-bold text-sm">Verde Secundario</p><p class="text-xs text-gray-500">HEX: #66BB6A | RGB: 102, 187, 106</p></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded shadow-inner bg-[#1B3A4B]"></div>
+                <div><p class="font-bold text-sm">Azul Corporativo</p><p class="text-xs text-gray-500">HEX: #1B3A4B | RGB: 27, 58, 75</p></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded shadow-inner bg-[#263238]"></div>
+                <div><p class="font-bold text-sm">Gris Oscuro</p><p class="text-xs text-gray-500">HEX: #263238 | RGB: 38, 50, 56</p></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded shadow-inner bg-[#90A4AE]"></div>
+                <div><p class="font-bold text-sm">Gris Claro</p><p class="text-xs text-gray-500">HEX: #90A4AE | RGB: 144, 164, 174</p></div>
+              </div>
+            </div>
+            <p class="text-xs text-red-500 mt-4 font-medium">*Nota del cliente: Buscar colores elegantes (azul marino, verde), evitar colores que no combinen.</p>
+          </div>
+
+          <!-- Referencias & Logo -->
+          <div class="space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">Sitios de Referencia</h3>
+              <ul class="space-y-3">
+                <li><a href="https://www.redbioterra.com" target="_blank" class="text-blue-600 hover:underline flex items-center gap-2"><i class="fas fa-external-link-alt text-xs"></i> redbioterra.com</a> <span class="text-xs text-gray-500">(Diseño Positivo / Estructura Hero)</span></li>
+                <li><a href="https://cimamx.com.mx" target="_blank" class="text-blue-600 hover:underline flex items-center gap-2"><i class="fas fa-external-link-alt text-xs"></i> cimamx.com.mx</a> <span class="text-xs text-gray-500">(Referencia del cliente)</span></li>
+                <li><a href="https://envimexico.com/" target="_blank" class="text-blue-600 hover:underline flex items-center gap-2"><i class="fas fa-external-link-alt text-xs"></i> envimexico.com</a> <span class="text-xs text-gray-500">(Ideas de Slides/Videos en Home)</span></li>
+                <li><a href="https://redfibra.mx/" target="_blank" class="text-blue-600 hover:underline flex items-center gap-2"><i class="fas fa-external-link-alt text-xs"></i> redfibra.mx</a> <span class="text-xs text-gray-500">(Referencia para "Últimas Noticias" y layouts de servicios)</span></li>
+              </ul>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">Audiencia y Mercado</h3>
+              <p class="text-sm text-gray-700"><strong>Perfil Ideal (B2B):</strong> Ingenieros de Medio Ambiente y Seguridad. Si no existe el área: Compras, Mantenimiento, Legal, Gerencia.</p>
+              <p class="text-sm text-gray-700 mt-2"><strong>Objetivo Web:</strong> Generación de prospectos calificados, atracción de potenciales clientes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: ESTRUCTURA HOME -->
+      <div id="tab-home" class="main-tab-content hidden space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-ca-green">
+          <h3 class="text-xl font-bold text-ca-navy mb-2">Estructura Página Principal (Home)</h3>
+          <p class="text-sm text-gray-500 mb-6">Desglose sección por sección basado en el brief.</p>
+          
+          <div class="space-y-4">
+            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+              <h4 class="font-bold text-ca-green"><i class="fas fa-heading w-5"></i> 1. Cabecera (Header)</h4>
+              <p class="text-sm mt-1">Menú vertical/estático. Botón WhatsApp fijo en pantalla.</p>
+            </div>
+            
+            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+              <h4 class="font-bold text-ca-green"><i class="fas fa-image w-5"></i> 2. Hero Section (Slides/Video)</h4>
+              <p class="text-sm mt-1"><strong>Textos sugeridos:</strong> "CA somos especialistas en Consultoría Ambiental / Cumplimiento Ambiental con respaldo técnico y normativo."</p>
+              <p class="text-sm mt-1">"Estudios ambientales para proyectos industriales e inmobiliarios. Soluciones integrales para cumplimiento ambiental."</p>
+            </div>
+
+            <div class="p-4 bg-yellow-50 rounded border border-yellow-200">
+              <h4 class="font-bold text-yellow-700"><i class="fas fa-exclamation-triangle w-5"></i> 3. Banner de Alerta</h4>
+              <p class="text-sm mt-1">"¿Tuviste visita de inspección de PROEPA / PROFEPA? Te ayudamos a regularizar tu empresa. Evita multas, ahorra y previene regularizando tu empresa."</p>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+              <h4 class="font-bold text-ca-green"><i class="fas fa-chart-bar w-5"></i> 4. Estadísticas (Experiencia)</h4>
+              <ul class="list-disc pl-5 text-sm mt-1">
+                <li>+10 años de experiencia especializada</li>
+                <li>+1,000 proyectos gestión y regularización Ambiental</li>
+                <li>Cobertura Nacional, Atención en proyectos de distintos sectores</li>
+              </ul>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+              <h4 class="font-bold text-ca-green"><i class="fas fa-list w-5"></i> 5. Servicios Principales (Resumen)</h4>
+              <ul class="list-disc pl-5 text-sm mt-1">
+                <li><strong>Gestión de trámites:</strong> Autoridades municipales, estatales y federales.</li>
+                <li><strong>Impacto Ambiental:</strong> Proyectos nuevos y operaciones.</li>
+                <li><strong>Recolección Residuos:</strong> Manejo especial en ZMG y Jalisco.</li>
+                <li><strong>Estudios y análisis:</strong> Laboratorio y cumplimiento.</li>
+                <li><strong>Certificaciones:</strong> Procesos ante SEMADET.</li>
+                <li><strong>Seguridad e higiene:</strong> Cumplimiento ocupacional.</li>
+              </ul>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+              <h4 class="font-bold text-ca-green"><i class="fas fa-industry w-5"></i> 6. Sectores (Tags/Grilla)</h4>
+              <p class="text-sm mt-1">Inmobiliario, Tequilero, Alimenticio, Agropecuario, Tratamiento de Residuos, Industrial (ligero, mediano, pesado), Químico, Metalurgia, Farmacéutica.</p>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded border border-gray-200">
+              <h4 class="font-bold text-ca-green"><i class="fas fa-handshake w-5"></i> 7. Clientes (Logos)</h4>
+              <p class="text-sm mt-1">Condumex, Famesa, Etipress, Plazas Comerciales (Midtown, Revolución, Pto Vallarta), Sal Pegaso, Galletas Cayro, Campanario Tequila, Didezma, Pigamex, La Chicharronera.</p>
+            </div>
+            
+            <div class="p-4 bg-gray-800 text-white rounded border border-gray-700">
+              <h4 class="font-bold text-ca-light-green"><i class="fas fa-shoe-prints w-5"></i> 8. Footer</h4>
+              <p class="text-sm mt-1">Servicios, Teléfono, WhatsApp, Correo, Dirección, Cobertura, Redes, Aviso de privacidad.</p>
+              <p class="text-sm mt-1 text-yellow-300"><strong>Extra:</strong> Botón para descargar "Checklist Ambiental". Noticias en rotación (ej. Ley de Economía Circular).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: NOSOTROS CA -->
+      <div id="tab-nosotros" class="main-tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">¿Quiénes Somos?</h3>
+            <p class="text-sm text-gray-700 mb-4">Equipo multidisciplinario de ingenieros y biólogos especializados en Consultoría Ambiental, auditoría, regulación y cumplimiento normativo.</p>
+            <p class="text-sm text-gray-700 mb-4">+10 años de experiencia en empresas, industrias y desarrollos inmobiliarios, incluyendo experiencia en autoridades estatales ambientales.</p>
+            <h4 class="font-bold mt-4 mb-2 text-ca-green">Datos Duros:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+              <li><strong>+60</strong> MIA's aprobadas (Inmobiliario, industria, tequileros).</li>
+              <li><strong>+140</strong> Inspecciones PROEPA atendidas (reducciones de multa hasta 100%).</li>
+              <li><strong>+20</strong> Empresas certificadas (SEMADET).</li>
+              <li><strong>+300</strong> Trámites gestionados (COA, LAU, planes manejo).</li>
+              <li><strong>+230</strong> Clientes en recolección de residuos.</li>
+            </ul>
+          </div>
+          
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">¿Por qué elegirnos? / Valores</h3>
+            <p class="text-sm text-gray-700 mb-4">Conocemos las obligaciones de distintos sectores, nos actualizamos en la legislación local. Brindamos propuestas buscando soluciones efectivas, <strong>sin "moches" con la autoridad</strong>.</p>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="px-3 py-1 bg-ca-light-green/20 text-ca-green rounded-full text-xs font-bold">Honestidad</span>
+              <span class="px-3 py-1 bg-ca-light-green/20 text-ca-green rounded-full text-xs font-bold">Responsabilidad</span>
+              <span class="px-3 py-1 bg-ca-light-green/20 text-ca-green rounded-full text-xs font-bold">Compromiso</span>
+              <span class="px-3 py-1 bg-ca-light-green/20 text-ca-green rounded-full text-xs font-bold">Transparencia / Legalidad</span>
+              <span class="px-3 py-1 bg-ca-light-green/20 text-ca-green rounded-full text-xs font-bold">Asertividad / Efectividad</span>
+            </div>
+            <h4 class="font-bold mt-4 mb-2 text-ca-green">Proceso de Trabajo:</h4>
+            <ol class="list-decimal pl-5 text-sm text-gray-700 space-y-1">
+              <li>Diagnóstico y evaluación</li>
+              <li>Evaluación de cumplimiento</li>
+              <li>Gestión de permisos y regularización</li>
+              <li>Seguimiento y resolución</li>
+              <li>Monitoreo y mejora continua</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: SERVICIOS (INTERACTIVO) -->
+      <div id="tab-servicios" class="main-tab-content hidden h-full flex flex-col md:flex-row gap-6">
+        
+        <!-- Services Sidebar Menu -->
+        <div class="w-full md:w-1/3 bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col gap-2 overflow-y-auto">
+          <h3 class="font-bold text-gray-500 uppercase tracking-wider text-xs mb-2">Categorías de Servicios</h3>
+          
+          <button onclick="showService('srv-residuos')" id="btn-srv-residuos" class="srv-btn w-full text-left px-4 py-3 rounded-lg bg-ca-navy text-white font-medium text-sm transition-all shadow">
+            1. Residuos
+          </button>
+          <button onclick="showService('srv-emisiones')" id="btn-srv-emisiones" class="srv-btn w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-all border border-transparent hover:border-gray-200">
+            2. Emisiones a la Atmósfera
+          </button>
+          <button onclick="showService('srv-agua')" id="btn-srv-agua" class="srv-btn w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-all border border-transparent hover:border-gray-200">
+            3. Agua
+          </button>
+          <button onclick="showService('srv-impacto')" id="btn-srv-impacto" class="srv-btn w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-all border border-transparent hover:border-gray-200">
+            4. Impacto Ambiental
+          </button>
+          <button onclick="showService('srv-cert')" id="btn-srv-cert" class="srv-btn w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-all border border-transparent hover:border-gray-200">
+            5. Certificaciones
+          </button>
+          <button onclick="showService('srv-ley')" id="btn-srv-ley" class="srv-btn w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-all border border-transparent hover:border-gray-200">
+            6. Ley de Economía Circular
+          </button>
+          <button onclick="showService('srv-modalidades')" id="btn-srv-modalidades" class="srv-btn w-full text-left px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 font-medium text-sm transition-all border border-transparent hover:border-gray-200">
+            7. Modalidades de Trabajo
+          </button>
+        </div>
+
+        <!-- Services Details Panel -->
+        <div class="w-full md:w-2/3 bg-white rounded-xl shadow-sm border border-gray-100 p-6 overflow-y-auto h-full relative">
+          
+          <!-- RESIDUOS -->
+          <div id="srv-residuos" class="srv-content">
+            <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 1</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Gestión Integral de Residuos</h2>
+            <p class="text-sm text-gray-600 mb-4">Ayudamos a empresas e industrias a cumplir con sus obligaciones ambientales en materia de residuos de manejo especial y peligrosos.</p>
+            <button class="bg-ca-green text-white text-xs px-4 py-2 rounded mb-6">CTA: Solicitar diagnóstico ambiental</button>
+            
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Sub-servicios:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-2 mb-6">
+              <li><strong>Registro como generador:</strong> Identificación tipo de residuos, obligaciones, clasificación, verificación proveedores.</li>
+              <li><strong>Plan de manejo:</strong> Diagnóstico, estrategias de minimización, metas, monitoreo, indicadores.</li>
+              <li><strong>Cédula de Operación Anual (COA):</strong> Recopilación, análisis, integración documental y presentación a tiempo.</li>
+              <li><strong>Recolección (Manejo Especial):</strong> Trazabilidad (ZMG y Jalisco), manifiestos, cumplimiento documental.</li>
+              <li><strong>Señalética y Organización:</strong> Suministro de señalética conforme a lineamientos de seguridad.</li>
+            </ul>
+
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Beneficios:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 mb-6">
+              <li>Evita multas y sanciones</li>
+              <li>Reduce riesgos en inspecciones</li>
+              <li>Mejora organización y trazabilidad</li>
+            </ul>
+
+            <div class="bg-gray-50 p-4 rounded text-sm">
+              <h4 class="font-bold text-ca-navy mb-2">FAQs Destacadas</h4>
+              <p><strong>¿Qué pasa si no tengo registro?</strong> Puede enfrentar apercibimientos, sanciones o clausuras.</p>
+              <p><strong>¿La COA es obligatoria?</strong> Sí, dependiendo de la actividad.</p>
+            </div>
+          </div>
+
+          <!-- EMISIONES -->
+          <div id="srv-emisiones" class="srv-content hidden">
+            <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 2</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Emisiones a la Atmósfera</h2>
+            <p class="text-sm text-gray-600 mb-4">Cumplimiento de obligaciones de gases de combustión, polvos y compuestos orgánicos volátiles (COV’s).</p>
+            <button class="bg-ca-green text-white text-xs px-4 py-2 rounded mb-6">CTA: Solicitar diagnóstico ambiental</button>
+            
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Sub-servicios:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-2 mb-6">
+              <li><strong>Licencia Ambiental Única (LAU):</strong> Integración, identificación de fuentes, memorias de cálculo.</li>
+              <li><strong>Planes de Contingencia Atmosférica:</strong> Identificación de riesgos, protocolos, medidas preventivas.</li>
+              <li><strong>COA (Emisiones):</strong> Recopilación, validación de análisis, cálculo de ingeniería.</li>
+              <li><strong>Análisis y Monitoreo:</strong> Gestión de estudios (NOM-085, NOM-035, NOM-043, NOM-081) con laboratorios EMA.</li>
+            </ul>
+
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Beneficios:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 mb-6">
+              <li>Evita sanciones/clausuras.</li>
+              <li>Mantiene continuidad operativa.</li>
+              <li>Mejora el control de procesos industriales.</li>
+            </ul>
+
+            <div class="bg-gray-50 p-4 rounded text-sm">
+              <h4 class="font-bold text-ca-navy mb-2">FAQs Destacadas</h4>
+              <p><strong>¿Qué normas aplican?</strong> NOM-085 (Gases), NOM-035/043 (Partículas), NOM-081 (Ruido).</p>
+            </div>
+          </div>
+
+          <!-- AGUA -->
+          <div id="srv-agua" class="srv-content hidden">
+             <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 3</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Descargas de Aguas Residuales</h2>
+            <p class="text-sm text-gray-600 mb-4">Regularización técnica y cumplimiento normativo para descargas al sistema de alcantarillado.</p>
+            
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Sub-servicios:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-2 mb-6">
+              <li><strong>Registro de Descarga:</strong> Integración documental, coordinación y validación de análisis de laboratorio, seguimiento ante autoridades.</li>
+            </ul>
+
+            <div class="bg-gray-50 p-4 rounded text-sm">
+              <h4 class="font-bold text-ca-navy mb-2">Normativas (Análisis):</h4>
+              <p><strong>NOM-001-SEMARNAT:</strong> Vertidas a cuerpos de agua o suelo natural.</p>
+              <p><strong>NOM-002-SEMARNAT:</strong> Vertidas al sistema de alcantarillado municipal.</p>
+              <p><strong>NOM-003-SEMARNAT:</strong> Tratadas para riego/reuso.</p>
+            </div>
+          </div>
+
+          <!-- IMPACTO AMBIENTAL -->
+          <div id="srv-impacto" class="srv-content hidden">
+            <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 4</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Impacto Ambiental</h2>
+            <p class="text-sm text-gray-600 mb-4">Evaluación, mitigación y compensación de impactos para proyectos industriales e inmobiliarios.</p>
+            
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Sub-servicios:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-2 mb-6">
+              <li><strong>Manifestaciones de Impacto Ambiental (MIA):</strong> Municipal, estatal, federal. Trabajos de campo, medidas de mitigación.</li>
+              <li><strong>Seguimiento/Residencia Ambiental:</strong> Supervisión de condicionantes durante la obra. Estudio de daños, flora/fauna.</li>
+              <li><strong>Auditorías y Procedimientos:</strong> Auditorías internas (residuos, agua, ruido, etc.), atención a visitas de inspección (PROEPA/PROFEPA).</li>
+            </ul>
+
+            <div class="bg-red-50 border border-red-200 p-4 rounded text-sm mt-4">
+              <h4 class="font-bold text-red-700 mb-2">Importante (FAQ)</h4>
+              <p class="text-red-600"><strong>¿Qué proyectos requieren una MIA?</strong> TODO tipo de proyecto requiere de una autorización de impacto ambiental <strong>PREVIO</strong> a la construcción y operación.</p>
+            </div>
+          </div>
+
+          <!-- CERTIFICACION -->
+          <div id="srv-cert" class="srv-content hidden">
+            <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 5</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Certificación Ambiental Empresarial</h2>
+            <p class="text-sm text-gray-600 mb-4">Obtención del distintivo "COMPROMISO AMBIENTAL" o "LÍDER AMBIENTAL" ante SEMADET.</p>
+            
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Beneficios del Certificado:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-2 mb-6">
+              <li>El certificado no tiene costo (solo honorarios del auditor).</li>
+              <li>Convenio de <strong>baja prioridad de inspección</strong> por PROEPA.</li>
+              <li>Prioridad de evaluación de trámites en SEMADET.</li>
+              <li>Uso de distintivo en marketing y productos. Vigencia de 2 años.</li>
+            </ul>
+          </div>
+
+          <!-- ECONOMIA CIRCULAR -->
+          <div id="srv-ley" class="srv-content hidden">
+            <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 6</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Ley General de Economía Circular (LGEC)</h2>
+            <p class="text-sm text-gray-600 mb-4">Preparación para nuevas obligaciones: reducción, reutilización, reciclaje y trazabilidad corporativa.</p>
+            
+            <h4 class="font-bold text-ca-dark-gray border-b pb-1 mb-3">Servicios LGEC:</h4>
+            <ul class="list-disc pl-5 text-sm text-gray-700 space-y-2 mb-6">
+              <li><strong>Diagnóstico LGEC:</strong> Evaluación de cumplimiento y riesgos.</li>
+              <li><strong>Estrategia de Economía Circular:</strong> Planes de valorización y optimización.</li>
+              <li><strong>Responsabilidad Extendida del Productor (REP):</strong> Gestión al final de la vida útil del producto.</li>
+              <li><strong>Análisis de Ciclo de Vida (ACV):</strong> Impacto desde producción hasta disposición final.</li>
+            </ul>
+          </div>
+
+          <!-- MODALIDADES -->
+          <div id="srv-modalidades" class="srv-content hidden">
+            <span class="bg-ca-light-green/20 text-ca-green text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Servicio 7</span>
+            <h2 class="text-2xl font-bold text-ca-navy mt-2 mb-4">Modalidades de Trabajo</h2>
+            
+            <div class="space-y-4">
+              <div class="p-4 border border-gray-200 rounded-lg">
+                <h4 class="font-bold text-ca-navy text-lg">1. Gestión por Evento</h4>
+                <p class="text-sm text-gray-600">Ideal para micro y pequeñas empresas. Trámite específico requerido.</p>
+              </div>
+
+              <div class="p-4 bg-ca-bg border border-ca-light-green rounded-lg">
+                <h4 class="font-bold text-ca-navy text-lg">2. Acompañamiento y Regularización</h4>
+                <p class="text-sm text-gray-600 mb-2">Para pequeñas y medianas empresas. Igual a un departamento ambiental externalizado.</p>
+                <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                  <li>Diagnóstico inicial</li>
+                  <li>Registros y Planes (Residuos, Agua, Emisiones)</li>
+                  <li>Señalética básica (12 letreros)</li>
+                  <li>Asesoría técnica y atención a inspecciones</li>
+                  <li><strong>Visitas de auditoría cuatrimestrales.</strong></li>
+                </ul>
+              </div>
+
+              <div class="p-4 border border-yellow-400 bg-yellow-50 rounded-lg">
+                <h4 class="font-bold text-yellow-800 text-lg">3. Acompañamiento para Certificación</h4>
+                <p class="text-sm text-gray-700">Incluye todo lo del paquete de regularización + Proceso de certificación en el Programa Voluntario de SEMADET (Jalisco).</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 5: CONTACTO Y EXTRAS -->
+      <div id="tab-extras" class="main-tab-content hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">Campos de Contacto</h3>
+            <ul class="space-y-2 text-sm text-gray-700">
+              <li><i class="fas fa-check text-ca-light-green mr-2"></i> Nombre</li>
+              <li><i class="fas fa-check text-ca-light-green mr-2"></i> Correo</li>
+              <li><i class="fas fa-check text-ca-light-green mr-2"></i> Teléfono</li>
+              <li><i class="fas fa-check text-ca-light-green mr-2"></i> <strong>Sector</strong> (Importante para B2B)</li>
+              <li><i class="fas fa-check text-ca-light-green mr-2"></i> Mensaje</li>
+            </ul>
+          </div>
+
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <h3 class="text-lg font-bold text-ca-navy mb-4 border-b pb-2">Estructura Blog / URLs</h3>
+            <p class="text-sm font-bold text-gray-600 mb-2">Categorías SEO sugeridas:</p>
+            <ul class="list-disc pl-5 space-y-1 text-sm text-blue-600">
+              <li>consultoría ambiental en CDMX</li>
+              <li>consultoría ambiental en Querétaro</li>
+              <li>consultoría ambiental en Monterrey</li>
+              <li>consultoría ambiental en Guadalajara</li>
+              <li>/manifestacion-impacto-ambiental</li>
+              <li>/estudio-riesgo-ambiental</li>
+              <li>/cumplimiento-ambiental</li>
+              <li>/permisos-semarnat</li>
+              <li>consultoria-ambiental-industria</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Tab switching logic for main navigation
+    function openMainTab(tabId) {
+      // Hide all main contents
+      document.querySelectorAll('.main-tab-content').forEach(el => el.classList.add('hidden'));
+      
+      // Reset all main buttons styles
+      document.querySelectorAll('.main-tab-btn').forEach(el => {
+        el.classList.remove('bg-ca-green', 'text-white');
+        el.classList.add('text-gray-300', 'hover:bg-gray-800', 'hover:text-white');
+      });
+
+      // Show selected content
+      document.getElementById(tabId).classList.remove('hidden');
+      
+      // Style selected button (if clicked from sidebar, not mobile select)
+      const btn = document.getElementById('btn-' + tabId);
+      if(btn) {
+        btn.classList.add('bg-ca-green', 'text-white');
+        btn.classList.remove('text-gray-300', 'hover:bg-gray-800', 'hover:text-white');
+      }
+
+      // Update Header Title
+      const titles = {
+        'tab-diseno': 'Diseño y Estilos',
+        'tab-home': 'Estructura Home',
+        'tab-nosotros': 'Nosotros CA',
+        'tab-servicios': 'Servicios (Catálogo)',
+        'tab-extras': 'Contacto y Extras'
+      };
+      document.getElementById('current-tab-title').innerText = titles[tabId];
+    }
+
+    // Services Sub-tab logic
+    function showService(srvId) {
+      // Hide all service contents
+      document.querySelectorAll('.srv-content').forEach(el => el.classList.add('hidden'));
+      
+      // Reset all service buttons
+      document.querySelectorAll('.srv-btn').forEach(el => {
+        el.classList.remove('bg-ca-navy', 'text-white', 'shadow');
+        el.classList.add('text-gray-600', 'hover:bg-gray-100', 'border-transparent');
+      });
+
+      // Show active service
+      document.getElementById(srvId).classList.remove('hidden');
+      
+      // Style active button
+      const activeBtn = document.getElementById('btn-' + srvId);
+      activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-100', 'border-transparent');
+      activeBtn.classList.add('bg-ca-navy', 'text-white', 'shadow');
+    }
+  </script>
+</body>
+</html>
