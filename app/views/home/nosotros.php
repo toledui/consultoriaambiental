@@ -23,7 +23,7 @@
     <div class="flex flex-col lg:flex-row gap-16 items-center">
       
       <!-- Text Content -->
-      <div class="w-full lg:w-1/2 gsap-reveal" data-gsap="fade-left">
+      <div class="w-full lg:w-1/2" data-aos="fade-right">
         <div class="flex items-center gap-3 mb-4">
           <span class="h-1 w-12 bg-ca-green rounded"></span>
           <p class="text-ca-navy font-bold tracking-widest uppercase text-sm">¿Quiénes Somos?</p>
@@ -58,7 +58,7 @@
       </div>
 
       <!-- Image Layout -->
-      <div class="w-full lg:w-1/2 relative gsap-reveal" data-gsap="fade-right">
+      <div class="w-full lg:w-1/2 relative" data-aos="fade-left">
         <div class="rounded-2xl overflow-hidden shadow-2xl relative z-10 border-8 border-white bg-ca-bg">
           <div id="nosotrosSlideshow" class="relative w-full" style="padding-bottom: 100%;">
             <?php
@@ -90,7 +90,7 @@
 </section>
 
 <!-- Stats / Compromiso que respalda -->
-<section class="py-20 bg-ca-navy text-white relative gsap-reveal" data-gsap="fade-up">
+<section class="py-20 bg-ca-navy text-white relative" data-aos="fade-up">
   <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
   <div class="container mx-auto px-4 md:px-8 relative z-10">
     
@@ -99,33 +99,33 @@
       <p class="text-ca-light-gray max-w-2xl mx-auto text-lg">Cifras que demuestran nuestra capacidad técnica y efectividad en la gestión ambiental a nivel nacional.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 gsap-stagger" data-stagger-delay="0.1">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8" data-aos-group="true">
       
-      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors gsap-stagger-item">
+      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors" data-aos="fade-up">
         <div class="text-4xl font-extrabold text-ca-light-green mb-3"><span class="counter" data-target="60" data-suffix="+">0</span></div>
         <h3 class="font-bold text-sm uppercase tracking-wider mb-2">MIA's Aprobadas</h3>
         <p class="text-xs text-gray-400">Para proyectos inmobiliarios, industriales, tequileros y de residuos.</p>
       </div>
 
-      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors gsap-stagger-item">
+      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors" data-aos="fade-up">
         <div class="text-4xl font-extrabold text-ca-light-green mb-3"><span class="counter" data-target="140" data-suffix="+">0</span></div>
         <h3 class="font-bold text-sm uppercase tracking-wider mb-2">Inspecciones Atendidas</h3>
         <p class="text-xs text-gray-400">Ante PROEPA con éxito, logrando reducciones de multa de hasta el 100%.</p>
       </div>
 
-      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors gsap-stagger-item">
+      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors" data-aos="fade-up">
         <div class="text-4xl font-extrabold text-ca-light-green mb-3"><span class="counter" data-target="20" data-suffix="+">0</span></div>
         <h3 class="font-bold text-sm uppercase tracking-wider mb-2">Empresas Certificadas</h3>
         <p class="text-xs text-gray-400">Dentro del Programa de Cumplimiento Ambiental Voluntario de SEMADET.</p>
       </div>
 
-      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors gsap-stagger-item">
+      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors" data-aos="fade-up">
         <div class="text-4xl font-extrabold text-ca-light-green mb-3"><span class="counter" data-target="300" data-suffix="+">0</span></div>
         <h3 class="font-bold text-sm uppercase tracking-wider mb-2">Trámites Gestionados</h3>
         <p class="text-xs text-gray-400">COA, LAU, registros como generador y planes de manejo de residuos.</p>
       </div>
 
-      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors lg:col-start-auto md:col-span-2 lg:col-span-1 gsap-stagger-item">
+      <div class="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700 text-center hover:bg-gray-800 transition-colors lg:col-start-auto md:col-span-2 lg:col-span-1" data-aos="fade-up">
         <div class="text-4xl font-extrabold text-ca-light-green mb-3"><span class="counter" data-target="230" data-suffix="+">0</span></div>
         <h3 class="font-bold text-sm uppercase tracking-wider mb-2">Clientes en Recolección</h3>
         <p class="text-xs text-gray-400">Clientes satisfechos en servicios de recolección de manejo especial.</p>
@@ -140,7 +140,7 @@
   <div class="container mx-auto px-4 md:px-8 max-w-7xl">
     <div class="flex flex-col md:flex-row gap-12 items-center">
       
-      <div class="w-full md:w-1/2 gsap-reveal" data-gsap="fade-left">
+      <div class="w-full md:w-1/2" data-aos="fade-right">
         <h2 class="text-3xl md:text-4xl font-bold text-ca-navy mb-6">¿Por qué elegirnos?</h2>
         <p class="text-gray-600 text-lg mb-4">
           Conocemos profundamente las obligaciones de distintos sectores económicos. Nos mantenemos actualizados en la legislación local y requerimientos de la autoridad.
@@ -152,7 +152,7 @@
         </div>
       </div>
 
-      <div class="w-full md:w-1/2 gsap-reveal" data-gsap="fade-right">
+      <div class="w-full md:w-1/2" data-aos="fade-left">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
             <div class="w-12 h-12 bg-ca-light-green/20 rounded-full flex items-center justify-center text-ca-green text-xl"><i class="fas fa-handshake"></i></div>
@@ -182,7 +182,7 @@
 </section>
 
 <!-- Proceso de Trabajo -->
-<section class="py-24 bg-white gsap-reveal" data-gsap="fade-up">
+<section class="py-24 bg-white" data-aos="fade-up">
   <div class="container mx-auto px-4 md:px-8 max-w-6xl">
     <div class="text-center mb-16">
       <p class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Nuestra Metodología</p>
@@ -194,10 +194,10 @@
     <div class="hidden md:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-gray-200 z-0"></div>
 
     <div class="relative">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-8 gsap-stagger" data-stagger-delay="0.1">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-8" data-aos-group="true">
         
         <!-- Step 1 -->
-        <div class="timeline-item relative text-center group gsap-stagger-item">
+        <div class="timeline-item relative text-center group" data-aos="fade-up">
           <div class="relative w-16 h-16 mx-auto bg-ca-navy rounded-full flex items-center justify-center text-white text-xl font-bold mb-4 shadow-lg group-hover:bg-ca-green group-hover:scale-110 transition-all z-10 border-4 border-white">
             1
           </div>
@@ -206,7 +206,7 @@
         </div>
 
         <!-- Step 2 -->
-        <div class="timeline-item relative text-center group gsap-stagger-item">
+        <div class="timeline-item relative text-center group" data-aos="fade-up">
           <div class="relative w-16 h-16 mx-auto bg-ca-navy rounded-full flex items-center justify-center text-white text-xl font-bold mb-4 shadow-lg group-hover:bg-ca-green group-hover:scale-110 transition-all z-10 border-4 border-white">
             2
           </div>
@@ -215,7 +215,7 @@
         </div>
 
         <!-- Step 3 -->
-        <div class="timeline-item relative text-center group gsap-stagger-item">
+        <div class="timeline-item relative text-center group" data-aos="fade-up">
           <div class="relative w-16 h-16 mx-auto bg-ca-navy rounded-full flex items-center justify-center text-white text-xl font-bold mb-4 shadow-lg group-hover:bg-ca-green group-hover:scale-110 transition-all z-10 border-4 border-white">
             3
           </div>
@@ -224,7 +224,7 @@
         </div>
 
         <!-- Step 4 -->
-        <div class="timeline-item relative text-center group gsap-stagger-item">
+        <div class="timeline-item relative text-center group" data-aos="fade-up">
           <div class="relative w-16 h-16 mx-auto bg-ca-navy rounded-full flex items-center justify-center text-white text-xl font-bold mb-4 shadow-lg group-hover:bg-ca-green group-hover:scale-110 transition-all z-10 border-4 border-white">
             4
           </div>
@@ -233,7 +233,7 @@
         </div>
 
         <!-- Step 5 -->
-        <div class="timeline-item relative text-center group gsap-stagger-item">
+        <div class="timeline-item relative text-center group" data-aos="fade-up">
           <div class="relative w-16 h-16 mx-auto bg-ca-navy rounded-full flex items-center justify-center text-white text-xl font-bold mb-4 shadow-lg group-hover:bg-ca-green group-hover:scale-110 transition-all z-10 border-4 border-white">
             5
           </div>
@@ -253,7 +253,7 @@
 </section>
 
 <!-- Sectors & Coverage -->
-<section class="py-20 bg-ca-bg border-t border-gray-200 relative overflow-hidden gsap-reveal" data-gsap="fade-up">
+<section class="py-20 bg-ca-bg border-t border-gray-200 relative overflow-hidden" data-aos="fade-up">
   <div class="container mx-auto px-4 md:px-8 relative z-10">
     
     <div class="flex flex-col lg:flex-row gap-16">
@@ -333,7 +333,7 @@
 </section>
 
 <!-- Clients Section -->
-<section class="py-16 bg-white overflow-hidden gsap-reveal" data-gsap="fade-up">
+<section class="py-16 bg-white overflow-hidden" data-aos="fade-up">
   <div class="container mx-auto px-4 text-center max-w-7xl">
     <p class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Empresas que confían</p>
     <h2 class="text-2xl md:text-3xl font-bold text-ca-navy mb-10">
@@ -370,7 +370,7 @@
 </section>
 
 <!-- CTA Pre-Footer -->
-<section class="bg-ca-green py-12 relative overflow-hidden gsap-reveal" data-gsap="fade-up">
+<section class="bg-ca-green py-12 relative overflow-hidden" data-aos="fade-up">
   <div class="absolute right-0 top-0 opacity-10 transform translate-x-1/3 -translate-y-1/4">
       <i class="fas fa-handshake text-[200px] text-white"></i>
   </div>

@@ -9,7 +9,7 @@
     
     <!-- Brand & About -->
     <div>
-      <a class="flex items-center mb-6" href="<?= BASE_URL ?>" aria-label="Ir al inicio">
+      <a class="inline-flex items-center bg-white rounded-md p-2 shadow-sm mb-6" href="<?= BASE_URL ?>" aria-label="Ir al inicio">
         <?php if (!empty($settings['brand_logo'])): ?>
           <img alt="<?= htmlspecialchars($settings['brand_company_name'] ?? 'Consultoría Ambiental') ?>" width="80" height="80" class="h-20 w-auto object-contain" src="<?= BASE_URL ?>/<?= htmlspecialchars($settings['brand_logo']) ?>"/>
         <?php else: ?>

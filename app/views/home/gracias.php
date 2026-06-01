@@ -17,11 +17,11 @@
 </section>
 
 <!-- Success Message -->
-<section class="py-20 md:py-28 pattern-bg relative gsap-reveal" data-gsap="fade-up">
+<section class="py-20 md:py-28 pattern-bg relative" data-aos="fade-up">
   <div class="container mx-auto px-4 md:px-8 max-w-3xl text-center">
     
     <!-- Success Icon -->
-    <div class="w-24 h-24 bg-ca-green/10 rounded-full flex items-center justify-center mx-auto mb-8 gsap-reveal" data-gsap="scale">
+    <div class="w-24 h-24 bg-ca-green/10 rounded-full flex items-center justify-center mx-auto mb-8" data-aos="zoom-in">
       <i class="fas fa-check-circle text-6xl text-ca-green"></i>
     </div>
 

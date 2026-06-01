@@ -40,11 +40,21 @@ spl_autoload_register(function (string $class) {
         return;
     }
 
-    // Fallback: lowercase only directories for case-sensitive filesystems (Linux)
-    // Our directories are all lowercase (core, controllers, models, etc.)
-    // but filenames may have capital letters (e.g. Router.php)
+    // Fallbacks for case-sensitive filesystems (Linux hosting).
+    // The top-level app folders are lowercase (controllers, models, core),
+    // while nested namespaces like Admin may keep their original case.
     $parts = explode('/', str_replace('\\', '/', $relativeClass));
     $filename = array_pop($parts) . '.php';
+    $firstDirLower = $parts;
+    if (!empty($firstDirLower)) {
+        $firstDirLower[0] = strtolower($firstDirLower[0]);
+        $firstDirLowerFile = $baseDir . implode('/', $firstDirLower) . '/' . $filename;
+        if (file_exists($firstDirLowerFile)) {
+            require $firstDirLowerFile;
+            return;
+        }
+    }
+
     $lowerDir = strtolower(implode('/', $parts));
     $lowerFile = $baseDir . ($lowerDir ? $lowerDir . '/' : '') . $filename;
     if (file_exists($lowerFile)) {

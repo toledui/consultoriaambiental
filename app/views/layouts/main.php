@@ -73,6 +73,7 @@
     $tailwindPath = PUBLIC_DIR . '/css/tailwind.css';
     $tailwindVersion = file_exists($tailwindPath) ? (string) filemtime($tailwindPath) : '1';
     $tailwindHref = BASE_URL . '/css/tailwind.css?v=' . $tailwindVersion;
+    $hasAos = strpos((string) ($content ?? ''), 'data-aos') !== false;
   ?>
 
   <!-- Favicon -->
@@ -88,6 +89,12 @@
   <!-- Tailwind CSS (local build): preload + blocking stylesheet to prevent FOUC -->
   <link rel="preload" href="<?= $tailwindHref ?>" as="style">
   <link rel="stylesheet" href="<?= $tailwindHref ?>">
+
+  <?php if ($hasAos): ?>
+  <!-- AOS CSS (non-blocking, loaded only on pages with reveal elements) -->
+  <link rel="preload" href="https://unpkg.com/aos@2.3.1/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"></noscript>
+  <?php endif; ?>
   
   <!-- FontAwesome (non-blocking) -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'"/>
@@ -166,10 +173,15 @@
       100% { transform: translateX(-50%); }
     }
 
-    /* GSAP reveal elements start invisible */
-    .gsap-reveal {
-      opacity: 0;
-      visibility: hidden;
+    [data-aos] {
+      will-change: transform, opacity;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-aos] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
     }
   </style>
 
@@ -363,100 +375,76 @@
     })();
   </script>
 
-  <!-- GSAP + ScrollTrigger (local files, loaded only if reveal elements exist) -->
+  <?php if ($hasAos): ?>
+  <!-- AOS reveal animations (loaded only on pages with data-aos elements) -->
   <script>
     (function() {
-      // Check if any GSAP-reveal elements exist on the page
-      var hasReveal = document.querySelector('.gsap-reveal, .gsap-stagger');
-      if (!hasReveal) return;
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // Dynamically load GSAP and ScrollTrigger
-      var gsapScript = document.createElement('script');
-      gsapScript.src = '<?= BASE_URL ?>/js/gsap.min.js';
-      gsapScript.onload = function() {
-        var stScript = document.createElement('script');
-        stScript.src = '<?= BASE_URL ?>/js/ScrollTrigger.min.js';
-        stScript.onload = function() {
-          initGSAP();
-        };
-        document.body.appendChild(stScript);
-      };
-      document.body.appendChild(gsapScript);
+      function initAosWhenReady() {
+        var revealElements = document.querySelectorAll('[data-aos]');
+        if (!revealElements.length) return;
 
-      function initGSAP() {
-        gsap.registerPlugin(ScrollTrigger);
-
-        // ==========================================
-        // 1. REVEAL ANIMATIONS (fade in + translate)
-        // ==========================================
-        gsap.utils.toArray('.gsap-reveal').forEach(function(el) {
-          var animType = el.getAttribute('data-gsap') || 'fade-up';
-          var vars = { opacity: 1, visibility: 'visible', duration: 0.7, ease: 'power2.out' };
-
-          if (animType === 'fade-up') {
-            vars.y = 0;
-            gsap.set(el, { y: 40 });
-          } else if (animType === 'fade-left') {
-            vars.x = 0;
-            gsap.set(el, { x: -40 });
-          } else if (animType === 'fade-right') {
-            vars.x = 0;
-            gsap.set(el, { x: 40 });
-          } else if (animType === 'scale') {
-            vars.scale = 1;
-            gsap.set(el, { scale: 0.85 });
-          }
-
-          ScrollTrigger.create({
-            trigger: el,
-            start: 'top 85%',
-            toggleActions: 'play none none none',
-            once: true,
-            onEnter: function() {
-              gsap.to(el, vars);
+        document.querySelectorAll('[data-aos-group]').forEach(function(group) {
+          group.querySelectorAll('[data-aos]').forEach(function(item, index) {
+            if (!item.hasAttribute('data-aos-delay')) {
+              item.setAttribute('data-aos-delay', String(Math.min(index * 70, 280)));
             }
           });
         });
 
-        // ==========================================
-        // 2. STAGGER ANIMATIONS (for grids/lists)
-        // ==========================================
-        gsap.utils.toArray('.gsap-stagger').forEach(function(parent) {
-          var children = parent.querySelectorAll('.gsap-stagger-item');
-          if (children.length === 0) return;
-
-          var staggerDelay = parseFloat(parent.getAttribute('data-stagger-delay')) || 0.1;
-
-          gsap.set(children, { opacity: 0, y: 30 });
-
-          ScrollTrigger.create({
-            trigger: parent,
-            start: 'top 85%',
-            once: true,
-            onEnter: function() {
-              gsap.to(children, {
-                opacity: 1,
-                y: 0,
-                duration: 0.6,
-                stagger: staggerDelay,
-                ease: 'power2.out',
-                onComplete: function() {
-                  children.forEach(function(child) {
-                    child.style.visibility = 'visible';
-                  });
-                }
-              });
-            }
+        if (reduceMotion) {
+          revealElements.forEach(function(el) {
+            el.removeAttribute('data-aos');
+            el.removeAttribute('data-aos-delay');
           });
-        });
+          return;
+        }
 
-        // Refresh ScrollTrigger after everything is rendered
-        setTimeout(function() {
-          ScrollTrigger.refresh();
-        }, 500);
+        function startAos() {
+          if (typeof AOS === 'undefined') return;
+
+          AOS.init({
+            once: true,
+            mirror: false,
+            offset: 80,
+            duration: 550,
+            easing: 'ease-out-cubic',
+            debounceDelay: 80,
+            throttleDelay: 120,
+            disableMutationObserver: true
+          });
+
+          window.addEventListener('load', function() {
+            window.setTimeout(function() {
+              AOS.refresh();
+            }, 250);
+          }, { once: true });
+        }
+
+        function loadAosScript() {
+          var script = document.createElement('script');
+          script.src = 'https://unpkg.com/aos@2.3.1/dist/aos.js';
+          script.async = true;
+          script.onload = startAos;
+          document.body.appendChild(script);
+        }
+
+        if ('requestIdleCallback' in window) {
+          window.requestIdleCallback(loadAosScript, { timeout: 900 });
+        } else {
+          window.setTimeout(loadAosScript, 250);
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAosWhenReady, { once: true });
+      } else {
+        initAosWhenReady();
       }
     })();
   </script>
+  <?php endif; ?>
 
   <!-- Custom Body Code (from admin settings) -->
   <?= $settings['custom_body_code'] ?? '' ?>

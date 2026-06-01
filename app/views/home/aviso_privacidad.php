@@ -4,7 +4,7 @@
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-ca-light-green via-transparent to-transparent"></div>
   </div>
   <div class="container mx-auto px-4 py-20 md:py-28 relative z-10">
-    <div class="max-w-3xl mx-auto text-center gsap-reveal" data-gsap="fade-up">
+    <div class="max-w-3xl mx-auto text-center" data-aos="fade-up">
       <div class="flex items-center justify-center gap-3 mb-4">
         <span class="h-1 w-12 bg-ca-light-green rounded"></span>
         <p class="text-ca-light-green font-bold tracking-widest uppercase text-sm">Legal</p>
@@ -24,7 +24,7 @@
 <!-- Content Section -->
 <section class="py-16 md:py-20 bg-white">
   <div class="container mx-auto px-4 md:px-8 max-w-4xl">
-    <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-8 gsap-reveal" data-gsap="fade-up">
+    <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-8" data-aos="fade-up">
 
       <div class="bg-ca-bg p-6 rounded-xl border-l-4 border-ca-green mb-8">
         <p class="text-sm text-gray-600">
@@ -153,7 +153,7 @@ else:
 </section>
 
 <!-- CTA Section -->
-<section class="bg-ca-navy py-16 relative overflow-hidden gsap-reveal" data-gsap="fade-up">
+<section class="bg-ca-navy py-16 relative overflow-hidden" data-aos="fade-up">
   <div class="absolute right-0 top-0 opacity-5 transform translate-x-1/3 -translate-y-1/4">
     <i class="fas fa-shield-alt text-[200px] text-white"></i>
   </div>

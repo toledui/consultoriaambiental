@@ -2,7 +2,7 @@
 <section class="home-hero" aria-labelledby="homeHeroTitle">
   <img
     class="home-hero__image"
-    src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen3.webp"
+    src="<?= BASE_URL ?>/images/imagen%20de%20background.webp"
     alt=""
     width="1920"
     height="1080"
@@ -14,22 +14,22 @@
 
   <div class="container mx-auto px-4 md:px-8 home-hero__inner">
     <div class="home-hero__content">
-      <div class="home-hero__eyebrow">
+      <div class="home-hero__eyebrow" data-aos="fade-up">
         <span></span>
         <b>Gesti&oacute;n y cumplimiento ambiental</b>
       </div>
 
-      <h1 id="homeHeroTitle" class="home-hero__title">
+      <h1 id="homeHeroTitle" class="home-hero__title" data-aos="fade-up" data-aos-delay="80">
         Consultor&iacute;a Ambiental
         <span><em>para Empresas</em> <em>e Industrias</em></span>
         en M&eacute;xico
       </h1>
 
-      <p class="home-hero__copy">
+      <p class="home-hero__copy" data-aos="fade-up" data-aos-delay="160">
         Gestionamos permisos, estudios ambientales, residuos, emisiones, COA, LAU, MIA y atenci&oacute;n a inspecciones PROEPA/PROFEPA para reducir riesgos regulatorios y mantener tu operaci&oacute;n en regla.
       </p>
 
-      <div class="home-hero__actions">
+      <div class="home-hero__actions" data-aos="fade-up" data-aos-delay="240">
         <a class="home-hero__button home-hero__button--primary" href="<?= BASE_URL ?>/contacto">
           Solicitar diagn&oacute;stico
         </a>
@@ -38,20 +38,6 @@
         </a>
       </div>
 
-      <div class="home-hero__proof" aria-label="Indicadores de experiencia">
-        <div>
-          <strong>10+</strong>
-          <span>A&ntilde;os de experiencia</span>
-        </div>
-        <div>
-          <strong>60+</strong>
-          <span>MIA aprobadas</span>
-        </div>
-        <div>
-          <strong>140+</strong>
-          <span>Inspecciones atendidas</span>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -80,17 +66,31 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-    transform: scale(1.07);
-    animation: heroImageSettle 1400ms cubic-bezier(.2, .8, .2, 1) forwards;
     z-index: -4;
+  }
+
+  .home-hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 650ms ease;
+    z-index: -4;
+  }
+
+  .home-hero__video.is-ready {
+    opacity: 1;
   }
 
   .home-hero__shade {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(8, 25, 34, .94) 0%, rgba(8, 25, 34, .82) 37%, rgba(8, 25, 34, .42) 68%, rgba(8, 25, 34, .28) 100%),
-      linear-gradient(180deg, rgba(0, 0, 0, .34) 0%, rgba(0, 0, 0, .06) 42%, rgba(8, 25, 34, .82) 100%);
+      linear-gradient(90deg, rgba(8, 25, 34, .78) 0%, rgba(8, 25, 34, .62) 38%, rgba(8, 25, 34, .28) 70%, rgba(8, 25, 34, .12) 100%),
+      linear-gradient(180deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, .04) 46%, rgba(8, 25, 34, .48) 100%);
     z-index: -3;
   }
 
@@ -116,16 +116,6 @@
   .home-hero__content {
     max-width: 1120px;
     min-width: 0;
-  }
-
-  .home-hero__eyebrow,
-  .home-hero__title,
-  .home-hero__copy,
-  .home-hero__actions,
-  .home-hero__proof {
-    opacity: 0;
-    transform: translateY(22px);
-    animation: heroReveal 740ms cubic-bezier(.2, .8, .2, 1) forwards;
   }
 
   .home-hero__eyebrow {
@@ -171,7 +161,6 @@
     letter-spacing: 0;
     text-wrap: balance;
     text-shadow: 0 4px 32px rgba(0, 0, 0, .72);
-    animation-delay: 110ms;
   }
 
   .home-hero__title span {
@@ -191,7 +180,6 @@
     font-size: clamp(1.04rem, 1.8vw, 1.28rem);
     line-height: 1.7;
     text-shadow: 0 3px 18px rgba(0, 0, 0, .65);
-    animation-delay: 210ms;
   }
 
   .home-hero__actions {
@@ -199,7 +187,6 @@
     flex-wrap: wrap;
     gap: .9rem;
     margin-top: 2.15rem;
-    animation-delay: 310ms;
   }
 
   .home-hero__button {
@@ -253,51 +240,6 @@
     border-color: #ffffff;
   }
 
-  .home-hero__proof {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .75rem;
-    margin-top: 2.2rem;
-    animation-delay: 410ms;
-  }
-
-  .home-hero__proof div {
-    min-width: 10.5rem;
-    padding: .9rem 1rem;
-    border-left: 3px solid #66bb6a;
-    border-radius: .75rem;
-    background: rgba(255, 255, 255, .09);
-    backdrop-filter: blur(14px);
-  }
-
-  .home-hero__proof strong {
-    display: block;
-    color: #ffffff;
-    font-size: 1.45rem;
-    line-height: 1;
-  }
-
-  .home-hero__proof span {
-    display: block;
-    margin-top: .35rem;
-    color: rgba(255, 255, 255, .76);
-    font-size: .82rem;
-    font-weight: 700;
-  }
-
-  @keyframes heroReveal {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes heroImageSettle {
-    to {
-      transform: scale(1);
-    }
-  }
-
   @media (max-width: 760px) {
     .home-hero {
       min-height: 800px;
@@ -306,8 +248,8 @@
 
     .home-hero__shade {
       background:
-        linear-gradient(180deg, rgba(8, 25, 34, .58) 0%, rgba(8, 25, 34, .86) 45%, rgba(8, 25, 34, .97) 100%),
-        linear-gradient(90deg, rgba(8, 25, 34, .82) 0%, rgba(8, 25, 34, .45) 100%);
+        linear-gradient(180deg, rgba(8, 25, 34, .22) 0%, rgba(8, 25, 34, .42) 48%, rgba(8, 25, 34, .68) 100%),
+        linear-gradient(90deg, rgba(8, 25, 34, .5) 0%, rgba(8, 25, 34, .18) 100%);
     }
 
     .home-hero__grid {
@@ -323,7 +265,6 @@
     .home-hero__content,
     .home-hero__copy,
     .home-hero__actions,
-    .home-hero__proof,
     .home-hero__eyebrow {
       max-width: 360px;
     }
@@ -350,26 +291,74 @@
       grid-template-columns: 1fr;
     }
 
-    .home-hero__proof {
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-
-    .home-hero__proof div {
-      min-width: 0;
-    }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .home-hero__image,
-    .home-hero__eyebrow,
-    .home-hero__title,
-    .home-hero__copy,
-    .home-hero__actions,
-    .home-hero__proof {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
-  }
 </style>
+
+<script>
+  (function () {
+    var hero = document.querySelector('.home-hero');
+    var poster = document.querySelector('.home-hero__image');
+    var videoUrl = '<?= BASE_URL ?>/images/video%20background%20hero.mp4';
+
+    if (!hero || !poster) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+
+    function loadHeroVideo() {
+      var video = document.createElement('video');
+      video.className = 'home-hero__video';
+      video.muted = true;
+      video.defaultMuted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.autoplay = true;
+      video.preload = 'metadata';
+      video.poster = poster.currentSrc || poster.src;
+      video.setAttribute('aria-hidden', 'true');
+      video.setAttribute('muted', '');
+      video.setAttribute('loop', '');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('autoplay', '');
+
+      var source = document.createElement('source');
+      source.src = videoUrl;
+      source.type = 'video/mp4';
+      video.appendChild(source);
+
+      function showWhenPlaying() {
+        if (!video.paused && video.readyState >= 2) {
+          video.classList.add('is-ready');
+        }
+      }
+
+      function playHeroVideo() {
+        var playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          playPromise.then(showWhenPlaying).catch(function () {});
+        } else {
+          window.setTimeout(showWhenPlaying, 150);
+        }
+      }
+
+      video.addEventListener('playing', showWhenPlaying);
+      video.addEventListener('canplay', playHeroVideo, { once: true });
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && video.paused) {
+          playHeroVideo();
+        }
+      });
+
+      hero.insertBefore(video, poster.nextSibling);
+      video.load();
+    }
+
+    window.addEventListener('load', function () {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadHeroVideo, { timeout: 1800 });
+      } else {
+        window.setTimeout(loadHeroVideo, 700);
+      }
+    }, { once: true });
+  })();
+</script>

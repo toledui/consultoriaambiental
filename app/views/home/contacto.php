@@ -24,7 +24,7 @@
     <div class="flex flex-col lg:flex-row gap-12 lg:gap-20">
       
       <!-- Left Column: Contact Info -->
-      <div class="w-full lg:w-5/12 gsap-reveal" data-gsap="fade-left">
+      <div class="w-full lg:w-5/12" data-aos="fade-right">
         <h2 class="text-3xl font-bold text-ca-navy mb-6">Información de Contacto</h2>
         <p class="text-gray-600 mb-10 leading-relaxed">
           Estamos a tu disposición para resolver cualquier duda sobre trámites, inspecciones, gestión de residuos o regularización ambiental. <strong>Contáctanos de forma directa.</strong>
@@ -91,7 +91,7 @@
       </div>
 
       <!-- Right Column: Contact Form -->
-      <div class="w-full lg:w-7/12 gsap-reveal" data-gsap="fade-right">
+      <div class="w-full lg:w-7/12" data-aos="fade-left">
         <div class="bg-white p-8 md:p-10 rounded-2xl shadow-xl border border-gray-100 relative">
           <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-ca-navy to-ca-green rounded-t-2xl"></div>
           

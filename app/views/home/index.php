@@ -16,7 +16,7 @@
 </div>
 
 <!-- Stats Grid -->
-<section class="py-12 bg-white border-b border-gray-100 relative -mt-4 rounded-t-3xl z-20 shadow-sm mx-4 md:mx-8 gsap-reveal" data-gsap="fade-up">
+<section class="py-12 bg-white border-b border-gray-100 relative -mt-4 rounded-t-3xl z-20 shadow-sm mx-4 md:mx-8" data-aos="fade-up">
   <div class="container mx-auto px-4">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-200">
       <div class="text-center p-4">
@@ -50,7 +50,7 @@
     <div class="flex flex-col lg:flex-row items-center gap-16">
       
       <!-- Text Content -->
-      <div class="w-full lg:w-1/2 gsap-reveal" data-gsap="fade-left">
+      <div class="w-full lg:w-1/2" data-aos="fade-right">
         <div class="flex items-center gap-3 mb-4">
           <span class="h-1 w-12 bg-ca-green rounded"></span>
           <p class="text-ca-green font-bold tracking-widest uppercase text-sm">Por qué elegirnos</p>
@@ -93,7 +93,7 @@
       </div>
 
       <!-- Image Layout -->
-      <div class="w-full lg:w-1/2 relative gsap-reveal" data-gsap="fade-right">
+      <div class="w-full lg:w-1/2 relative" data-aos="fade-left">
         <div class="rounded-2xl overflow-hidden shadow-2xl relative z-10 border-4 border-white">
           <div id="aboutSlideshow" class="relative w-full aspect-[4/3]">
             <img alt="Impacto ambiental imagen 1" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen1.webp" data-index="0"/>
@@ -120,7 +120,7 @@
 
 <!-- Services Section -->
 <section class="py-24 bg-white relative">
-  <div class="container mx-auto px-4 text-center mb-16 gsap-reveal" data-gsap="fade-up">
+  <div class="container mx-auto px-4 text-center mb-16" data-aos="fade-up">
     <p class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Servicios Ambientales</p>
     <h2 class="text-3xl md:text-5xl font-bold text-ca-navy mb-4">
       Servicios de Consultoría Ambiental
@@ -131,11 +131,11 @@
   </div>
 
   <div class="container mx-auto px-4 md:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto gsap-stagger" data-stagger-delay="0.1">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto" data-aos-group="true">
       
       <?php if (!empty($services)): ?>
         <?php foreach ($services as $service): ?>
-          <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full gsap-stagger-item">
+          <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full" data-aos="fade-up">
             <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
               <i class="<?= htmlspecialchars($service['icon'] ?? 'fas fa-leaf') ?>"></i>
             </div>
@@ -148,7 +148,7 @@
         <?php endforeach; ?>
       <?php else: ?>
         <!-- Static fallback services -->
-        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full gsap-stagger-item">
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full" data-aos="fade-up">
           <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
             <i class="fas fa-dumpster"></i>
           </div>
@@ -159,7 +159,7 @@
           </a>
         </div>
 
-        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full gsap-stagger-item">
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full" data-aos="fade-up">
           <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
             <i class="fas fa-industry"></i>
           </div>
@@ -170,7 +170,7 @@
           </a>
         </div>
 
-        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full gsap-stagger-item">
+        <div class="bg-ca-bg rounded-2xl p-8 border border-gray-100 hover:shadow-xl hover:border-ca-green transition-all duration-300 group flex flex-col h-full" data-aos="fade-up">
           <div class="w-16 h-16 bg-white shadow-sm border border-gray-100 text-ca-green rounded-xl flex items-center justify-center text-3xl mb-6 group-hover:bg-ca-green group-hover:text-white transition-colors">
             <i class="fas fa-water"></i>
           </div>
@@ -193,7 +193,7 @@
 </section>
 
 <!-- Sectors Section -->
-<section class="py-20 bg-ca-navy text-white relative border-t border-ca-green gsap-reveal" data-gsap="fade-up">
+<section class="py-20 bg-ca-navy text-white relative border-t border-ca-green" data-aos="fade-up">
   <div class="absolute inset-0 opacity-5 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
   
   <div class="container mx-auto px-4 relative z-10 text-center">
@@ -215,7 +215,7 @@
 </section>
 
 <!-- Clients / Success Cases Section -->
-<section class="py-24 bg-white overflow-hidden gsap-reveal" data-gsap="fade-up">
+<section class="py-24 bg-white overflow-hidden" data-aos="fade-up">
   <div class="container mx-auto px-4 text-center max-w-7xl">
     <p class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Confianza que respalda</p>
     <h2 class="text-3xl md:text-4xl font-bold text-ca-navy mb-16">
@@ -252,7 +252,7 @@
 </section>
 
 <!-- CTA Pre-Footer -->
-<section class="bg-ca-green py-12 relative overflow-hidden gsap-reveal" data-gsap="fade-up">
+<section class="bg-ca-green py-12 relative overflow-hidden" data-aos="fade-up">
   <div class="absolute right-0 top-0 opacity-10 transform translate-x-1/3 -translate-y-1/4">
       <i class="fas fa-leaf text-[200px] text-white"></i>
   </div>
@@ -270,7 +270,7 @@
 </section>
 
 <!-- Latest News Section -->
-<section class="py-24 bg-white relative gsap-reveal" data-gsap="fade-up">
+<section class="py-24 bg-white relative" data-aos="fade-up">
   <div class="container mx-auto px-4 md:px-8">
     <div class="text-center mb-12">
       <p class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Mantente Informado</p>
