@@ -111,13 +111,23 @@ class SettingController extends Controller
             }
 
             $ext = strtolower(pathinfo($_FILES['brand_logo']['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'];
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'avif'];
 
             if (in_array($ext, $allowed)) {
-                $filename = 'brand_logo_' . time() . '.' . $ext;
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                $mimeType = finfo_file($finfo, $_FILES['brand_logo']['tmp_name']);
+                finfo_close($finfo);
+
+                $shouldConvertToWebp = in_array($mimeType, ['image/jpeg', 'image/png', 'image/avif'], true);
+                $storedExt = $shouldConvertToWebp ? 'webp' : $ext;
+                $filename = 'brand_logo_' . time() . '.' . $storedExt;
                 $destPath = $uploadDir . $filename;
 
-                if (move_uploaded_file($_FILES['brand_logo']['tmp_name'], $destPath)) {
+                $uploaded = $shouldConvertToWebp
+                    ? convert_image_file_to_webp($_FILES['brand_logo']['tmp_name'], $mimeType, $destPath)
+                    : move_uploaded_file($_FILES['brand_logo']['tmp_name'], $destPath);
+
+                if ($uploaded) {
                     // Delete old logo if exists
                     $oldLogo = Setting::get('brand_logo');
                     if ($oldLogo && file_exists($uploadDir . basename($oldLogo))) {

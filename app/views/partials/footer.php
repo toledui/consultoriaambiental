@@ -13,7 +13,7 @@
         <?php if (!empty($settings['brand_logo'])): ?>
           <img alt="<?= htmlspecialchars($settings['brand_company_name'] ?? 'Consultoría Ambiental') ?>" width="80" height="80" class="h-20 w-auto object-contain" src="<?= BASE_URL ?>/<?= htmlspecialchars($settings['brand_logo']) ?>"/>
         <?php else: ?>
-          <img alt="Consultoría Ambiental" width="80" height="80" class="h-20 w-auto object-contain" src="<?= BASE_URL ?>/images/consultoria-ambiental-logo.png"/>
+          <img alt="Consultoría Ambiental" width="80" height="80" class="h-20 w-auto object-contain" src="<?= BASE_URL ?>/images/consultoria-ambiental-logo.webp"/>
         <?php endif; ?>
       </a>
       <p class="text-sm mb-6 leading-relaxed">

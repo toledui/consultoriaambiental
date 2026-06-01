@@ -9,7 +9,7 @@
       <article>
         <?php if ($post['featured_image']): ?>
           <div class="rounded-2xl overflow-hidden mb-10 shadow-lg">
-            <img alt="<?= htmlspecialchars($post['title']) ?>" class="w-full h-80 object-cover" src="<?= htmlspecialchars($post['featured_image']) ?>"/>
+            <img alt="<?= htmlspecialchars($post['title']) ?>" class="w-full h-80 object-cover" src="<?= htmlspecialchars(asset_prefer_webp($post['featured_image'])) ?>"/>
           </div>
         <?php endif; ?>
         

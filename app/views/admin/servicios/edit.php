@@ -54,7 +54,7 @@
               <div class="mt-2 flex items-center justify-center gap-4">
                 <label class="text-ca-green hover:text-ca-navy text-sm font-medium transition-colors cursor-pointer">
                   <i class="fas fa-sync mr-1"></i> Cambiar imagen
-                  <input type="file" name="featured_image" id="featuredImageInput" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewFeaturedImage(this)"/>
+                  <input type="file" name="featured_image" id="featuredImageInput" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp,image/avif" onchange="previewFeaturedImage(this)"/>
                 </label>
                 <button type="button" onclick="openMediaBrowserForFeatured()" class="text-ca-green hover:text-ca-navy text-sm font-medium transition-colors">
                   <i class="fas fa-photo-video mr-1"></i> Mediateca
@@ -71,7 +71,7 @@
               <div class="flex items-center justify-center gap-3">
                 <label class="inline-block bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm cursor-pointer">
                   <i class="fas fa-folder-open mr-1"></i> Subir imagen
-                  <input type="file" name="featured_image" id="featuredImageInput2" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewFeaturedImage(this)"/>
+                  <input type="file" name="featured_image" id="featuredImageInput2" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp,image/avif" onchange="previewFeaturedImage(this)"/>
                 </label>
                 <button type="button" onclick="openMediaBrowserForFeatured()" class="inline-block bg-ca-navy hover:bg-gray-800 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm">
                   <i class="fas fa-photo-video mr-1"></i> Mediateca

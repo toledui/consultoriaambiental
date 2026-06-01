@@ -67,7 +67,7 @@
 <!-- Inner Hero Section -->
 <section class="relative pt-32 pb-20 md:pt-40 md:pb-28 border-b-8 border-ca-green overflow-hidden">
   <!-- Video Background -->
-  <video class="hero-video-bg" autoplay muted loop playsinline poster="<?= BASE_URL ?>/images/consultoria-ambiental-logo.png">
+  <video class="hero-video-bg" autoplay muted loop playsinline poster="<?= BASE_URL ?>/images/consultoria-ambiental-logo.webp">
     <source src="<?= BASE_URL ?>/images/videopaginaservicios.mp4" type="video/mp4">
   </video>
   <!-- Overlay -->

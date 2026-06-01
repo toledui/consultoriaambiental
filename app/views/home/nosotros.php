@@ -63,10 +63,10 @@
           <div id="nosotrosSlideshow" class="relative w-full" style="padding-bottom: 100%;">
             <?php
             $nosotrosImages = [
-              'agua y energía.jpg',
-              'gestion de residuos.jpg',
-              'inspecciones.jpg',
-              'licenciasypermisos.jpg',
+              'agua y energía.webp',
+              'gestion de residuos.webp',
+              'inspecciones.webp',
+              'licenciasypermisos.webp',
             ];
             foreach ($nosotrosImages as $index => $img):
             ?>
@@ -346,7 +346,7 @@
         <div class="flex gap-12 md:gap-16 items-center carousel-track">
           <?php
           $logosPath = PUBLIC_DIR . '/images/logos clientes';
-          $logoFiles = glob($logosPath . '/*.{png,jpg,jpeg,gif,svg,webp,avif}', GLOB_BRACE);
+          $logoFiles = glob($logosPath . '/*.{webp,svg,gif}', GLOB_BRACE);
           if (!empty($logoFiles)):
             // Shuffle for variety
             shuffle($logoFiles);

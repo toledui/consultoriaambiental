@@ -16,7 +16,7 @@
   <meta property="og:description" content="<?= !empty($metaDesc) ? htmlspecialchars($metaDesc) : 'Consultoría ambiental para empresas e industrias en México. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.' ?>"/>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="<?= BASE_URL ?><?= $_SERVER['REQUEST_URI'] ?? '/' ?>"/>
-  <meta property="og:image" content="<?= BASE_URL ?>/images/consultoria-ambiental-logo.png"/>
+  <meta property="og:image" content="<?= asset_prefer_webp('images/consultoria-ambiental-logo.png') ?>"/>
   <meta property="og:locale" content="es_MX"/>
 
   <!-- Twitter Card -->
@@ -50,18 +50,44 @@
   <?= $headExtra ?>
   <?php endif; ?>
   
+  <?php
+    $faviconRelative = !empty($settings['brand_logo'])
+      ? ltrim((string) $settings['brand_logo'], '/')
+      : 'images/consultoria-ambiental-logo.webp';
+    $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
+    if (!file_exists($faviconPath)) {
+      $faviconRelative = 'images/consultoria-ambiental-logo.webp';
+      $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
+    }
+    $faviconVersion = file_exists($faviconPath) ? (string) filemtime($faviconPath) : '1';
+    $faviconHref = BASE_URL . '/' . $faviconRelative . '?v=' . $faviconVersion;
+    $faviconExt = strtolower(pathinfo($faviconRelative, PATHINFO_EXTENSION));
+    $faviconType = match ($faviconExt) {
+      'webp' => 'image/webp',
+      'jpg', 'jpeg' => 'image/jpeg',
+      'svg' => 'image/svg+xml',
+      'ico' => 'image/x-icon',
+      default => 'image/png',
+    };
+
+    $tailwindPath = PUBLIC_DIR . '/css/tailwind.css';
+    $tailwindVersion = file_exists($tailwindPath) ? (string) filemtime($tailwindPath) : '1';
+    $tailwindHref = BASE_URL . '/css/tailwind.css?v=' . $tailwindVersion;
+  ?>
+
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="<?= BASE_URL ?>/favicon.svg">
-  <link rel="icon" type="image/x-icon" href="<?= BASE_URL ?>/favicon.ico">
-  <link rel="shortcut icon" type="image/x-icon" href="<?= BASE_URL ?>/favicon.ico">
+  <link rel="icon" type="<?= $faviconType ?>" href="<?= htmlspecialchars($faviconHref) ?>">
+  <link rel="apple-touch-icon" href="<?= htmlspecialchars($faviconHref) ?>">
+  <link rel="shortcut icon" type="<?= $faviconType ?>" href="<?= htmlspecialchars($faviconHref) ?>">
   
   <!-- Preconnect to CDN resources for faster loading -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   
-  <!-- Tailwind CSS (local build) - blocking stylesheet to prevent FOUC -->
-  <link rel="stylesheet" href="<?= BASE_URL ?>/css/tailwind.css">
+  <!-- Tailwind CSS (local build): preload + blocking stylesheet to prevent FOUC -->
+  <link rel="preload" href="<?= $tailwindHref ?>" as="style">
+  <link rel="stylesheet" href="<?= $tailwindHref ?>">
   
   <!-- FontAwesome (non-blocking) -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'"/>

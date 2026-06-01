@@ -66,7 +66,7 @@
               <div class="flex items-center justify-center gap-3">
                 <label class="inline-block bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm cursor-pointer">
                   <i class="fas fa-folder-open mr-1"></i> Subir imagen
-                  <input type="file" name="featured_image" id="featuredImageInput" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp" onchange="previewFeaturedImage(this)"/>
+                  <input type="file" name="featured_image" id="featuredImageInput" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp,image/avif" onchange="previewFeaturedImage(this)"/>
                 </label>
                 <button type="button" onclick="openMediaBrowserForFeatured()" class="inline-block bg-ca-navy hover:bg-gray-800 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm">
                   <i class="fas fa-photo-video mr-1"></i> Mediateca

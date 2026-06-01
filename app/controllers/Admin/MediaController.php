@@ -78,7 +78,7 @@ class MediaController extends Controller
 
         // Validate file type
         $allowedMimes = [
-            'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml',
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -123,10 +123,24 @@ class MediaController extends Controller
 
         // Generate unique filename
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $uniqueName = uniqid('media_') . '.' . $ext;
+        $shouldConvertToWebp = in_array($mimeType, ['image/jpeg', 'image/png', 'image/avif'], true);
+        $storedExt = $shouldConvertToWebp ? 'webp' : $ext;
+        $uniqueName = uniqid('media_') . '.' . $storedExt;
         $destPath = $uploadDir . '/' . $uniqueName;
 
-        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+        if ($shouldConvertToWebp) {
+            if (!convert_image_file_to_webp($file['tmp_name'], $mimeType, $destPath)) {
+                $msg = 'Error al convertir la imagen a WebP.';
+                if ($this->isAjax()) {
+                    $this->json(['error' => $msg], 500);
+                } else {
+                    $_SESSION['flash_message'] = $msg;
+                    $_SESSION['flash_type'] = 'error';
+                    $this->redirect(BASE_URL . '/admin/media');
+                }
+                return;
+            }
+        } elseif (!move_uploaded_file($file['tmp_name'], $destPath)) {
             $msg = 'Error al mover el archivo al directorio de uploads.';
             if ($this->isAjax()) {
                 $this->json(['error' => $msg], 500);
@@ -147,8 +161,8 @@ class MediaController extends Controller
             'original_name' => $file['name'],
             'path'          => $relativePath,
             'type'          => $type,
-            'mime_type'     => $mimeType,
-            'size'          => $file['size'],
+            'mime_type'     => $shouldConvertToWebp ? 'image/webp' : $mimeType,
+            'size'          => filesize($destPath) ?: $file['size'],
             'alt_text'      => null,
         ]);
 
@@ -185,6 +199,10 @@ class MediaController extends Controller
         $fullPath = PUBLIC_DIR . '/' . $file['path'];
         if (file_exists($fullPath)) {
             unlink($fullPath);
+        }
+        $webpPath = preg_replace('/\.(jpe?g|png|avif)$/i', '.webp', $fullPath);
+        if ($webpPath && $webpPath !== $fullPath && file_exists($webpPath)) {
+            unlink($webpPath);
         }
 
         // Delete DB record

@@ -231,7 +231,7 @@
 <!-- Custom Styles for this page -->
 <style>
   .hero-contact-bg {
-    background-image: url('<?= BASE_URL ?>/images/bannercontacto.jpg');
+    background-image: url('<?= BASE_URL ?>/images/bannercontacto.webp');
     background-size: cover;
     background-position: center 20%;
     background-attachment: fixed;

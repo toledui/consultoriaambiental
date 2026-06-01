@@ -29,6 +29,20 @@ if ($uri !== '/' && file_exists($publicPath) && is_file($publicPath)) {
     ];
     $ext = strtolower(pathinfo($publicPath, PATHINFO_EXTENSION));
     if (isset($mimeTypes[$ext])) {
+        $mtime = filemtime($publicPath);
+        $etag = '"' . md5($publicPath . '|' . $mtime . '|' . filesize($publicPath)) . '"';
+
+        header('Cache-Control: public, max-age=31536000, immutable');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+        header('ETag: ' . $etag);
+
+        $clientEtag = $_SERVER['HTTP_IF_NONE_MATCH'] ?? '';
+        $clientModified = $_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '';
+        if ($clientEtag === $etag || strtotime($clientModified) === $mtime) {
+            http_response_code(304);
+            return;
+        }
+
         header('Content-Type: ' . $mimeTypes[$ext]);
         readfile($publicPath);
         return;

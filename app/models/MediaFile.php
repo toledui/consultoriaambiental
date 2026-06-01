@@ -87,7 +87,7 @@ class MediaFile extends Model
      */
     public static function getUrl(array $file): string
     {
-        return BASE_URL . '/' . $file['path'];
+        return asset_prefer_webp($file['path']);
     }
 
     /**

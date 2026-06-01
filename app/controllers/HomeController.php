@@ -21,6 +21,7 @@ class HomeController extends Controller
             'title'       => 'Inicio',
             'seoTitle'    => 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME,
             'currentPage' => 'home',
+            'headExtra'   => '<link rel="preload" as="image" href="' . asset_url('images/impacto ambiental imagen3.webp') . '" fetchpriority="high">',
             'services'    => $services,
             'blogPosts'   => $blogPosts,
         ]);

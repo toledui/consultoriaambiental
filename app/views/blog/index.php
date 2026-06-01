@@ -27,7 +27,7 @@
                 <!-- Featured Image -->
                 <div class="relative overflow-hidden h-52">
                   <?php if ($post['featured_image']): ?>
-                    <img alt="<?= htmlspecialchars($post['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<?= htmlspecialchars($post['featured_image']) ?>"/>
+                    <img alt="<?= htmlspecialchars($post['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="<?= htmlspecialchars(asset_prefer_webp($post['featured_image'])) ?>"/>
                   <?php else: ?>
                     <div class="w-full h-full bg-gradient-to-br from-ca-navy to-ca-green flex items-center justify-center">
                       <i class="fas fa-leaf text-5xl text-white/30"></i>

@@ -204,7 +204,7 @@ class ServiceController extends Controller
         $file = $_FILES['featured_image'];
 
         // Validate mime type
-        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
@@ -219,11 +219,16 @@ class ServiceController extends Controller
             mkdir($uploadDir, 0755, true);
         }
 
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $shouldConvertToWebp = in_array($mimeType, ['image/jpeg', 'image/png', 'image/avif'], true);
+        $ext = $shouldConvertToWebp ? 'webp' : strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $uniqueName = 'service_' . uniqid() . '.' . $ext;
         $destPath = $uploadDir . '/' . $uniqueName;
 
-        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+        if ($shouldConvertToWebp) {
+            if (!convert_image_file_to_webp($file['tmp_name'], $mimeType, $destPath)) {
+                return null;
+            }
+        } elseif (!move_uploaded_file($file['tmp_name'], $destPath)) {
             return null;
         }
 

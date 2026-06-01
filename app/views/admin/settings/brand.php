@@ -16,7 +16,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label for="brand_logo" class="block text-sm font-medium text-gray-700 mb-1">Subir logo</label>
-        <input type="file" id="brand_logo" name="brand_logo" accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-ca-green file:text-white hover:file:bg-ca-navy">
+        <input type="file" id="brand_logo" name="brand_logo" accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp,image/avif" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-ca-green file:text-white hover:file:bg-ca-navy">
         <p class="text-xs text-gray-500 mt-1">Formatos: PNG, JPG, GIF, SVG, WebP. Tamaño máximo recomendado: 2MB.</p>
       </div>
       <div>

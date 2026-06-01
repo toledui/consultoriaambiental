@@ -1,7 +1,7 @@
 <div class="w-full max-w-md px-8">
   <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
     <div class="text-center mb-8">
-      <img alt="Consultoría Ambiental" class="h-16 mx-auto mb-4" src="<?= BASE_URL ?>/images/consultoria-ambiental-logo.png"/>
+      <img alt="Consultoría Ambiental" class="h-16 mx-auto mb-4" src="<?= BASE_URL ?>/images/consultoria-ambiental-logo.webp"/>
       <h1 class="text-2xl font-bold text-ca-navy">Iniciar Sesión</h1>
       <p class="text-sm text-gray-500 mt-1">Panel de administración</p>
     </div>

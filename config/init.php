@@ -51,3 +51,84 @@ spl_autoload_register(function (string $class) {
         require $lowerFile;
     }
 });
+
+if (!function_exists('asset_url')) {
+    function asset_url(string $relativePath): string
+    {
+        $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
+        $encoded = implode('/', array_map('rawurlencode', explode('/', $relativePath)));
+        return BASE_URL . '/' . $encoded;
+    }
+}
+
+if (!function_exists('asset_prefer_webp')) {
+    function asset_prefer_webp(?string $asset): string
+    {
+        $asset = trim((string) $asset);
+        if ($asset === '') {
+            return '';
+        }
+
+        $parts = parse_url($asset);
+        if (!empty($parts['host'])) {
+            $baseParts = parse_url(BASE_URL);
+            if (($parts['host'] ?? '') !== ($baseParts['host'] ?? '')) {
+                return $asset;
+            }
+            $relativePath = ltrim(rawurldecode($parts['path'] ?? ''), '/');
+        } else {
+            $relativePath = ltrim(rawurldecode($asset), '/');
+        }
+
+        if (str_starts_with($relativePath, 'public/')) {
+            $relativePath = substr($relativePath, 7);
+        }
+
+        $ext = strtolower(pathinfo($relativePath, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'avif'], true)) {
+            return $asset;
+        }
+
+        $webpRelative = substr($relativePath, 0, -strlen($ext)) . 'webp';
+        $webpPath = PUBLIC_DIR . '/' . $webpRelative;
+
+        if (!file_exists($webpPath)) {
+            return $asset;
+        }
+
+        return asset_url($webpRelative) . '?v=' . filemtime($webpPath);
+    }
+}
+
+if (!function_exists('convert_image_file_to_webp')) {
+    function convert_image_file_to_webp(string $sourcePath, string $mimeType, string $destPath): bool
+    {
+        $loader = match ($mimeType) {
+            'image/jpeg' => 'imagecreatefromjpeg',
+            'image/png' => 'imagecreatefrompng',
+            'image/avif' => 'imagecreatefromavif',
+            default => null,
+        };
+
+        if (!$loader || !function_exists($loader) || !function_exists('imagewebp')) {
+            return false;
+        }
+
+        $image = @$loader($sourcePath);
+        if (!$image) {
+            return false;
+        }
+
+        if (!imageistruecolor($image)) {
+            imagepalettetotruecolor($image);
+        }
+        imagealphablending($image, true);
+        imagesavealpha($image, true);
+
+        $quality = $mimeType === 'image/png' ? 90 : 82;
+        $ok = imagewebp($image, $destPath, $quality);
+        imagedestroy($image);
+
+        return $ok;
+    }
+}
