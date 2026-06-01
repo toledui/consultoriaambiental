@@ -107,6 +107,14 @@ $router->get('/admin/servicios/editar/{id}',   'Admin\ServiceController@edit');
 $router->post('/admin/servicios/editar/{id}',  'Admin\ServiceController@update');
 $router->post('/admin/servicios/eliminar/{id}','Admin\ServiceController@destroy');
 
+// Admin - Users CRUD
+$router->get('/admin/usuarios',                'Admin\UserController@index');
+$router->get('/admin/usuarios/crear',          'Admin\UserController@create');
+$router->post('/admin/usuarios/crear',         'Admin\UserController@store');
+$router->get('/admin/usuarios/editar/{id}',    'Admin\UserController@edit');
+$router->post('/admin/usuarios/editar/{id}',   'Admin\UserController@update');
+$router->post('/admin/usuarios/eliminar/{id}', 'Admin\UserController@destroy');
+
 // Admin — Settings
 $router->get('/admin/settings',                    'Admin\SettingController@index');
 $router->get('/admin/settings/smtp',               'Admin\SettingController@smtp');

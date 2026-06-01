@@ -58,6 +58,12 @@
         </a>
       </li>
       <li>
+        <a href="<?= BASE_URL ?>/admin/usuarios" class="flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors <?= strpos($_SERVER['REQUEST_URI'], '/admin/usuarios') !== false ? 'bg-ca-green text-white border-r-4 border-ca-light-green' : 'text-gray-300 hover:bg-ca-green/20 hover:text-white' ?>">
+          <i class="fas fa-users-cog w-5 text-center"></i>
+          Usuarios
+        </a>
+      </li>
+      <li>
         <a href="<?= BASE_URL ?>/admin/settings" class="flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors <?= strpos($_SERVER['REQUEST_URI'], '/admin/settings') !== false ? 'bg-ca-green text-white border-r-4 border-ca-light-green' : 'text-gray-300 hover:bg-ca-green/20 hover:text-white' ?>">
           <i class="fas fa-cog w-5 text-center"></i>
           Configuración
