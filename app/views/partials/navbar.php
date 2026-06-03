@@ -91,6 +91,10 @@
           <a class="text-white/80 hover:text-ca-light-green transition-colors" href="<?= htmlspecialchars($url) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars($socialName) ?>"><i class="<?= $iconClass ?>"></i></a>
         <?php endforeach; ?>
       </div>
+      <button type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+        <i class="fas fa-moon" data-theme-icon="moon" aria-hidden="true"></i>
+        <i class="fas fa-sun" data-theme-icon="sun" aria-hidden="true" style="display:none"></i>
+      </button>
       <a class="bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2.5 px-6 rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all" href="<?= BASE_URL ?>/contacto">
         Contacto
       </a>
@@ -99,6 +103,11 @@
   </div>
 </header>
 
+<!-- Mobile Theme Toggle - junto al botón hamburguesa -->
+<button type="button" data-theme-toggle class="theme-toggle-btn theme-toggle-mobile lg:hidden" aria-label="Cambiar a modo oscuro" aria-pressed="false">
+  <i class="fas fa-moon" data-theme-icon="moon" aria-hidden="true"></i>
+  <i class="fas fa-sun" data-theme-icon="sun" aria-hidden="true" style="display:none"></i>
+</button>
 <!-- Mobile Menu Button - FUERA del header, elemento independiente -->
 <button id="mobileMenuBtn" type="button" aria-label="Abrir menÃº"
   style="position:fixed;top:18px;right:16px;z-index:99999;width:44px;height:44px;background-color:#1B3A4B;border:1px solid rgba(255,255,255,0.3);border-radius:12px;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);color:white;cursor:pointer;outline:none;">

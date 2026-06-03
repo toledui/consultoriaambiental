@@ -3,6 +3,18 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <script>
+    (function() {
+      try {
+        var storedTheme = window.localStorage.getItem('ca-theme');
+        var theme = storedTheme || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        document.documentElement.dataset.theme = theme;
+      } catch (error) {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
   <title><?= !empty($seoTitle) ? htmlspecialchars($seoTitle) : (!empty($title) ? htmlspecialchars($title) . ' | ' . APP_NAME : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME) ?></title>
   
   <!-- Canonical URL -->
@@ -109,6 +121,10 @@
     /* === CRITICAL: Above-the-fold styles === */
     html {
       overflow-x: hidden;
+      color-scheme: light;
+    }
+    html.dark {
+      color-scheme: dark;
     }
     body {
       scroll-behavior: smooth;
@@ -448,6 +464,44 @@
 
   <!-- Custom Body Code (from admin settings) -->
   <?= $settings['custom_body_code'] ?? '' ?>
+  <script>
+    (function() {
+      var STORAGE_KEY = 'ca-theme';
+      var toggles = document.querySelectorAll('[data-theme-toggle]');
+      if (!toggles.length) return;
+
+      function getTheme() {
+        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      }
+
+      function setTheme(theme) {
+        var isDark = theme === 'dark';
+        document.documentElement.classList.toggle('dark', isDark);
+        document.documentElement.dataset.theme = theme;
+
+        try {
+          window.localStorage.setItem(STORAGE_KEY, theme);
+        } catch (error) {}
+
+        toggles.forEach(function(toggle) {
+          toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+          toggle.setAttribute('aria-label', isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+          var sun = toggle.querySelector('[data-theme-icon="sun"]');
+          var moon = toggle.querySelector('[data-theme-icon="moon"]');
+          if (sun) sun.style.display = isDark ? 'block' : 'none';
+          if (moon) moon.style.display = isDark ? 'none' : 'block';
+        });
+      }
+
+      toggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function() {
+          setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+        });
+      });
+
+      setTheme(getTheme());
+    })();
+  </script>
 
 </body>
 </html>
