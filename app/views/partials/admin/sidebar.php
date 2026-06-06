@@ -34,12 +34,6 @@
         </a>
       </li>
       <li>
-        <a href="<?= BASE_URL ?>/admin/servicios" class="flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors <?= strpos($_SERVER['REQUEST_URI'], '/admin/servicios') !== false ? 'bg-ca-green text-white border-r-4 border-ca-light-green' : 'text-gray-300 hover:bg-ca-green/20 hover:text-white' ?>">
-          <i class="fas fa-concierge-bell w-5 text-center"></i>
-          Servicios
-        </a>
-      </li>
-      <li>
         <a href="<?= BASE_URL ?>/admin/contactos" class="flex items-center gap-3 px-6 py-3 text-sm font-medium transition-colors <?= strpos($_SERVER['REQUEST_URI'], '/admin/contactos') !== false ? 'bg-ca-green text-white border-r-4 border-ca-light-green' : 'text-gray-300 hover:bg-ca-green/20 hover:text-white' ?>">
           <i class="fas fa-inbox w-5 text-center"></i>
           <span class="flex-1">Contactos</span>

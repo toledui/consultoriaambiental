@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
-use App\Models\Service;
+use App\Models\ServiceCatalog;
 use App\Models\BlogPost;
 use App\Models\Contact;
 use App\Models\Setting;
@@ -14,7 +14,7 @@ class HomeController extends Controller
 {
     public function index(): void
     {
-        $services = Service::getPublished();
+        $services = ServiceCatalog::navigation();
         $blogPosts = BlogPost::getLatest(6);
 
         $this->view('home/index', [

@@ -85,7 +85,7 @@
     $tailwindPath = PUBLIC_DIR . '/css/tailwind.css';
     $tailwindVersion = file_exists($tailwindPath) ? (string) filemtime($tailwindPath) : '1';
     $tailwindHref = BASE_URL . '/css/tailwind.css?v=' . $tailwindVersion;
-    $hasAos = strpos((string) ($content ?? ''), 'data-aos') !== false;
+    $hasAos = true;
   ?>
 
   <!-- Favicon -->
@@ -119,8 +119,12 @@
   <!-- Critical Inline Styles (renders immediately, no blocking) -->
   <style>
     /* === CRITICAL: Above-the-fold styles === */
-    html {
+    html,
+    body {
       overflow-x: hidden;
+      max-width: 100%;
+    }
+    html {
       color-scheme: light;
     }
     html.dark {
@@ -130,6 +134,15 @@
       scroll-behavior: smooth;
       margin: 0;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+    main {
+      overflow-x: clip;
+    }
+    @supports not (overflow: clip) {
+      main {
+        overflow-x: hidden;
+      }
     }
     a, a:link, a:visited, a:hover, a:active {
       text-decoration: none !important;
@@ -392,12 +405,21 @@
   </script>
 
   <?php if ($hasAos): ?>
-  <!-- AOS reveal animations (loaded only on pages with data-aos elements) -->
+  <!-- AOS reveal animations -->
   <script>
     (function() {
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function initAosWhenReady() {
+        document.querySelectorAll('main > section, main > article > section').forEach(function(section, index) {
+          if (!section.hasAttribute('data-aos')) {
+            section.setAttribute('data-aos', 'fade-up');
+          }
+          if (!section.hasAttribute('data-aos-offset')) {
+            section.setAttribute('data-aos-offset', index === 0 ? '40' : '80');
+          }
+        });
+
         var revealElements = document.querySelectorAll('[data-aos]');
         if (!revealElements.length) return;
 

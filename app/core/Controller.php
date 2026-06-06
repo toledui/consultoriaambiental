@@ -18,9 +18,9 @@ abstract class Controller
             $data['settings'] = \App\Models\Setting::getAll();
         }
 
-        // Auto-inject published services for the navbar dropdown
+        // Auto-inject static services for the navbar dropdown
         if (!isset($data['navbarServices'])) {
-            $data['navbarServices'] = \App\Models\Service::getPublished();
+            $data['navbarServices'] = \App\Models\ServiceCatalog::navigation();
         }
 
         // Extract data for the view

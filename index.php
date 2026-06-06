@@ -99,14 +99,6 @@ $router->get('/admin/blog/categorias/editar/{id}',     'Admin\BlogController@edi
 $router->post('/admin/blog/categorias/editar/{id}',    'Admin\BlogController@updateCategory');
 $router->post('/admin/blog/categorias/eliminar/{id}',  'Admin\BlogController@destroyCategory');
 
-// Admin — Services CRUD
-$router->get('/admin/servicios',               'Admin\ServiceController@index');
-$router->get('/admin/servicios/crear',         'Admin\ServiceController@create');
-$router->post('/admin/servicios/crear',        'Admin\ServiceController@store');
-$router->get('/admin/servicios/editar/{id}',   'Admin\ServiceController@edit');
-$router->post('/admin/servicios/editar/{id}',  'Admin\ServiceController@update');
-$router->post('/admin/servicios/eliminar/{id}','Admin\ServiceController@destroy');
-
 // Admin - Users CRUD
 $router->get('/admin/usuarios',                'Admin\UserController@index');
 $router->get('/admin/usuarios/crear',          'Admin\UserController@create');
