@@ -247,12 +247,12 @@ class ServiceCatalog
                 ],
             ],
             'estudios-de-impacto-ambiental' => [
-                'title'            => 'Estudios de Impacto Ambiental',
+                'title'            => 'Manifiesta de Impacto Ambiental',
                 'slug'             => 'estudios-de-impacto-ambiental',
                 'sort_order'       => 4,
                 'eyebrow'          => 'MIA, informes preventivos y gestión de proyectos',
                 'description'      => 'Estudios ambientales para proyectos inmobiliarios, industriales o de infraestructura, con integración técnica y acompañamiento ante autoridad.',
-                'meta_title'       => 'Estudios de Impacto Ambiental | MIA e Informes Preventivos',
+                'meta_title'       => 'Manifiesta de Impacto Ambiental | MIA e Informes Preventivos',
                 'meta_description' => 'Elaboración de MIA, informes preventivos, diagnóstico ambiental, medidas de mitigación y acompañamiento técnico para proyectos.',
                 'icon'             => 'fas fa-leaf',
                 'hero_image'       => 'images/impacto ambiental imagen3.webp',
@@ -266,7 +266,7 @@ class ServiceCatalog
                 'metrics'          => [
                     ['value' => 'MIA', 'label' => 'Manifestación', 'detail' => 'Modalidad según proyecto y autoridad.'],
                     ['value' => 'IP', 'label' => 'Informe preventivo', 'detail' => 'Alternativa cuando el caso lo permite.'],
-                    ['value' => 'MIT', 'label' => 'Mitigación', 'detail' => 'Medidas viables y verificables.'],
+                    ['value' => 'EDA', 'label' => 'Estudio de daños y afectaciones ambientales', 'detail' => 'Evaluación técnica de afectaciones.'],
                 ],
                 'highlights'       => [
                     ['icon' => 'fas fa-search-location', 'title' => 'Diagnóstico del sitio', 'body' => 'Revisamos ubicación, entorno, restricciones y sensibilidad ambiental.'],
@@ -336,11 +336,52 @@ class ServiceCatalog
                     'Carpeta documental para auditoría o certificación.',
                     'Acompañamiento durante visita, revisión o cierre de hallazgos.',
                 ],
+                'process_heading'  => [
+                    'eyebrow' => 'Ruta de la certificación ambiental',
+                    'title'   => 'Ruta de la Certificación Ambiental',
+                ],
                 'process'          => [
-                    ['title' => 'Diagnóstico', 'body' => 'Evaluamos el estado actual frente a requisitos ambientales y operativos.'],
-                    ['title' => 'Plan de acción', 'body' => 'Priorizamos brechas por riesgo, impacto y facilidad de cierre.'],
-                    ['title' => 'Implementación', 'body' => 'Acompañamos evidencias, controles, capacitación y ajustes internos.'],
-                    ['title' => 'Validación', 'body' => 'Preparamos la revisión final y el cierre de observaciones.'],
+                    ['number' => '1', 'title' => 'Selección del equipo auditor', 'body' => 'Designación y coordinación del equipo responsable de la auditoría.'],
+                    ['number' => '2', 'title' => 'Solicitud de adhesión al Programa de Cumplimiento Ambiental Voluntario (PCAV)', 'body' => 'Integración y presentación de la solicitud ante el programa aplicable.'],
+                    ['number' => '3', 'title' => 'Firma de convenios entre empresa-SEMADET-PROEPA', 'body' => 'Formalización de acuerdos y alcances de trabajo entre las partes.'],
+                    ['number' => '4', 'title' => 'Ejecución de trabajos de campo', 'body' => 'Revisión documental, levantamiento en sitio y verificación de condiciones operativas.'],
+                    ['number' => '5', 'title' => 'Presentación de reporte de auditoría', 'body' => 'Entrega del reporte con hallazgos, evidencias y resultado técnico.'],
+                    ['number' => '5.1', 'title' => 'Cumplimiento de plan de acción en caso de requerirse', 'body' => 'Atención y cierre de acciones correctivas cuando existan observaciones.'],
+                    ['number' => '6', 'title' => 'Verificación final por parte de SEMADET', 'body' => 'Validación final del cumplimiento y de la documentación presentada.'],
+                    ['number' => '7', 'title' => 'Emisión de certificado ambiental con vigencia de 2 años', 'body' => 'Obtención del certificado ambiental correspondiente.'],
+                ],
+                'certificate_types' => [
+                    'eyebrow' => 'Tipos de certificados ambientales',
+                    'title'   => 'Tipos de Certificados Ambientales',
+                    'logos'   => [
+                        ['image' => 'images/logo1.jpg', 'alt' => 'Logo de certificación ambiental 1'],
+                        ['image' => 'images/logo2.jpg', 'alt' => 'Logo de certificación ambiental 2'],
+                    ],
+                    'items'   => [
+                        [
+                            'title'       => 'Compromiso Ambiental',
+                            'description' => 'Cumplimiento de obligaciones ambientales en materia de:',
+                            'points'      => [
+                                'Gestión de residuos',
+                                'Abastecimiento, tratamiento y descarga de agua',
+                                'Emisiones a la atmósfera y ruido ambiental',
+                                'Impacto ambiental',
+                                'Suelo y subsuelo',
+                                'Recursos naturales',
+                                'Seguridad y riesgo ambiental',
+                            ],
+                        ],
+                        [
+                            'title'       => 'Líder Ambiental',
+                            'description' => 'Implementación de medidas, prácticas e infraestructura que van más allá de lo indicado por la ley:',
+                            'points'      => [
+                                'Sistema de gestión ambiental implementado',
+                                'Eficiencia energética',
+                                'Huella de carbono',
+                                'Registro de emisiones y transferencia de contaminantes',
+                            ],
+                        ],
+                    ],
                 ],
                 'compliance'       => [
                     'Carpeta de cumplimiento ambiental actualizada.',

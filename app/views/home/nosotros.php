@@ -342,7 +342,7 @@
     
     <div class="relative">
       <!-- Logo Carousel Track -->
-      <div id="clientCarouselNosotros" class="flex overflow-hidden">
+      <div id="clientCarouselNosotros" class="client-logo-carousel flex" tabindex="0" aria-label="Logos de clientes: arrastra para navegar">
         <div class="flex gap-12 md:gap-16 items-center carousel-track">
           <?php
           $logosPath = PUBLIC_DIR . '/images/logos clientes';
@@ -355,7 +355,7 @@
               foreach ($logoFiles as $logo):
                 $relativePath = 'images/logos clientes/' . rawurlencode(basename($logo));
           ?>
-            <div class="flex-shrink-0 w-28 md:w-36 h-20 md:h-24 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
+            <div class="client-logo-card flex-shrink-0 w-28 md:w-36 h-20 md:h-24 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
               <img alt="Logo cliente" class="max-w-full max-h-full object-contain" src="<?= BASE_URL ?>/<?= $relativePath ?>" loading="lazy"/>
             </div>
           <?php

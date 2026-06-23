@@ -143,7 +143,7 @@
 </section>
 
 <!-- Packages / Modalities Section -->
-<section class="py-24 bg-white border-t border-gray-200">
+<section id="esquemas-contratacion" class="py-24 bg-white border-t border-gray-200 scroll-mt-32 md:scroll-mt-40">
   <div class="container mx-auto px-4 md:px-8 max-w-7xl">
     <div class="text-center mb-16">
       <h4 class="text-ca-green font-bold tracking-widest uppercase text-sm mb-2">Esquemas de Contrataci&oacute;n</h4>

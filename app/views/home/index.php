@@ -224,7 +224,7 @@
     
     <div class="relative">
       <!-- Logo Carousel Track -->
-      <div id="clientCarouselHome" class="flex overflow-hidden">
+      <div id="clientCarouselHome" class="client-logo-carousel flex" tabindex="0" aria-label="Logos de clientes: arrastra para navegar">
         <div class="flex gap-12 md:gap-16 items-center carousel-track">
           <?php
           $logosPath = PUBLIC_DIR . '/images/logos clientes';
@@ -237,7 +237,7 @@
               foreach ($logoFiles as $logo):
                 $relativePath = 'images/logos clientes/' . rawurlencode(basename($logo));
           ?>
-            <div class="flex-shrink-0 w-28 md:w-36 h-20 md:h-24 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
+            <div class="client-logo-card flex-shrink-0 w-28 md:w-36 h-20 md:h-24 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
               <img alt="Logo cliente" class="max-w-full max-h-full object-contain" src="<?= BASE_URL ?>/<?= $relativePath ?>" loading="lazy"/>
             </div>
           <?php
@@ -279,12 +279,12 @@
       </h2>
     </div>
 
-    <div class="relative max-w-5xl mx-auto overflow-hidden">
-      <div id="newsCarousel" class="flex" style="will-change: transform;">
+    <div id="newsCarouselViewport" class="news-carousel-viewport relative max-w-5xl mx-auto overflow-hidden" tabindex="0" aria-label="Noticias del blog: arrastra para navegar">
+      <div id="newsCarousel" class="news-carousel-track flex" style="will-change: transform;">
         
         <?php if (!empty($blogPosts)): ?>
           <?php foreach ($blogPosts as $post): ?>
-            <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+            <div class="news-carousel-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
               <a href="<?= BASE_URL ?>/blog/<?= htmlspecialchars($post['slug']) ?>" class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden group h-24">
                 <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
                   <?php if (!empty($post['featured_image'])): ?>
@@ -309,7 +309,7 @@
           <?php endforeach; ?>
         <?php else: ?>
           <!-- Static fallback news cards -->
-          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+          <div class="news-carousel-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
             <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden group h-24">
               <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
                 <div class="w-full h-full flex items-center justify-center text-ca-light-gray text-2xl"><i class="fas fa-newspaper"></i></div>
@@ -322,7 +322,7 @@
             </div>
           </div>
 
-          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+          <div class="news-carousel-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
             <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden group h-24">
               <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
                 <div class="w-full h-full flex items-center justify-center text-ca-light-gray text-2xl"><i class="fas fa-newspaper"></i></div>
@@ -335,7 +335,7 @@
             </div>
           </div>
 
-          <div class="min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
+          <div class="news-carousel-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
             <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden group h-24">
               <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
                 <div class="w-full h-full flex items-center justify-center text-ca-light-gray text-2xl"><i class="fas fa-newspaper"></i></div>

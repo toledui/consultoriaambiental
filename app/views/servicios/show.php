@@ -65,6 +65,9 @@ $e = static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 
       <a href="#alcance">Alcance</a>
       <a href="#entregables">Entregables</a>
       <a href="#proceso">Proceso</a>
+      <?php if (!empty($service['certificate_types'])): ?>
+        <a href="#certificados">Certificados</a>
+      <?php endif; ?>
       <a href="#cumplimiento">Cumplimiento</a>
     </nav>
 
@@ -128,20 +131,68 @@ $e = static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 
     <section id="proceso" class="service-section service-section--process">
       <div class="service-container">
         <div class="service-section-heading" data-aos="fade-up">
-          <p class="service-section__eyebrow">Proceso</p>
-          <h2>Acompañamiento por etapas, sin perder trazabilidad</h2>
+          <p class="service-section__eyebrow"><?= $e($service['process_heading']['eyebrow'] ?? 'Proceso') ?></p>
+          <h2><?= $e($service['process_heading']['title'] ?? 'Acompañamiento por etapas, sin perder trazabilidad') ?></h2>
         </div>
         <div class="service-timeline" data-aos-group="true">
           <?php foreach ($service['process'] as $index => $step): ?>
             <article class="service-step" data-aos="fade-up">
-              <span><?= str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) ?></span>
+              <span><?= $e($step['number'] ?? str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
               <h3><?= $e($step['title']) ?></h3>
-              <p><?= $e($step['body']) ?></p>
+              <?php if (!empty($step['body'])): ?>
+                <p><?= $e($step['body']) ?></p>
+              <?php endif; ?>
             </article>
           <?php endforeach; ?>
         </div>
       </div>
     </section>
+
+    <?php if (!empty($service['certificate_types'])): ?>
+      <?php $certificateTypes = $service['certificate_types']; ?>
+      <section id="certificados" class="service-section service-section--certificates">
+        <div class="service-container">
+          <div class="service-certificates-header" data-aos="fade-up">
+            <div>
+              <p class="service-section__eyebrow"><?= $e($certificateTypes['eyebrow'] ?? 'Certificados') ?></p>
+              <h2><?= $e($certificateTypes['title'] ?? 'Tipos de Certificados Ambientales') ?></h2>
+            </div>
+
+            <?php if (!empty($certificateTypes['logos'])): ?>
+              <div class="service-logo-strip" aria-label="Logos de certificación ambiental">
+                <?php foreach ($certificateTypes['logos'] as $logo): ?>
+                  <div class="service-logo-card">
+                    <img src="<?= $e(asset_url($logo['image'])) ?>" alt="<?= $e($logo['alt'] ?? 'Logo de certificación ambiental') ?>" loading="lazy">
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+          </div>
+
+          <div class="service-certificate-grid" data-aos-group="true">
+            <?php foreach (($certificateTypes['items'] ?? []) as $index => $certificate): ?>
+              <article class="service-certificate-card" data-aos="fade-up">
+                <span class="service-certificate-card__number"><?= $e((string) ($index + 1)) ?></span>
+                <h3><?= $e($certificate['title']) ?></h3>
+                <?php if (!empty($certificate['description'])): ?>
+                  <p><?= $e($certificate['description']) ?></p>
+                <?php endif; ?>
+                <?php if (!empty($certificate['points'])): ?>
+                  <ul>
+                    <?php foreach ($certificate['points'] as $point): ?>
+                      <li>
+                        <i class="fas fa-check"></i>
+                        <span><?= $e($point) ?></span>
+                      </li>
+                    <?php endforeach; ?>
+                  </ul>
+                <?php endif; ?>
+              </article>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </section>
+    <?php endif; ?>
 
     <section id="cumplimiento" class="service-section service-section--compliance">
       <div class="service-container service-compliance">

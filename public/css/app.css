@@ -21,9 +21,17 @@
     overflow-x: clip;
   }
 
+  body:has(.service-detail) > main {
+    overflow-x: visible !important;
+  }
+
   @supports not (overflow: clip) {
     body > main {
       overflow-x: hidden;
+    }
+
+    body:has(.service-detail) > main {
+      overflow-x: visible !important;
     }
   }
 }
@@ -70,11 +78,76 @@
     }
   }
 
+  .client-logo-carousel {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    cursor: grab;
+    user-select: none;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    touch-action: pan-y;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 36px, #000 calc(100% - 36px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 36px, #000 calc(100% - 36px), transparent 100%);
+  }
+
+  .client-logo-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .client-logo-carousel.is-dragging {
+    cursor: grabbing;
+  }
+
+  .client-logo-carousel.is-dragging .client-logo-card,
+  .client-logo-carousel.is-dragging img {
+    pointer-events: none;
+  }
+
+  .client-logo-carousel .carousel-track {
+    width: max-content;
+    min-width: max-content;
+  }
+
+  .client-logo-card {
+    padding: 12px;
+    border: 1px solid rgba(27, 58, 75, .08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .9);
+    box-shadow: 0 10px 24px rgba(17, 41, 31, .08);
+  }
+
+  .client-logo-card img {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .news-carousel-viewport {
+    cursor: grab;
+    user-select: none;
+    touch-action: pan-y;
+  }
+
+  .news-carousel-viewport.is-dragging {
+    cursor: grabbing;
+  }
+
+  .news-carousel-viewport.is-dragging a {
+    pointer-events: none;
+  }
+
+  .news-carousel-track {
+    will-change: transform;
+  }
+
   .service-detail {
     --service-accent: #2E7D32;
     --service-soft: #EEF7EF;
     --service-ink: #16313a;
     --service-muted: #5d6c72;
+    --service-header-offset: var(--main-header-height, 89px);
+    --service-jumpbar-height: 60px;
+    --service-anchor-offset: calc(var(--service-header-offset) + var(--service-jumpbar-height) + 24px);
     background: #ffffff;
     color: var(--service-ink);
   }
@@ -270,18 +343,32 @@
   }
 
   .service-jumpbar {
-    position: sticky;
-    top: 93px;
-    z-index: 30;
+    position: relative;
+    z-index: 35;
     display: flex;
     justify-content: center;
     gap: 2px;
+    min-height: var(--service-jumpbar-height);
+    width: 100%;
     padding: 10px 16px;
     overflow-x: auto;
     background: rgba(255, 255, 255, .94);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid #e5ece8;
     scrollbar-width: none;
+  }
+
+  .service-jumpbar.is-fixed {
+    position: fixed;
+    top: var(--service-header-offset);
+    left: 0;
+    right: 0;
+    z-index: 35;
+  }
+
+  .service-jumpbar-placeholder {
+    height: 0;
+    pointer-events: none;
   }
 
   .service-jumpbar::-webkit-scrollbar {
@@ -304,10 +391,12 @@
 
   .service-section {
     padding: 86px 0;
+    scroll-margin-top: var(--service-anchor-offset);
   }
 
   .service-section--intro,
   .service-section--deliverables,
+  .service-section--certificates,
   .service-section--related {
     background: #ffffff;
   }
@@ -370,6 +459,7 @@
   .service-metric,
   .service-feature-card,
   .service-step,
+  .service-certificate-card,
   .service-related-card {
     border: 1px solid #e0e8e3;
     border-radius: 8px;
@@ -427,7 +517,8 @@
   }
 
   .service-feature-card h3,
-  .service-step h3 {
+  .service-step h3,
+  .service-certificate-card h3 {
     margin: 0 0 10px;
     color: #1B3A4B;
     font-size: 19px;
@@ -436,7 +527,8 @@
   }
 
   .service-feature-card p,
-  .service-step p {
+  .service-step p,
+  .service-certificate-card p {
     margin: 0;
     font-size: 14px;
     line-height: 1.65;
@@ -479,7 +571,7 @@
 
   .service-step span {
     display: inline-flex;
-    width: 36px;
+    width: 40px;
     height: 36px;
     align-items: center;
     justify-content: center;
@@ -489,6 +581,89 @@
     color: #ffffff;
     font-size: 13px;
     font-weight: 900;
+  }
+
+  .service-certificates-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 36px;
+    align-items: end;
+    margin-bottom: 34px;
+  }
+
+  .service-certificates-header h2 {
+    margin-bottom: 0;
+  }
+
+  .service-logo-strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .service-logo-card {
+    display: grid;
+    place-items: center;
+    min-height: 104px;
+    padding: 16px;
+    border: 1px solid #e0e8e3;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 12px 28px rgba(17, 41, 31, .07);
+  }
+
+  .service-logo-card img {
+    display: block;
+    max-width: 100%;
+    max-height: 76px;
+    object-fit: contain;
+  }
+
+  .service-certificate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .service-certificate-card {
+    padding: 28px;
+  }
+
+  .service-certificate-card__number {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background: var(--service-accent);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 900;
+  }
+
+  .service-certificate-card ul {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service-certificate-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #25383f;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .service-certificate-card li i {
+    margin-top: 4px;
+    color: var(--service-accent);
+    font-size: 12px;
   }
 
   .service-compliance {
@@ -634,6 +809,7 @@
     .service-hero__inner,
     .service-intro-grid,
     .service-split,
+    .service-certificates-header,
     .service-compliance,
     .service-cta__inner {
       grid-template-columns: 1fr;
@@ -650,13 +826,13 @@
 
     .service-card-grid,
     .service-related-grid,
+    .service-certificate-grid,
     .service-timeline {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .service-jumpbar {
       justify-content: flex-start;
-      top: 78px;
     }
   }
 
@@ -699,6 +875,7 @@
 
     .service-card-grid,
     .service-related-grid,
+    .service-certificate-grid,
     .service-timeline {
       grid-template-columns: 1fr;
     }
@@ -730,6 +907,16 @@
 
   html.dark .pattern-bg {
     background-image: radial-gradient(rgba(144, 164, 174, .18) 1px, transparent 1px) !important;
+  }
+
+  html.dark .client-logo-card {
+    background: rgba(248, 250, 249, .96) !important;
+    border-color: rgba(255, 255, 255, .72) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .28) !important;
+  }
+
+  html.dark .client-logo-card img {
+    opacity: .96;
   }
 
   html.dark .bg-white,
@@ -869,6 +1056,7 @@
   html.dark .service-detail,
   html.dark .service-section--intro,
   html.dark .service-section--deliverables,
+  html.dark .service-section--certificates,
   html.dark .service-section--related,
   html.dark .service-not-found {
     background: #071315 !important;
@@ -894,6 +1082,7 @@
   html.dark .service-cta h2,
   html.dark .service-feature-card h3,
   html.dark .service-step h3,
+  html.dark .service-certificate-card h3,
   html.dark .service-metric span,
   html.dark .service-tag-list span,
   html.dark .service-related-card,
@@ -901,10 +1090,17 @@
     color: #e8f1ee !important;
   }
 
+  html.dark .service-jumpbar a:hover,
+  html.dark .service-jumpbar a:focus-visible {
+    background: rgba(102, 187, 106, .16) !important;
+    color: #9df0a2 !important;
+  }
+
   html.dark .service-section p,
   html.dark .service-cta p,
   html.dark .service-feature-card p,
   html.dark .service-step p,
+  html.dark .service-certificate-card p,
   html.dark .service-related-card small,
   html.dark .service-not-found p {
     color: #9fb3ad !important;
@@ -913,6 +1109,8 @@
   html.dark .service-metric,
   html.dark .service-feature-card,
   html.dark .service-step,
+  html.dark .service-certificate-card,
+  html.dark .service-logo-card,
   html.dark .service-checklist__item,
   html.dark .service-related-card,
   html.dark .service-tag-list span {
@@ -920,9 +1118,22 @@
     border-color: rgba(159, 179, 173, .2) !important;
   }
 
+  html.dark .service-checklist__item,
+  html.dark .service-checklist__item span {
+    color: #e8f1ee !important;
+  }
+
+  html.dark .service-checklist__item i {
+    color: #9df0a2 !important;
+  }
+
   html.dark .service-feature-card__icon,
   html.dark .service-related-card span {
     background: rgba(102, 187, 106, .12) !important;
+  }
+
+  html.dark .service-certificate-card li {
+    color: #d7e4df !important;
   }
 
   html.dark .service-compliance__visual {
