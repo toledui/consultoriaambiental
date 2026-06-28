@@ -118,26 +118,21 @@
       branding: false,
       menubar: true,
       plugins: [
-        // Core editing features
-        'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists', 'media', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-        // Premium features (free trial until Jun 12, 2026)
-        'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'advtemplate', 'tinymceai', 'uploadcare', 'mentions', 'tinycomments', 'tableofcontents', 'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss', 'markdown', 'importword', 'exportword', 'exportpdf'
+        'advlist', 'anchor', 'autolink', 'charmap', 'code', 'codesample',
+        'emoticons', 'fullscreen', 'help', 'image', 'insertdatetime',
+        'link', 'lists', 'media', 'preview', 'searchreplace', 'table',
+        'visualblocks', 'visualchars', 'wordcount'
       ],
       toolbar: [
-        'undo redo | tinymceai-chat tinymceai-quickactions tinymceai-review | blocks fontfamily fontsize',
-        '|', 'bold italic underline strikethrough | link media table mergetags',
-        '|', 'addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare',
-        '|', 'align lineheight | checklist numlist bullist indent outdent',
-        '|', 'emoticons charmap | removeformat',
+        'undo redo | blocks fontfamily fontsize',
+        '|', 'bold italic underline strikethrough | forecolor backcolor',
+        '|', 'alignleft aligncenter alignright alignjustify | lineheight',
+        '|', 'bullist numlist outdent indent | blockquote removeformat',
+        '|', 'link image media table codesample',
+        '|', 'emoticons charmap insertdatetime | preview fullscreen code',
         '|', 'mediateca'
       ],
       toolbar_mode: 'wrap',
-      tinycomments_mode: 'embedded',
-      tinycomments_author: 'Admin',
-      mergetags_list: [
-        { value: 'First.Name', title: 'First Name' },
-        { value: 'Email', title: 'Email' },
-      ],
       setup: function(editor) {
         // Store editor instance globally for media browser callback
         window.tinymceEditor = editor;

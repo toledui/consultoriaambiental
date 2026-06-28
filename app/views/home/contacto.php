@@ -31,9 +31,60 @@
         </p>
 
         <?php
-        $waContactNumber  = preg_replace('/[^0-9]/', '', $settings['footer_whatsapp_value'] ?? '+52 (33) 8765-4321');
-        $waContactDisplay = htmlspecialchars($settings['footer_whatsapp_value'] ?? '+52 (33) 8765-4321');
-        $waContactMessage = htmlspecialchars($settings['whatsapp_floating_message'] ?? 'Hola, me gustaría recibir información sobre sus servicios de consultoría ambiental.');
+        $waContactLabel = htmlspecialchars($settings['footer_whatsapp_label'] ?? 'Chat Directo');
+        $waContactValue = $settings['footer_whatsapp_value'] ?? '+52 (33) 8765-4321';
+        $waContactNumber = preg_replace('/[^0-9]/', '', $waContactValue);
+        $waContactDisplay = htmlspecialchars($waContactValue);
+        $waContactMessage = $settings['whatsapp_floating_message'] ?? 'Hola, me gustaría recibir información sobre sus servicios de consultoría ambiental.';
+        $phoneContactLabel = htmlspecialchars($settings['footer_phone_label'] ?? 'Teléfono Oficina');
+        $phoneContactValue = $settings['footer_phone_value'] ?? '+52 (33) 1234-5678';
+        $phoneContactDisplay = htmlspecialchars($phoneContactValue);
+        $phoneContactHref = htmlspecialchars(preg_replace('/[^0-9+]/', '', $phoneContactValue));
+        $emailContactLabel = htmlspecialchars($settings['footer_email_label'] ?? 'Correo Electrónico');
+        $emailContactValue = $settings['footer_email_value'] ?? 'contacto@consultoria-ca.com';
+        $emailContactDisplay = htmlspecialchars($emailContactValue);
+        $emailContactHref = htmlspecialchars($emailContactValue);
+        $socialContact = [];
+        if (!empty($settings['social_contact'])) {
+            $decoded = json_decode($settings['social_contact'], true);
+            $socialContact = is_array($decoded) ? array_values(array_filter($decoded, static function ($item): bool {
+                return !empty($item['icon']) && !empty($item['url']);
+            })) : [];
+        }
+        $socialLabels = [
+            'facebook-f' => 'Facebook',
+            'twitter' => 'X (Twitter)',
+            'instagram' => 'Instagram',
+            'linkedin-in' => 'LinkedIn',
+            'youtube' => 'YouTube',
+            'tiktok' => 'TikTok',
+            'whatsapp' => 'WhatsApp',
+            'telegram' => 'Telegram',
+            'facebook-messenger' => 'Messenger',
+            'snapchat' => 'Snapchat',
+            'pinterest' => 'Pinterest',
+            'threads' => 'Threads',
+            'discord' => 'Discord',
+            'spotify' => 'Spotify',
+            'soundcloud' => 'SoundCloud',
+            'vimeo' => 'Vimeo',
+            'behance' => 'Behance',
+            'dribbble' => 'Dribbble',
+            'github' => 'GitHub',
+            'gitlab' => 'GitLab',
+            'medium' => 'Medium',
+            'twitch' => 'Twitch',
+            'reddit' => 'Reddit',
+            'tumblr' => 'Tumblr',
+            'flickr' => 'Flickr',
+            'vine' => 'Vine',
+            'weibo' => 'Weibo',
+            'xing' => 'Xing',
+            'stack-overflow' => 'Stack Overflow',
+            'envelope' => 'Correo electrónico',
+            'globe' => 'Sitio web',
+            'link' => 'Enlace',
+        ];
         ?>
         <div class="space-y-8">
           <!-- Info Item -->
@@ -42,7 +93,7 @@
               <i class="fab fa-whatsapp"></i>
             </div>
             <div>
-              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Chat Directo</h4>
+              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1"><?= $waContactLabel ?></h4>
               <p class="text-lg font-bold text-ca-navy mb-1"><?= $waContactDisplay ?></p>
               <a href="https://wa.me/<?= $waContactNumber ?>?text=<?= urlencode($waContactMessage) ?>" target="_blank" class="text-sm text-ca-green hover:text-ca-navy font-semibold transition-colors">Enviar mensaje por WhatsApp &rarr;</a>
             </div>
@@ -54,8 +105,8 @@
               <i class="fas fa-phone-alt"></i>
             </div>
             <div>
-              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Teléfono Oficina</h4>
-              <p class="text-lg font-bold text-ca-navy mb-1">+52 (33) 1234-5678</p>
+              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1"><?= $phoneContactLabel ?></h4>
+              <a href="tel:<?= $phoneContactHref ?>" class="block text-lg font-bold text-ca-navy hover:text-ca-green transition-colors mb-1"><?= $phoneContactDisplay ?></a>
               <p class="text-sm text-gray-500">Lunes a Viernes, 9:00 AM - 6:00 PM</p>
             </div>
           </div>
@@ -66,12 +117,32 @@
               <i class="fas fa-envelope"></i>
             </div>
             <div>
-              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Correo Electrónico</h4>
-              <p class="text-lg font-bold text-ca-navy mb-1">contacto@consultoria-ca.com</p>
+              <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1"><?= $emailContactLabel ?></h4>
+              <a href="mailto:<?= $emailContactHref ?>" class="block text-lg font-bold text-ca-navy hover:text-ca-green transition-colors mb-1"><?= $emailContactDisplay ?></a>
               <p class="text-sm text-gray-500">Respuesta en menos de 24 horas hábiles</p>
             </div>
           </div>
         </div>
+
+        <?php if (!empty($socialContact)): ?>
+          <div class="mt-10 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Síguenos</h3>
+            <p class="text-sm text-gray-600 mb-5">También puedes contactarnos y seguir nuestras actualizaciones en redes sociales.</p>
+            <div class="flex flex-wrap items-center gap-3">
+              <?php foreach ($socialContact as $item): ?>
+                <?php
+                  $icon = $item['icon'] ?? '';
+                  $url = $item['url'] ?? '';
+                  $iconClass = in_array($icon, ['envelope', 'globe', 'link'], true) ? 'fas fa-' . $icon : 'fab fa-' . $icon;
+                  $socialName = $socialLabels[$icon] ?? ucfirst(str_replace('-', ' ', $icon));
+                ?>
+                <a href="<?= htmlspecialchars($url) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= htmlspecialchars($socialName) ?>" title="<?= htmlspecialchars($socialName) ?>" class="w-12 h-12 rounded-xl bg-ca-navy text-white flex items-center justify-center text-lg shadow-md hover:bg-ca-green hover:-translate-y-0.5 transition-all">
+                  <i class="<?= htmlspecialchars($iconClass) ?>"></i>
+                </a>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php endif; ?>
 
         <!-- National Coverage Card -->
         <div class="mt-12 bg-ca-navy p-8 rounded-2xl text-white shadow-xl relative overflow-hidden">
