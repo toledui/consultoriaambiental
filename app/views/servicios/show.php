@@ -20,6 +20,25 @@ $e = static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 
     $relatedServices = $relatedServices ?? [];
     $accent = $service['accent'] ?? '#2E7D32';
     $softAccent = $service['soft_accent'] ?? '#EEF7EF';
+    $infoBlocks = [];
+    $infoBlockConfig = [
+      'benefits'  => ['label' => 'Beneficios', 'icon' => 'fas fa-check-circle'],
+      'standards' => ['label' => 'Información técnica', 'icon' => 'fas fa-balance-scale'],
+      'sectors'   => ['label' => 'Sectores', 'icon' => 'fas fa-building'],
+    ];
+
+    foreach ($infoBlockConfig as $infoKey => $infoMeta) {
+      if (!empty($service[$infoKey]['items'])) {
+        $infoBlocks[] = [
+          'label' => $infoMeta['label'],
+          'icon'  => $infoMeta['icon'],
+          'title' => $service[$infoKey]['title'] ?? $infoMeta['label'],
+          'items' => $service[$infoKey]['items'],
+        ];
+      }
+    }
+
+    $faqs = $service['faqs'] ?? [];
   ?>
 
   <article class="service-detail" style="--service-accent: <?= $e($accent) ?>; --service-soft: <?= $e($softAccent) ?>; --service-image: url('<?= $e($heroImage) ?>');">
@@ -64,11 +83,17 @@ $e = static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 
     <nav class="service-jumpbar" aria-label="Secciones del servicio">
       <a href="#alcance">Alcance</a>
       <a href="#entregables">Entregables</a>
+      <?php if (!empty($infoBlocks)): ?>
+        <a href="#informacion">Información</a>
+      <?php endif; ?>
       <a href="#proceso">Proceso</a>
       <?php if (!empty($service['certificate_types'])): ?>
         <a href="#certificados">Certificados</a>
       <?php endif; ?>
       <a href="#cumplimiento">Cumplimiento</a>
+      <?php if (!empty($faqs)): ?>
+        <a href="#preguntas">Preguntas</a>
+      <?php endif; ?>
     </nav>
 
     <section id="alcance" class="service-section service-section--intro">
@@ -127,6 +152,36 @@ $e = static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 
         </div>
       </div>
     </section>
+
+    <?php if (!empty($infoBlocks)): ?>
+      <section id="informacion" class="service-section service-section--info">
+        <div class="service-container">
+          <div class="service-section-heading" data-aos="fade-up">
+            <p class="service-section__eyebrow">Información clave</p>
+            <h2>Beneficios, alcances y criterios técnicos del servicio</h2>
+          </div>
+          <div class="service-info-grid service-info-grid--<?= $e((string) min(count($infoBlocks), 3)) ?>" data-aos-group="true">
+            <?php foreach ($infoBlocks as $block): ?>
+              <article class="service-info-card" data-aos="fade-up">
+                <div class="service-info-card__label">
+                  <i class="<?= $e($block['icon']) ?>"></i>
+                  <span><?= $e($block['label']) ?></span>
+                </div>
+                <h3><?= $e($block['title']) ?></h3>
+                <ul>
+                  <?php foreach ($block['items'] as $item): ?>
+                    <li>
+                      <i class="fas fa-check"></i>
+                      <span><?= $e($item) ?></span>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              </article>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </section>
+    <?php endif; ?>
 
     <section id="proceso" class="service-section service-section--process">
       <div class="service-container">
@@ -211,6 +266,28 @@ $e = static fn($value): string => htmlspecialchars((string) $value, ENT_QUOTES, 
         </div>
       </div>
     </section>
+
+    <?php if (!empty($faqs)): ?>
+      <section id="preguntas" class="service-section service-section--faq">
+        <div class="service-container service-faq-layout">
+          <div class="service-section-heading" data-aos="fade-right">
+            <p class="service-section__eyebrow">Preguntas frecuentes</p>
+            <h2>Respuestas rápidas antes de iniciar la regularización</h2>
+          </div>
+          <div class="service-faq-list" data-aos-group="true">
+            <?php foreach ($faqs as $faq): ?>
+              <details class="service-faq-item" data-aos="fade-up">
+                <summary>
+                  <span><?= $e($faq['question']) ?></span>
+                  <i class="fas fa-plus"></i>
+                </summary>
+                <p><?= $e($faq['answer']) ?></p>
+              </details>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </section>
+    <?php endif; ?>
 
     <section class="service-cta">
       <div class="service-container service-cta__inner" data-aos="fade-up">

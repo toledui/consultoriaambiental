@@ -181,8 +181,8 @@
           <p class="text-sm text-gray-300 mb-4 font-medium">Sustituye o apoya al departamento ambiental interno:</p>
           <ul class="space-y-3 text-sm text-gray-300">
             <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Diagn&oacute;stico inicial completo.</span></li>
-            <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Registro/Plan residuos (ME/Peligrosos).</span></li>
-            <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Registro descarga agua / LAU / COA.</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Registro y plan de manejo de residuos de manejo especial o peligrosos.</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Registro de descarga de aguas residuales, licencia ambiental única y Cédula de Operación Anual.</span></li>
             <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Se&ntilde;al&eacute;tica b&aacute;sica de residuos.</span></li>
             <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span>Atenci&oacute;n t&eacute;cnica ante inspecciones.</span></li>
             <li class="flex items-start gap-3"><i class="fas fa-check text-ca-light-green mt-1"></i> <span><strong>Visitas de auditor&iacute;a cuatrimestrales.</strong></span></li>

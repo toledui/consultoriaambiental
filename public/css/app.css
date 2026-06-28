@@ -198,9 +198,10 @@
   }
 
   .service-back-link {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
+    width: fit-content;
     color: rgba(255, 255, 255, .84);
     font-size: 14px;
     font-weight: 700;
@@ -460,6 +461,8 @@
   .service-feature-card,
   .service-step,
   .service-certificate-card,
+  .service-info-card,
+  .service-faq-item,
   .service-related-card {
     border: 1px solid #e0e8e3;
     border-radius: 8px;
@@ -518,6 +521,7 @@
 
   .service-feature-card h3,
   .service-step h3,
+  .service-info-card h3,
   .service-certificate-card h3 {
     margin: 0 0 10px;
     color: #1B3A4B;
@@ -528,6 +532,7 @@
 
   .service-feature-card p,
   .service-step p,
+  .service-faq-item p,
   .service-certificate-card p {
     margin: 0;
     font-size: 14px;
@@ -555,6 +560,71 @@
   .service-checklist__item i {
     color: var(--service-accent);
     margin-top: 3px;
+  }
+
+  .service-section--info {
+    background: #f6f8f7;
+  }
+
+  .service-section--faq {
+    background: #ffffff;
+  }
+
+  .service-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .service-info-grid--1 {
+    grid-template-columns: minmax(0, 720px);
+  }
+
+  .service-info-grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .service-info-card {
+    padding: 26px;
+  }
+
+  .service-info-card__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 34px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    background: var(--service-soft);
+    color: var(--service-accent);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .service-info-card ul {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service-info-card li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #25383f;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .service-info-card li i {
+    color: var(--service-accent);
+    margin-top: 4px;
+    font-size: 12px;
   }
 
   .service-timeline {
@@ -707,6 +777,71 @@
     font-weight: 800;
   }
 
+  .service-faq-layout {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+
+  .service-faq-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .service-faq-item {
+    overflow: hidden;
+  }
+
+  .service-faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 64px;
+    padding: 18px 20px;
+    cursor: pointer;
+    color: #1B3A4B;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.35;
+    list-style: none;
+  }
+
+  .service-faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .service-faq-item summary i {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--service-soft);
+    color: var(--service-accent);
+    font-size: 12px;
+    line-height: 1;
+    text-align: center;
+    transition: transform .2s ease;
+  }
+
+  .service-faq-item summary i::before {
+    display: block;
+    line-height: 1;
+  }
+
+  .service-faq-item[open] summary i {
+    transform: rotate(45deg);
+  }
+
+  .service-faq-item p {
+    padding: 0 20px 20px;
+    color: var(--service-muted);
+  }
+
   .service-cta {
     padding: 72px 0;
     background: #1B3A4B;
@@ -811,6 +946,7 @@
     .service-split,
     .service-certificates-header,
     .service-compliance,
+    .service-faq-layout,
     .service-cta__inner {
       grid-template-columns: 1fr;
       gap: 32px;
@@ -826,9 +962,15 @@
 
     .service-card-grid,
     .service-related-grid,
+    .service-info-grid,
+    .service-info-grid--2,
     .service-certificate-grid,
     .service-timeline {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .service-info-grid--1 {
+      grid-template-columns: minmax(0, 720px);
     }
 
     .service-jumpbar {
@@ -875,6 +1017,9 @@
 
     .service-card-grid,
     .service-related-grid,
+    .service-info-grid,
+    .service-info-grid--1,
+    .service-info-grid--2,
     .service-certificate-grid,
     .service-timeline {
       grid-template-columns: 1fr;
@@ -1064,8 +1209,13 @@
   }
 
   html.dark .service-section--cards,
-  html.dark .service-section--process {
+  html.dark .service-section--process,
+  html.dark .service-section--info {
     background: #0a181c !important;
+  }
+
+  html.dark .service-section--faq {
+    background: #071315 !important;
   }
 
   html.dark .service-section--compliance {
@@ -1082,9 +1232,11 @@
   html.dark .service-cta h2,
   html.dark .service-feature-card h3,
   html.dark .service-step h3,
+  html.dark .service-info-card h3,
   html.dark .service-certificate-card h3,
   html.dark .service-metric span,
   html.dark .service-tag-list span,
+  html.dark .service-faq-item summary,
   html.dark .service-related-card,
   html.dark .service-not-found h1 {
     color: #e8f1ee !important;
@@ -1100,6 +1252,7 @@
   html.dark .service-cta p,
   html.dark .service-feature-card p,
   html.dark .service-step p,
+  html.dark .service-faq-item p,
   html.dark .service-certificate-card p,
   html.dark .service-related-card small,
   html.dark .service-not-found p {
@@ -1110,6 +1263,8 @@
   html.dark .service-feature-card,
   html.dark .service-step,
   html.dark .service-certificate-card,
+  html.dark .service-info-card,
+  html.dark .service-faq-item,
   html.dark .service-logo-card,
   html.dark .service-checklist__item,
   html.dark .service-related-card,
@@ -1119,15 +1274,19 @@
   }
 
   html.dark .service-checklist__item,
-  html.dark .service-checklist__item span {
+  html.dark .service-checklist__item span,
+  html.dark .service-info-card li {
     color: #e8f1ee !important;
   }
 
-  html.dark .service-checklist__item i {
+  html.dark .service-checklist__item i,
+  html.dark .service-info-card li i {
     color: #9df0a2 !important;
   }
 
   html.dark .service-feature-card__icon,
+  html.dark .service-info-card__label,
+  html.dark .service-faq-item summary i,
   html.dark .service-related-card span {
     background: rgba(102, 187, 106, .12) !important;
   }

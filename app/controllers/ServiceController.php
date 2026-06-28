@@ -57,6 +57,27 @@ class ServiceController extends Controller
         $headExtra .= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
         $headExtra .= '</script>' . "\n";
 
+        if (!empty($service['faqs'])) {
+            $faqSchema = [
+                '@context'   => 'https://schema.org',
+                '@type'      => 'FAQPage',
+                'mainEntity' => array_map(static function (array $faq): array {
+                    return [
+                        '@type'          => 'Question',
+                        'name'           => $faq['question'],
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text'  => $faq['answer'],
+                        ],
+                    ];
+                }, $service['faqs']),
+            ];
+
+            $headExtra .= '<script type="application/ld+json">' . "\n";
+            $headExtra .= json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+            $headExtra .= '</script>' . "\n";
+        }
+
         $this->view('servicios/show', [
             'title'        => $pageTitle,
             'metaDesc'     => $metaDesc,

@@ -1,15 +1,15 @@
 <?php require VIEWS_DIR . '/partials/hero.php'; ?>
 
 <!-- Inspection Alert Banner -->
-<div class="bg-gradient-to-r from-ca-light-green to-ca-green py-4 shadow-inner relative z-20">
-  <div class="container mx-auto px-4 flex flex-col md:flex-row justify-center items-center text-ca-navy font-bold text-center gap-4">
+<div class="bg-gradient-to-r from-ca-light-green to-ca-green py-6 md:py-7 shadow-inner relative z-20">
+  <div class="container mx-auto px-4 flex flex-col md:flex-row justify-center items-center text-ca-navy font-bold text-center gap-5">
     <div class="flex items-center text-white text-sm md:text-base">
-      <div class="bg-white/20 p-2 rounded-full mr-3 animate-bounce">
-        <i class="fas fa-exclamation-triangle text-yellow-300"></i>
+      <div class="h-12 w-12 md:h-14 md:w-14 flex-shrink-0 bg-ca-navy/90 ring-4 ring-white/30 shadow-lg shadow-ca-navy/25 rounded-full mr-4 flex items-center justify-center animate-bounce">
+        <i class="fas fa-exclamation-triangle text-yellow-300 text-xl md:text-2xl drop-shadow"></i>
       </div>
       ¿Recibiste una visita de inspección de PROEPA o PROFEPA? Te ayudamos a revisar observaciones, integrar documentación y regularizar tu empresa.
     </div>
-    <a href="<?= BASE_URL ?>/contacto" class="text-sm bg-ca-navy text-white px-5 py-2 rounded-full hover:bg-ca-dark-gray transition-colors shadow-md whitespace-nowrap">
+    <a href="<?= BASE_URL ?>/contacto" class="text-sm bg-ca-navy text-white px-5 py-2.5 rounded-full hover:bg-ca-dark-gray transition-colors shadow-md whitespace-nowrap">
       Evita multas y clausuras <i class="fas fa-shield-alt ml-1"></i>
     </a>
   </div>

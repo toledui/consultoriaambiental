@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <a class="text-white/90 hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all whitespace-nowrap" href="<?= BASE_URL ?>/servicios#esquemas-contratacion">Esquemas de Contrataci&oacute;n</a>
+      <a class="text-white/90 hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all whitespace-nowrap" href="<?= BASE_URL ?>/servicios#esquemas-contratacion">Contrataci&oacute;n</a>
 
       <a class="<?= $currentPage === 'blog' ? 'text-ca-light-green border-b-2 border-ca-light-green' : 'text-white/90 hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green' ?> pb-1 transition-all" href="<?= BASE_URL ?>/blog">Blog</a>
     </nav>
@@ -195,7 +195,7 @@
 
       <a class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-medium transition-all text-white hover:text-ca-light-green hover:bg-white/5" href="<?= BASE_URL ?>/servicios#esquemas-contratacion">
         <span class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-sm"><i class="fas fa-file-contract"></i></span>
-        Esquemas de Contrataci&oacute;n
+        Contrataci&oacute;n
       </a>
 
       <!-- Blog -->
