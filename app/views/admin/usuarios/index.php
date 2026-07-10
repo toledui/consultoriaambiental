@@ -58,7 +58,7 @@ unset($_SESSION['flash_message'], $_SESSION['flash_error']);
               </td>
               <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($user['email']) ?></td>
               <td class="px-6 py-4 text-gray-500 hidden md:table-cell">
-                <?= !empty($user['created_at']) ? date('d/m/Y', strtotime($user['created_at'])) : '-' ?>
+                <?= !empty($user['created_at']) ? format_cdmx_datetime($user['created_at'], 'd/m/Y') : '-' ?>
               </td>
               <td class="px-6 py-4 text-center">
                 <?php if ($isCurrent): ?>

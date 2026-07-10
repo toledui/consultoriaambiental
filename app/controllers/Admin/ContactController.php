@@ -112,7 +112,7 @@ class ContactController extends Controller
             'Mensaje',
             'Newsletter',
             'Leído',
-            'Fecha de contacto',
+            'Fecha de contacto (CDMX)',
         ], ',', '"', '');
 
         // Data rows
@@ -126,7 +126,7 @@ class ContactController extends Controller
                 $row['mensaje'] ?? '',
                 $row['newsletter'] ? 'Sí' : 'No',
                 $row['read_at'] !== null ? 'Sí' : 'No',
-                $row['created_at'],
+                format_cdmx_datetime($row['created_at']),
             ], ',', '"', '');
         }
 

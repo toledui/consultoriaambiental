@@ -10,7 +10,7 @@ class BlogPost extends Model
 
     private static function currentPublishTime(): string
     {
-        return (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('Y-m-d H:i:s');
+        return (new \DateTimeImmutable('now', \app_timezone()))->format('Y-m-d H:i:s');
     }
 
     private static function publishedWhere(string $alias = 'p'): string

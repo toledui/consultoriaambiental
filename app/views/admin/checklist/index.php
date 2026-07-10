@@ -64,7 +64,7 @@
               <td class="px-5 py-3.5 text-gray-600"><?= htmlspecialchars($download['giro'] ?? '—') ?></td>
               <td class="px-5 py-3.5 text-gray-400 font-mono text-xs"><?= htmlspecialchars($download['ip_address'] ?? '—') ?></td>
               <td class="px-5 py-3.5 text-gray-500 text-xs whitespace-nowrap">
-                <?= date('d/m/Y H:i', strtotime($download['created_at'])) ?>
+                <?= format_cdmx_datetime($download['created_at']) ?> CDMX
               </td>
               <td class="px-5 py-3.5 text-center">
                 <form action="<?= BASE_URL ?>/admin/checklist/eliminar/<?= (int)$download['id'] ?>" method="POST" onsubmit="return confirm('¿Eliminar este registro de forma permanente?')">

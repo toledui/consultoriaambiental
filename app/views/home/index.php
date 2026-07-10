@@ -302,7 +302,7 @@
                     <?= htmlspecialchars($post['title']) ?>
                   </h3>
                   <?php if (!empty($displayDate)): ?>
-                    <span class="text-[10px] text-gray-400 mt-1 block"><?= date('d M Y', strtotime($displayDate)) ?></span>
+                    <span class="text-[10px] text-gray-400 mt-1 block"><?= format_cdmx_datetime($displayDate, 'd M Y') ?></span>
                   <?php endif; ?>
                 </div>
               </a>

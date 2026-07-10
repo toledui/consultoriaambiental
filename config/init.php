@@ -7,7 +7,11 @@
 // Load config constants
 require_once __DIR__ . '/app.php';
 
-date_default_timezone_set('America/Mexico_City');
+if (!defined('APP_TIMEZONE')) {
+    define('APP_TIMEZONE', 'America/Mexico_City');
+}
+
+date_default_timezone_set(APP_TIMEZONE);
 
 // Error reporting
 if (APP_DEBUG) {
@@ -63,6 +67,43 @@ spl_autoload_register(function (string $class) {
         require $lowerFile;
     }
 });
+
+if (!function_exists('app_timezone')) {
+    function app_timezone(): \DateTimeZone
+    {
+        return new \DateTimeZone(APP_TIMEZONE);
+    }
+}
+
+if (!function_exists('app_timezone_offset')) {
+    function app_timezone_offset(?\DateTimeInterface $date = null): string
+    {
+        $timezone = app_timezone();
+        $date = $date
+            ? \DateTimeImmutable::createFromInterface($date)->setTimezone($timezone)
+            : new \DateTimeImmutable('now', $timezone);
+
+        return $date->format('P');
+    }
+}
+
+if (!function_exists('format_cdmx_datetime')) {
+    function format_cdmx_datetime(?string $value, string $format = 'd/m/Y H:i'): string
+    {
+        $value = trim((string)$value);
+        if ($value === '') {
+            return '-';
+        }
+
+        try {
+            return (new \DateTimeImmutable($value, app_timezone()))
+                ->setTimezone(app_timezone())
+                ->format($format);
+        } catch (\Exception $e) {
+            return $value;
+        }
+    }
+}
 
 if (!function_exists('url_slug')) {
     function url_slug(string $value): string

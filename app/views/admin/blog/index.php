@@ -31,7 +31,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <?php $nowTs = (new DateTimeImmutable('now', new DateTimeZone('America/Mexico_City')))->getTimestamp(); ?>
+          <?php $nowTs = (new DateTimeImmutable('now', app_timezone()))->getTimestamp(); ?>
           <?php foreach ($posts as $post): ?>
             <?php
               $publishedAt = $post['published_at'] ?? null;
@@ -68,7 +68,7 @@
                 <?php endif; ?>
               </td>
               <td class="px-6 py-4 text-center text-gray-500 hidden lg:table-cell">
-                <?= $displayDate ? date('d/m/Y H:i', strtotime($displayDate)) : '-' ?>
+                <?= format_cdmx_datetime($displayDate) ?>
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-2">

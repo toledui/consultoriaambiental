@@ -28,7 +28,7 @@ class BlogCategory extends Model
 
         if ($publicOnly) {
             $joinCondition .= ' AND p.published = 1 AND (p.published_at IS NULL OR p.published_at <= :now)';
-            $params['now'] = (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('Y-m-d H:i:s');
+            $params['now'] = (new \DateTimeImmutable('now', \app_timezone()))->format('Y-m-d H:i:s');
         }
 
         return self::fetchAll(

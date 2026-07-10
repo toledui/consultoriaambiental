@@ -89,7 +89,7 @@
                     <span class="text-gray-400"><i class="fas fa-times-circle"></i> No</span>
                   <?php endif; ?>
                 </td>
-                <td class="px-4 py-3 text-gray-500 text-xs"><?= date('d/m/Y H:i', strtotime($contact['created_at'])) ?></td>
+                <td class="px-4 py-3 text-gray-500 text-xs"><?= format_cdmx_datetime($contact['created_at']) ?> CDMX</td>
                 <td class="px-4 py-3 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <a href="<?= BASE_URL ?>/admin/contactos/<?= $contact['id'] ?>" class="px-3 py-1.5 text-xs bg-ca-navy/10 text-ca-navy rounded-lg hover:bg-ca-navy/20 transition-colors" title="Ver detalle">

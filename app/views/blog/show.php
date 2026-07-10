@@ -21,7 +21,7 @@
               <?= htmlspecialchars($post['category_name']) ?>
             </a>
           <?php endif; ?>
-          <span><i class="far fa-calendar-alt mr-1"></i> <?= date('d M Y', strtotime($displayDate)) ?></span>
+          <span><i class="far fa-calendar-alt mr-1"></i> <?= format_cdmx_datetime($displayDate, 'd M Y') ?></span>
         </div>
         
         <h1 class="text-4xl md:text-5xl font-extrabold text-ca-navy mb-6 leading-tight">

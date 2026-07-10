@@ -33,14 +33,14 @@
         <div>
           <h2 class="text-xl font-bold text-ca-navy"><?= htmlspecialchars($contact['nombre']) ?></h2>
           <p class="text-sm text-gray-500">
-            Recibido: <?= date('d/m/Y \a \l\a\s H:i', strtotime($contact['created_at'])) ?>
+            Recibido: <?= format_cdmx_datetime($contact['created_at'], 'd/m/Y \a \l\a\s H:i') ?> CDMX
           </p>
         </div>
       </div>
       <div>
         <?php if ($contact['read_at'] !== null): ?>
           <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-            <i class="fas fa-check-circle mr-1"></i> Leído <?= date('d/m/Y H:i', strtotime($contact['read_at'])) ?>
+            <i class="fas fa-check-circle mr-1"></i> Leído <?= format_cdmx_datetime($contact['read_at']) ?> CDMX
           </span>
         <?php else: ?>
           <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">

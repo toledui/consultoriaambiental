@@ -62,7 +62,7 @@ class ChecklistController extends Controller
             'Empresa',
             'Giro / Sector',
             'Dirección IP',
-            'Fecha de descarga',
+            'Fecha de descarga (CDMX)',
         ], ',', '"', '');
 
         // Data rows
@@ -75,7 +75,7 @@ class ChecklistController extends Controller
                 $row['empresa'] ?? '',
                 $row['giro'] ?? '',
                 $row['ip_address'] ?? '',
-                $row['created_at'],
+                format_cdmx_datetime($row['created_at']),
             ], ',', '"', '');
         }
 

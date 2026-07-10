@@ -190,7 +190,7 @@ class BlogController extends Controller
             return null;
         }
 
-        $timezone = new \DateTimeZone('America/Mexico_City');
+        $timezone = app_timezone();
         foreach (['Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i'] as $format) {
             $date = \DateTimeImmutable::createFromFormat($format, $value, $timezone);
             if ($date instanceof \DateTimeImmutable) {

@@ -41,7 +41,7 @@
                       </span>
                     <?php endif; ?>
                     <span class="bg-ca-green text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                      <i class="far fa-calendar-alt mr-1"></i><?= date('d M Y', strtotime($displayDate)) ?>
+                      <i class="far fa-calendar-alt mr-1"></i><?= format_cdmx_datetime($displayDate, 'd M Y') ?>
                     </span>
                   </div>
                 </div>

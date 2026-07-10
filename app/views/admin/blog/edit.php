@@ -98,7 +98,7 @@
           </p>
         </div>
 
-        <?php $publishedAtValue = !empty($post['published_at']) ? date('Y-m-d\TH:i', strtotime($post['published_at'])) : ''; ?>
+        <?php $publishedAtValue = !empty($post['published_at']) ? format_cdmx_datetime($post['published_at'], 'Y-m-d\TH:i') : ''; ?>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
           <div class="flex items-center gap-3 pt-3">
             <input class="w-5 h-5 text-ca-green border-gray-300 rounded focus:ring-ca-green" id="published" name="published" type="checkbox" value="1" <?= $post['published'] ? 'checked' : '' ?>/>
