@@ -22,7 +22,7 @@ class BlogController extends Controller
             $pageTitle = 'Blog';
         }
 
-        $categories = BlogCategory::getAllWithCount();
+        $categories = BlogCategory::getAllWithCount(true);
 
         $this->view('blog/index', [
             'title'       => $pageTitle,
@@ -40,7 +40,7 @@ class BlogController extends Controller
 
     public function show(string $slug): void
     {
-        $post = BlogPost::findBySlug($slug);
+        $post = BlogPost::findPublishedBySlug($slug);
 
         if (!$post) {
             http_response_code(404);

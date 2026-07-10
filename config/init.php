@@ -7,6 +7,8 @@
 // Load config constants
 require_once __DIR__ . '/app.php';
 
+date_default_timezone_set('America/Mexico_City');
+
 // Error reporting
 if (APP_DEBUG) {
     error_reporting(E_ALL);
@@ -61,6 +63,48 @@ spl_autoload_register(function (string $class) {
         require $lowerFile;
     }
 });
+
+if (!function_exists('url_slug')) {
+    function url_slug(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        $value = strtr($value, [
+            'á' => 'a', 'à' => 'a', 'ä' => 'a', 'â' => 'a', 'ã' => 'a', 'å' => 'a',
+            'Á' => 'A', 'À' => 'A', 'Ä' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Å' => 'A',
+            'é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e',
+            'É' => 'E', 'È' => 'E', 'Ë' => 'E', 'Ê' => 'E',
+            'í' => 'i', 'ì' => 'i', 'ï' => 'i', 'î' => 'i',
+            'Í' => 'I', 'Ì' => 'I', 'Ï' => 'I', 'Î' => 'I',
+            'ó' => 'o', 'ò' => 'o', 'ö' => 'o', 'ô' => 'o', 'õ' => 'o',
+            'Ó' => 'O', 'Ò' => 'O', 'Ö' => 'O', 'Ô' => 'O', 'Õ' => 'O',
+            'ú' => 'u', 'ù' => 'u', 'ü' => 'u', 'û' => 'u',
+            'Ú' => 'U', 'Ù' => 'U', 'Ü' => 'U', 'Û' => 'U',
+            'ñ' => 'n', 'Ñ' => 'N', 'ç' => 'c', 'Ç' => 'C',
+        ]);
+
+        if (class_exists('Transliterator')) {
+            $transliterator = \Transliterator::create('Any-Latin; Latin-ASCII');
+            if ($transliterator) {
+                $value = $transliterator->transliterate($value);
+            }
+        } else {
+            $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+            if ($converted !== false) {
+                $value = $converted;
+            }
+        }
+
+        $slug = mb_strtolower($value, 'UTF-8');
+        $slug = preg_replace('/[^a-z0-9\s_-]/', '', $slug);
+        $slug = preg_replace('/[\s_]+/', '-', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+        return trim($slug, '-');
+    }
+}
 
 if (!function_exists('asset_url')) {
     function asset_url(string $relativePath): string

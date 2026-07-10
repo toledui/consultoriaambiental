@@ -26,12 +26,18 @@
             <th class="text-left px-6 py-4 font-semibold hidden md:table-cell">Slug</th>
             <th class="text-center px-6 py-4 font-semibold hidden lg:table-cell">Categoría</th>
             <th class="text-center px-6 py-4 font-semibold">Estado</th>
-            <th class="text-center px-6 py-4 font-semibold hidden lg:table-cell">Fecha</th>
+            <th class="text-center px-6 py-4 font-semibold hidden lg:table-cell">Publicaci&oacute;n</th>
             <th class="text-right px-6 py-4 font-semibold">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
+          <?php $nowTs = (new DateTimeImmutable('now', new DateTimeZone('America/Mexico_City')))->getTimestamp(); ?>
           <?php foreach ($posts as $post): ?>
+            <?php
+              $publishedAt = $post['published_at'] ?? null;
+              $isScheduled = !empty($publishedAt) && strtotime($publishedAt) > $nowTs;
+              $displayDate = $publishedAt ?: ($post['created_at'] ?? null);
+            ?>
             <tr class="hover:bg-gray-50 transition-colors">
               <td class="px-6 py-4">
                 <span class="font-semibold text-ca-navy"><?= htmlspecialchars($post['title']) ?></span>
@@ -47,7 +53,11 @@
                 <?php endif; ?>
               </td>
               <td class="px-6 py-4 text-center">
-                <?php if ($post['published']): ?>
+                <?php if ($post['published'] && $isScheduled): ?>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    Programado
+                  </span>
+                <?php elseif ($post['published']): ?>
                   <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Publicado
                   </span>
@@ -57,7 +67,9 @@
                   </span>
                 <?php endif; ?>
               </td>
-              <td class="px-6 py-4 text-center text-gray-500 hidden lg:table-cell"><?= date('d/m/Y', strtotime($post['created_at'])) ?></td>
+              <td class="px-6 py-4 text-center text-gray-500 hidden lg:table-cell">
+                <?= $displayDate ? date('d/m/Y H:i', strtotime($displayDate)) : '-' ?>
+              </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-2">
                   <a href="<?= BASE_URL ?>/admin/blog/editar/<?= $post['id'] ?>" class="text-ca-green hover:text-ca-navy transition-colors p-1" title="Editar">

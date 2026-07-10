@@ -21,14 +21,23 @@ class BlogCategory extends Model
     /**
      * Get all categories with post count.
      */
-    public static function getAllWithCount(): array
+    public static function getAllWithCount(bool $publicOnly = false): array
     {
+        $joinCondition = 'p.category_id = c.id';
+        $params = [];
+
+        if ($publicOnly) {
+            $joinCondition .= ' AND p.published = 1 AND (p.published_at IS NULL OR p.published_at <= :now)';
+            $params['now'] = (new \DateTimeImmutable('now', new \DateTimeZone('America/Mexico_City')))->format('Y-m-d H:i:s');
+        }
+
         return self::fetchAll(
             "SELECT c.*, COUNT(p.id) as post_count
              FROM " . self::$table . " c
-             LEFT JOIN blog_posts p ON p.category_id = c.id
+             LEFT JOIN blog_posts p ON " . $joinCondition . "
              GROUP BY c.id
-             ORDER BY c.name ASC"
+             ORDER BY c.name ASC",
+            $params
         );
     }
 
@@ -88,10 +97,7 @@ class BlogCategory extends Model
      */
     public static function generateSlug(string $name): string
     {
-        $slug = mb_strtolower($name, 'UTF-8');
-        $slug = preg_replace('/[^\w\s-]/', '', $slug);
-        $slug = preg_replace('/[\s_]+/', '-', $slug);
-        $slug = preg_replace('/-+/', '-', $slug);
-        return trim($slug, '-');
+        $slug = \url_slug($name);
+        return $slug !== '' ? $slug : 'categoria';
     }
 }

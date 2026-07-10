@@ -23,6 +23,7 @@
         <?php if (!empty($posts)): ?>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <?php foreach ($posts as $post): ?>
+              <?php $displayDate = $post['published_at'] ?? $post['created_at']; ?>
               <article class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col">
                 <!-- Featured Image -->
                 <div class="relative overflow-hidden h-52">
@@ -40,7 +41,7 @@
                       </span>
                     <?php endif; ?>
                     <span class="bg-ca-green text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
-                      <i class="far fa-calendar-alt mr-1"></i><?= date('d M Y', strtotime($post['created_at'])) ?>
+                      <i class="far fa-calendar-alt mr-1"></i><?= date('d M Y', strtotime($displayDate)) ?>
                     </span>
                   </div>
                 </div>

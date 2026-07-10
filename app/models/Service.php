@@ -79,10 +79,7 @@ class Service extends Model
      */
     public static function generateSlug(string $title): string
     {
-        $slug = mb_strtolower($title, 'UTF-8');
-        $slug = preg_replace('/[^\w\s-]/', '', $slug);
-        $slug = preg_replace('/[\s_]+/', '-', $slug);
-        $slug = preg_replace('/-+/', '-', $slug);
-        return trim($slug, '-');
+        $slug = \url_slug($title);
+        return $slug !== '' ? $slug : 'servicio';
     }
 }

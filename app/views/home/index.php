@@ -284,6 +284,7 @@
         
         <?php if (!empty($blogPosts)): ?>
           <?php foreach ($blogPosts as $post): ?>
+            <?php $displayDate = $post['published_at'] ?? $post['created_at'] ?? null; ?>
             <div class="news-carousel-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-2 flex-shrink-0">
               <a href="<?= BASE_URL ?>/blog/<?= htmlspecialchars($post['slug']) ?>" class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden group h-24">
                 <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
@@ -300,8 +301,8 @@
                   <h3 class="text-xs font-bold text-ca-navy leading-tight group-hover:text-ca-green transition-colors break-words mt-0.5">
                     <?= htmlspecialchars($post['title']) ?>
                   </h3>
-                  <?php if (!empty($post['created_at'])): ?>
-                    <span class="text-[10px] text-gray-400 mt-1 block"><?= date('d M Y', strtotime($post['created_at'])) ?></span>
+                  <?php if (!empty($displayDate)): ?>
+                    <span class="text-[10px] text-gray-400 mt-1 block"><?= date('d M Y', strtotime($displayDate)) ?></span>
                   <?php endif; ?>
                 </div>
               </a>

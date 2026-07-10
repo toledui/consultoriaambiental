@@ -43,15 +43,20 @@
 
 <script>
 // Auto-generate slug from name
+function slugifyText(value) {
+  var normalized = value && value.normalize ? value.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : value;
+  return normalized
+    .toLowerCase()
+    .replace(/[^a-z0-9\s_-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 document.getElementById('name').addEventListener('blur', function() {
   var slugField = document.getElementById('slug');
   if (!slugField.value) {
-    slugField.value = this.value
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+    slugField.value = slugifyText(this.value);
   }
 });
 </script>

@@ -6,6 +6,7 @@
         <i class="fas fa-arrow-left mr-2"></i> Volver al blog
       </a>
       
+      <?php $displayDate = $post['published_at'] ?? $post['created_at']; ?>
       <article>
         <?php if ($post['featured_image']): ?>
           <div class="rounded-2xl overflow-hidden mb-10 shadow-lg">
@@ -20,7 +21,7 @@
               <?= htmlspecialchars($post['category_name']) ?>
             </a>
           <?php endif; ?>
-          <span><i class="far fa-calendar-alt mr-1"></i> <?= date('d M Y', strtotime($post['created_at'])) ?></span>
+          <span><i class="far fa-calendar-alt mr-1"></i> <?= date('d M Y', strtotime($displayDate)) ?></span>
         </div>
         
         <h1 class="text-4xl md:text-5xl font-extrabold text-ca-navy mb-6 leading-tight">

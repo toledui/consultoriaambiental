@@ -18,7 +18,7 @@
       </nav>
     </div>
 
-    <form method="POST" action="<?= BASE_URL ?>/admin/blog/crear" class="p-6">
+    <form method="POST" action="<?= BASE_URL ?>/admin/blog/crear" enctype="multipart/form-data" class="p-6">
 
       <!-- ===== TAB: CONTENIDO ===== -->
       <div id="tab-content" class="tab-panel space-y-6">
@@ -98,9 +98,16 @@
           </p>
         </div>
 
-        <div class="flex items-center gap-3">
-          <input class="w-5 h-5 text-ca-green border-gray-300 rounded focus:ring-ca-green" id="published" name="published" type="checkbox" value="1" checked/>
-          <label class="text-sm font-medium text-ca-dark-gray" for="published">Publicar inmediatamente</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          <div class="flex items-center gap-3 pt-3">
+            <input class="w-5 h-5 text-ca-green border-gray-300 rounded focus:ring-ca-green" id="published" name="published" type="checkbox" value="1" checked/>
+            <label class="text-sm font-medium text-ca-dark-gray" for="published">Marcar como publicado</label>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-ca-dark-gray mb-1.5" for="published_at">Fecha y hora de publicaci&oacute;n (CDMX)</label>
+            <input class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green outline-none transition" id="published_at" name="published_at" type="datetime-local"/>
+            <p class="text-xs text-gray-400 mt-1">Vac&iacute;o publica de inmediato. Si eliges una fecha futura, el post queda programado.</p>
+          </div>
         </div>
       </div>
 
@@ -242,6 +249,7 @@ function clearFeaturedImage() {
   document.getElementById('featuredPreview').classList.add('hidden');
   document.getElementById('featuredPlaceholder').classList.remove('hidden');
   document.getElementById('featuredImageInput').value = '';
+  document.getElementById('featuredMediaUrl').value = '';
 }
 
 // Drag & drop for featured image
@@ -318,6 +326,7 @@ function openMediaBrowserForFeatured() {
     img.src = url;
     preview.classList.remove('hidden');
     placeholder.classList.add('hidden');
+    document.getElementById('featuredImageInput').value = '';
     // Store the URL in the hidden input
     document.getElementById('featuredMediaUrl').value = url;
     // Restore the default callback for next time
@@ -356,15 +365,20 @@ function closeMediaBrowser() {
 }
 
 // --- Auto-generate slug from title ----------------------------------
+function slugifyText(value) {
+  var normalized = value && value.normalize ? value.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : value;
+  return normalized
+    .toLowerCase()
+    .replace(/[^a-z0-9\s_-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 document.getElementById('title').addEventListener('blur', function() {
   var slugField = document.getElementById('slug');
   if (!slugField.value) {
-    slugField.value = this.value
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+    slugField.value = slugifyText(this.value);
   }
 });
 </script>
