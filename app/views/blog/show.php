@@ -32,7 +32,7 @@
           <p class="text-xl text-gray-500 mb-8 leading-relaxed"><?= htmlspecialchars($post['excerpt']) ?></p>
         <?php endif; ?>
         
-        <div class="prose prose-lg max-w-none text-ca-dark-gray leading-relaxed">
+        <div class="blog-rich-content max-w-none">
           <?= $post['content'] ?>
         </div>
       </article>
