@@ -254,7 +254,13 @@ class HomeController extends Controller
         $sectorLabel = !empty($sector) ? $sector : 'No especificado';
         $newsletterLabel = $newsletter ? 'Sí, desea suscribirse' : 'No desea suscribirse';
 
-        $hostName = $_SERVER['HTTP_HOST'] ?? APP_NAME;
+        $nombreHtml = htmlspecialchars($nombre, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $correoHtml = htmlspecialchars($correo, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $telefonoHtml = htmlspecialchars($telefono, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $sectorHtml = htmlspecialchars($sectorLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $mensajeHtml = nl2br(htmlspecialchars($mensaje, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
+
+        $hostName = htmlspecialchars($_SERVER['HTTP_HOST'] ?? APP_NAME, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $subject = 'Nuevo contacto desde el sitio web - ' . APP_NAME;
 
         $htmlBody = <<<HTML
@@ -268,15 +274,15 @@ class HomeController extends Controller
     </div>
     <div style="padding: 24px;">
       <table style="width: 100%; border-collapse: collapse;">
-        <tr><td style="padding: 8px 0; font-weight: bold; color: #333; width: 120px;">Nombre:</td><td style="padding: 8px 0; color: #555;">{$nombre}</td></tr>
-        <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Correo:</td><td style="padding: 8px 0; color: #555;"><a href="mailto:{$correo}">{$correo}</a></td></tr>
-        <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Teléfono:</td><td style="padding: 8px 0; color: #555;">{$telefono}</td></tr>
-        <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Sector:</td><td style="padding: 8px 0; color: #555;">{$sectorLabel}</td></tr>
+        <tr><td style="padding: 8px 0; font-weight: bold; color: #333; width: 120px;">Nombre:</td><td style="padding: 8px 0; color: #555;">{$nombreHtml}</td></tr>
+        <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Correo:</td><td style="padding: 8px 0; color: #555;"><a href="mailto:{$correoHtml}">{$correoHtml}</a></td></tr>
+        <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Teléfono:</td><td style="padding: 8px 0; color: #555;">{$telefonoHtml}</td></tr>
+        <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Sector:</td><td style="padding: 8px 0; color: #555;">{$sectorHtml}</td></tr>
         <tr><td style="padding: 8px 0; font-weight: bold; color: #333;">Newsletter:</td><td style="padding: 8px 0; color: #555;">{$newsletterLabel}</td></tr>
       </table>
       <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;">
       <h3 style="color: #333; margin: 0 0 8px;">Mensaje:</h3>
-      <p style="color: #555; line-height: 1.6; white-space: pre-wrap;">{$mensaje}</p>
+      <p style="color: #555; line-height: 1.6;">{$mensajeHtml}</p>
       <hr style="border: none; border-top: 1px solid #eee; margin: 16px 0;">
       <p style="font-size: 12px; color: #999; text-align: center;">
         Este correo fue generado automáticamente desde el formulario de contacto de {$hostName}.
@@ -300,7 +306,10 @@ HTML;
         $mail = new Mail();
 
         foreach ($recipients as $recipient) {
-            $mail->send($recipient, $recipient, $subject, $htmlBody, $textBody);
+            $result = $mail->send($recipient, '', $subject, $htmlBody, $textBody, $correo, $nombre);
+            if (!$result['success']) {
+                error_log('No se pudo enviar la notificación de contacto a ' . $recipient . ': ' . $result['message']);
+            }
         }
     }
 }

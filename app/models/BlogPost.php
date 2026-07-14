@@ -137,9 +137,10 @@ class BlogPost extends Model
     public static function getAll(): array
     {
         return self::fetchAll(
-            "SELECT p.*, c.name as category_name
+            "SELECT p.*, c.name as category_name, u.username as author_name
              FROM " . self::$table . " p
              LEFT JOIN blog_categories c ON c.id = p.category_id
+             LEFT JOIN users u ON u.id = p.author_id
              ORDER BY p.created_at DESC"
         );
     }
@@ -197,6 +198,7 @@ class BlogPost extends Model
             'meta_description' => '',
             'json_ld'          => '',
             'category_id'      => null,
+            'author_id'        => null,
             'published_at'     => null,
         ];
         $data = array_merge($defaults, $data);

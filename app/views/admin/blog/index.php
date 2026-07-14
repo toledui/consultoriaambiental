@@ -25,6 +25,7 @@
             <th class="text-left px-6 py-4 font-semibold">Título</th>
             <th class="text-left px-6 py-4 font-semibold hidden md:table-cell">Slug</th>
             <th class="text-center px-6 py-4 font-semibold hidden lg:table-cell">Categoría</th>
+            <th class="text-left px-6 py-4 font-semibold">Autor</th>
             <th class="text-center px-6 py-4 font-semibold">Estado</th>
             <th class="text-center px-6 py-4 font-semibold hidden lg:table-cell">Publicaci&oacute;n</th>
             <th class="text-right px-6 py-4 font-semibold">Acciones</th>
@@ -50,6 +51,16 @@
                   </span>
                 <?php else: ?>
                   <span class="text-gray-400 text-xs">—</span>
+                <?php endif; ?>
+              </td>
+              <td class="px-6 py-4 text-gray-600">
+                <?php if (!empty($post['author_name'])): ?>
+                  <span class="inline-flex items-center gap-2">
+                    <i class="fas fa-user-circle text-ca-green" aria-hidden="true"></i>
+                    <?= htmlspecialchars($post['author_name'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
+                  </span>
+                <?php else: ?>
+                  <span class="text-gray-400 text-xs">Sin registro</span>
                 <?php endif; ?>
               </td>
               <td class="px-6 py-4 text-center">

@@ -36,7 +36,10 @@ class Mail
      */
     public function isConfigured(): bool
     {
-        return !empty($this->host) && !empty($this->username) && !empty($this->password);
+        return !empty($this->host)
+            && !empty($this->username)
+            && !empty($this->password)
+            && filter_var($this->fromEmail, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
@@ -49,7 +52,15 @@ class Mail
      * @param string $textBody Plain text fallback
      * @return array{success: bool, message: string}
      */
-    public function send(string $toEmail, string $toName, string $subject, string $htmlBody, string $textBody = ''): array
+    public function send(
+        string $toEmail,
+        string $toName,
+        string $subject,
+        string $htmlBody,
+        string $textBody = '',
+        string $replyToEmail = '',
+        string $replyToName = ''
+    ): array
     {
         if (!$this->isConfigured()) {
             return [
@@ -58,11 +69,19 @@ class Mail
             ];
         }
 
-        if (empty($toEmail)) {
+        if (!filter_var($toEmail, FILTER_VALIDATE_EMAIL)) {
             return [
                 'success' => false,
-                'message' => 'El correo destino es requerido.',
+                'message' => 'El correo destino no es válido.',
             ];
+        }
+
+        if (!filter_var($this->fromEmail, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'El correo remitente SMTP no es válido.'];
+        }
+
+        if ($replyToEmail !== '' && !filter_var($replyToEmail, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'El correo de respuesta no es válido.'];
         }
 
         if (empty($textBody)) {
@@ -70,7 +89,15 @@ class Mail
         }
 
         try {
-            return $this->sendWithSocket($toEmail, $toName, $subject, $htmlBody, $textBody);
+            return $this->sendWithSocket(
+                $toEmail,
+                $toName,
+                $subject,
+                $htmlBody,
+                $textBody,
+                $replyToEmail,
+                $replyToName
+            );
         } catch (\Throwable $e) {
             $errorMsg = 'Error al enviar correo: ' . $e->getMessage();
 
@@ -95,7 +122,15 @@ class Mail
     /**
      * Send email via raw SMTP socket connection.
      */
-    private function sendWithSocket(string $toEmail, string $toName, string $subject, string $htmlBody, string $textBody): array
+    private function sendWithSocket(
+        string $toEmail,
+        string $toName,
+        string $subject,
+        string $htmlBody,
+        string $textBody,
+        string $replyToEmail,
+        string $replyToName
+    ): array
     {
         // Determine connection prefix
         $prefix = '';
@@ -117,62 +152,72 @@ class Mail
             ];
         }
 
-        $this->smtpRead($socket);
+        $this->smtpExpect($socket, [220], 'saludo del servidor');
 
         // Say hello
-        $this->smtpCommand($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
+        $helloHost = preg_replace('/[^A-Za-z0-9.-]/', '', $_SERVER['SERVER_NAME'] ?? '') ?: 'localhost';
+        $this->smtpCommand($socket, "EHLO {$helloHost}", [250]);
 
         // STARTTLS if using TLS
         if ($this->encryption === 'tls') {
-            $this->smtpCommand($socket, "STARTTLS");
+            $this->smtpCommand($socket, "STARTTLS", [220]);
             // Upgrade to TLS
-            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+                throw new \RuntimeException('No fue posible establecer la conexión TLS.');
+            }
             // Re-say hello after TLS
-            $this->smtpCommand($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
+            $this->smtpCommand($socket, "EHLO {$helloHost}", [250]);
         }
 
         // Authenticate
-        $this->smtpCommand($socket, "AUTH LOGIN");
-        $this->smtpCommand($socket, base64_encode($this->username));
-        $this->smtpCommand($socket, base64_encode($this->password));
+        $this->smtpCommand($socket, "AUTH LOGIN", [334]);
+        $this->smtpCommand($socket, base64_encode($this->username), [334]);
+        $this->smtpCommand($socket, base64_encode($this->password), [235]);
 
         // Mail from
-        $this->smtpCommand($socket, "MAIL FROM:<{$this->fromEmail}>");
+        $this->smtpCommand($socket, "MAIL FROM:<{$this->fromEmail}>", [250]);
 
         // Rcpt to
-        $this->smtpCommand($socket, "RCPT TO:<{$toEmail}>");
+        $this->smtpCommand($socket, "RCPT TO:<{$toEmail}>", [250, 251]);
 
         // Data
-        $this->smtpCommand($socket, "DATA");
+        $this->smtpCommand($socket, "DATA", [354]);
 
         // Build headers
-        $boundary = "boundary_" . md5(time());
+        $boundary = '=_Part_' . bin2hex(random_bytes(16));
+        $messageIdHost = preg_replace('/[^A-Za-z0-9.-]/', '', parse_url('https://' . $helloHost, PHP_URL_HOST) ?: '') ?: 'localhost';
         $headers = [
-            "From: {$this->fromName} <{$this->fromEmail}>",
-            "To: {$toName} <{$toEmail}>",
-            "Subject: $subject",
+            'From: ' . $this->formatAddress($this->fromEmail, $this->fromName),
+            'To: ' . $this->formatAddress($toEmail, $toName),
+            'Subject: ' . $this->encodeHeader($subject),
             "MIME-Version: 1.0",
             "Content-Type: multipart/alternative; boundary=\"$boundary\"",
             "Date: " . date('r'),
+            'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . $messageIdHost . '>',
             "X-Mailer: GestoriaAmbiental-MVC/1.0",
         ];
+
+        if ($replyToEmail !== '') {
+            $headers[] = 'Reply-To: ' . $this->formatAddress($replyToEmail, $replyToName);
+        }
 
         // Build body
         $message = implode("\r\n", $headers) . "\r\n\r\n";
         $message .= "--$boundary\r\n";
-        $message .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
-        $message .= $textBody . "\r\n\r\n";
+        $message .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $message .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $message .= chunk_split(base64_encode($this->normalizeBody($textBody)), 76, "\r\n") . "\r\n";
         $message .= "--$boundary\r\n";
         $message .= "Content-Type: text/html; charset=UTF-8\r\n";
-        $message .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-        $message .= $htmlBody . "\r\n\r\n";
+        $message .= "Content-Transfer-Encoding: base64\r\n\r\n";
+        $message .= chunk_split(base64_encode($this->normalizeBody($htmlBody)), 76, "\r\n") . "\r\n";
         $message .= "--$boundary--\r\n.\r\n";
 
         fwrite($socket, $message);
-        $this->smtpRead($socket);
+        $this->smtpExpect($socket, [250], 'entrega del mensaje');
 
         // Quit
-        $this->smtpCommand($socket, "QUIT");
+        $this->smtpCommand($socket, "QUIT", [221]);
 
         fclose($socket);
 
@@ -185,10 +230,53 @@ class Mail
     /**
      * Send an SMTP command and read response.
      */
-    private function smtpCommand($socket, string $command): string
+    private function smtpCommand($socket, string $command, array $expectedCodes): string
     {
         fwrite($socket, $command . "\r\n");
-        return $this->smtpRead($socket);
+        return $this->smtpExpect($socket, $expectedCodes, strtok($command, ' '));
+    }
+
+    private function smtpExpect($socket, array $expectedCodes, string $stage): string
+    {
+        $response = $this->smtpRead($socket);
+        $code = (int) substr($response, 0, 3);
+        if (!in_array($code, $expectedCodes, true)) {
+            $safeResponse = trim(preg_replace('/[\r\n]+/', ' ', $response));
+            throw new \RuntimeException("SMTP rechazó {$stage}: {$safeResponse}");
+        }
+        return $response;
+    }
+
+    private function formatAddress(string $email, string $name = ''): string
+    {
+        $name = $this->sanitizeHeader($name);
+        if ($name === '' || strcasecmp($name, $email) === 0) {
+            return $email;
+        }
+        if (preg_match('/[^\x20-\x7E]/', $name)) {
+            $displayName = $this->encodeHeader($name);
+        } else {
+            $displayName = '"' . addcslashes($name, '"\\') . '"';
+        }
+        return $displayName . " <{$email}>";
+    }
+
+    private function encodeHeader(string $value): string
+    {
+        $value = $this->sanitizeHeader($value);
+        return preg_match('/[^\x20-\x7E]/', $value)
+            ? '=?UTF-8?B?' . base64_encode($value) . '?='
+            : $value;
+    }
+
+    private function sanitizeHeader(string $value): string
+    {
+        return trim((string) preg_replace('/[\r\n]+/', ' ', $value));
+    }
+
+    private function normalizeBody(string $body): string
+    {
+        return preg_replace("/\r\n|\r|\n/", "\r\n", $body);
     }
 
     /**

@@ -174,7 +174,7 @@ class SettingController extends Controller
 
         [$subject, $htmlBody, $textBody] = Mail::buildTestEmail($companyName);
 
-        $result = $mail->send($toEmail, $toEmail, $subject, $htmlBody, $textBody);
+        $result = $mail->send($toEmail, '', $subject, $htmlBody, $textBody);
 
         if ($result['success']) {
             $_SESSION['flash_message'] = $result['message'];

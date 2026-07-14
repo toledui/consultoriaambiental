@@ -81,6 +81,7 @@ class BlogController extends Controller
             'published'        => $published,
             'published_at'     => $publishedAt,
             'category_id'      => $categoryId,
+            'author_id'        => (int)$_SESSION['admin_id'],
             'meta_title'       => $metaTitle,
             'meta_description' => $metaDescription,
             'json_ld'          => $jsonLd,
