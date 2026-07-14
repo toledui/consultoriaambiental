@@ -26,6 +26,6 @@
 
 - [ ] **WebP conversion** — Convertir imágenes a WebP para reducir peso y mejorar Lighthouse.
 
-- [ ] **Sitemap XML** — Generar un `sitemap.xml` dinámico para mejorar el SEO.
+- [x] **Sitemap XML y robots.txt** — Generados dinámicamente para mejorar el SEO.
 
 - [ ] **RSS Feed** — Agregar un feed RSS para el blog.
