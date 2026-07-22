@@ -12,6 +12,8 @@ class BlogController extends Controller
     {
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $categorySlug = $_GET['categoria'] ?? '';
+        $canonicalQuery = $page > 1 && $categorySlug === '' ? ['page' => $page] : [];
+        $hasFilteredResults = $categorySlug !== '' || isset($_GET['buscar']);
 
         if ($categorySlug) {
             $result = BlogPost::getPublishedByCategory($categorySlug, $page, 6);
@@ -35,6 +37,10 @@ class BlogController extends Controller
                 'totalPages'  => $result['pages'],
                 'total'       => $result['total'],
             ],
+            'canonicalUrl' => canonical_url('/blog', $canonicalQuery),
+            'robotsContent' => $hasFilteredResults
+                ? 'noindex, follow'
+                : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         ]);
     }
 
@@ -47,6 +53,7 @@ class BlogController extends Controller
             $this->view('blog/show', [
                 'title' => 'Artículo no encontrado',
                 'post'  => null,
+                'robotsContent' => 'noindex, nofollow',
             ]);
             return;
         }

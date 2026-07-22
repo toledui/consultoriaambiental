@@ -258,11 +258,19 @@
       <?php unset($_SESSION['newsletter_error']); ?>
     <?php endif; ?>
 
-    <form action="<?= BASE_URL ?>/blog/newsletter" method="POST" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+    <form action="<?= BASE_URL ?>/blog/newsletter" method="POST" class="flex flex-col gap-4 max-w-lg mx-auto">
+      <div class="flex flex-col sm:flex-row gap-3">
       <input type="email" name="correo" placeholder="Tu correo electrónico" required class="flex-1 px-5 py-3.5 rounded-xl border border-gray-300 focus:border-ca-green focus:ring-2 focus:ring-ca-green/20 outline-none transition-all text-sm"/>
       <button type="submit" class="bg-ca-green hover:bg-green-700 text-white font-bold px-8 py-3.5 rounded-xl transition-colors shadow-md whitespace-nowrap">
         Suscribirse <i class="fas fa-paper-plane ml-2 text-sm"></i>
       </button>
+      </div>
+      <?php
+        $turnstileAction = 'blog_newsletter';
+        $turnstileClass = 'flex justify-center';
+        include VIEWS_DIR . '/partials/turnstile.php';
+        unset($turnstileAction, $turnstileClass);
+      ?>
     </form>
     <p class="text-xs text-gray-400 mt-4">
       <i class="fas fa-shield-alt mr-1"></i>Sin spam. Puedes darte de baja en cualquier momento.

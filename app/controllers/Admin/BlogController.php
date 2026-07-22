@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Models\BlogPost;
 use App\Models\BlogCategory;
 use App\Models\MediaFile;
+use App\Models\User;
 
 class BlogController extends Controller
 {
@@ -103,11 +104,13 @@ class BlogController extends Controller
         }
 
         $categories = BlogCategory::getAll();
+        $users = User::getAll();
 
         $this->view('admin/blog/edit', [
             'title'      => 'Editar Artículo',
             'post'       => $post,
             'categories' => $categories,
+            'users'      => $users,
         ], 'admin');
     }
 
@@ -129,6 +132,7 @@ class BlogController extends Controller
         $published = isset($_POST['published']) ? 1 : 0;
         $publishedAt = $this->normalizePublishedAt($_POST['published_at'] ?? '');
         $categoryId = !empty($_POST['category_id']) ? (int)$_POST['category_id'] : null;
+        $authorId = $this->normalizeAuthorId($_POST['author_id'] ?? null);
 
         try {
             $image = $this->resolveFeaturedImage($post['featured_image'] ?? '');
@@ -158,6 +162,7 @@ class BlogController extends Controller
             'published'        => $published,
             'published_at'     => $publishedAt,
             'category_id'      => $categoryId,
+            'author_id'        => $authorId,
             'meta_title'       => $metaTitle,
             'meta_description' => $metaDescription,
             'json_ld'          => $jsonLd,
@@ -200,6 +205,19 @@ class BlogController extends Controller
         }
 
         return null;
+    }
+
+    private function normalizeAuthorId(mixed $value): ?int
+    {
+        $authorId = filter_var($value, FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+
+        if ($authorId === false) {
+            return null;
+        }
+
+        return User::findById((int)$authorId) ? (int)$authorId : null;
     }
 
     private function resolveFeaturedImage(string $currentImage = ''): string

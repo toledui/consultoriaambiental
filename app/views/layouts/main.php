@@ -17,8 +17,13 @@
   </script>
   <title><?= !empty($seoTitle) ? htmlspecialchars($seoTitle) : (!empty($title) ? htmlspecialchars($title) . ' | ' . APP_NAME : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME) ?></title>
   
-  <!-- Canonical URL -->
-  <link rel="canonical" href="<?= BASE_URL ?><?= $_SERVER['REQUEST_URI'] ?? '/' ?>"/>
+  <?php
+    $canonicalHref = $canonicalUrl ?? canonical_url();
+    $robotsMeta = $robotsContent ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+  ?>
+  <!-- Indexing directives and canonical URL -->
+  <meta name="robots" content="<?= htmlspecialchars($robotsMeta, ENT_QUOTES, 'UTF-8') ?>"/>
+  <link rel="canonical" href="<?= htmlspecialchars($canonicalHref, ENT_QUOTES, 'UTF-8') ?>"/>
 
   <!-- Meta Description - Default SEO -->
   <meta name="description" content="<?= !empty($metaDesc) ? htmlspecialchars($metaDesc) : 'Consultoría ambiental para empresas e industrias en México. Gestionamos MIA, residuos, emisiones, COA, LAU, inspecciones PROEPA/PROFEPA y cumplimiento normativo con más de 10 años de experiencia.' ?>"/>
@@ -27,7 +32,7 @@
   <meta property="og:title" content="<?= !empty($seoTitle) ? htmlspecialchars($seoTitle) : (!empty($title) ? htmlspecialchars($title) . ' | ' . APP_NAME : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME) ?>"/>
   <meta property="og:description" content="<?= !empty($metaDesc) ? htmlspecialchars($metaDesc) : 'Consultoría ambiental para empresas e industrias en México. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.' ?>"/>
   <meta property="og:type" content="website"/>
-  <meta property="og:url" content="<?= BASE_URL ?><?= $_SERVER['REQUEST_URI'] ?? '/' ?>"/>
+  <meta property="og:url" content="<?= htmlspecialchars($canonicalHref, ENT_QUOTES, 'UTF-8') ?>"/>
   <meta property="og:image" content="<?= asset_prefer_webp('images/consultoria-ambiental-logo.png') ?>"/>
   <meta property="og:locale" content="es_MX"/>
 
@@ -43,7 +48,7 @@
     "@type": "ProfessionalService",
     "name": "<?= htmlspecialchars($settings['brand_company_name'] ?? APP_NAME) ?>",
     "description": "Consultoría ambiental para empresas e industrias. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.",
-    "url": "<?= BASE_URL ?>",
+    "url": "<?= htmlspecialchars(public_base_url(), ENT_QUOTES, 'UTF-8') ?>",
     "telephone": "<?= htmlspecialchars($settings['footer_whatsapp_value'] ?? '+523387654321') ?>",
     "email": "<?= htmlspecialchars($settings['footer_email_value'] ?? 'contacto@consultoria-ca.com') ?>",
     "areaServed": "México",
@@ -86,6 +91,7 @@
     $tailwindVersion = file_exists($tailwindPath) ? (string) filemtime($tailwindPath) : '1';
     $tailwindHref = BASE_URL . '/css/tailwind.css?v=' . $tailwindVersion;
     $hasAos = true;
+    $turnstileEnabled = \App\Helpers\Turnstile::canRender($settings);
   ?>
 
   <!-- Favicon -->
@@ -207,6 +213,41 @@
       }
     }
   </style>
+
+  <?php if ($turnstileEnabled): ?>
+  <!-- Cloudflare Turnstile: explicit rendering also supports forms inside hidden modals. -->
+  <script>
+    window.renderTurnstileWidgets = function(root) {
+      if (!window.turnstile) return;
+
+      (root || document).querySelectorAll('.js-turnstile').forEach(function(container) {
+        if (container.dataset.widgetId || container.getClientRects().length === 0) return;
+
+        var widgetId = window.turnstile.render(container, {
+          sitekey: container.dataset.sitekey,
+          action: container.dataset.action,
+          theme: 'auto',
+          language: 'es',
+          size: 'flexible'
+        });
+        container.dataset.widgetId = widgetId;
+      });
+    };
+
+    window.resetTurnstileWidgets = function(root) {
+      if (!window.turnstile) return;
+
+      (root || document).querySelectorAll('.js-turnstile[data-widget-id]').forEach(function(container) {
+        window.turnstile.reset(container.dataset.widgetId);
+      });
+    };
+
+    window.onTurnstileLoad = function() {
+      window.renderTurnstileWidgets(document);
+    };
+  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&amp;render=explicit" async defer></script>
+  <?php endif; ?>
 
   <!-- Custom Header Code (from admin settings) -->
   <?= $settings['custom_head_code'] ?? '' ?>

@@ -12,7 +12,7 @@ class SeoController
         header('Content-Type: text/plain; charset=UTF-8');
         header('Cache-Control: public, max-age=3600');
 
-        $baseUrl = rtrim(BASE_URL, '/');
+        $baseUrl = public_base_url();
 
         echo "User-agent: *\n";
         echo "Allow: /\n";
@@ -27,7 +27,7 @@ class SeoController
         header('Content-Type: application/xml; charset=UTF-8');
         header('Cache-Control: public, max-age=3600');
 
-        $baseUrl = rtrim(BASE_URL, '/');
+        $baseUrl = public_base_url();
         $urls = [
             ['loc' => $baseUrl . '/'],
             ['loc' => $baseUrl . '/nosotros'],

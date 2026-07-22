@@ -279,6 +279,13 @@
               </label>
             </div>
 
+            <?php
+              $turnstileAction = 'contact_form';
+              $turnstileClass = 'flex justify-center md:justify-start';
+              include VIEWS_DIR . '/partials/turnstile.php';
+              unset($turnstileAction, $turnstileClass);
+            ?>
+
             <!-- Submit & Privacy -->
             <div class="pt-4 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-gray-100">
               <div class="flex items-start text-xs text-gray-500 max-w-xs">

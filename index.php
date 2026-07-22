@@ -52,6 +52,25 @@ if ($uri !== '/' && file_exists($publicPath) && is_file($publicPath)) {
 // Load bootstrap
 require_once __DIR__ . '/config/init.php';
 
+$requestPath = (string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/');
+
+// Keep private and transactional endpoints out of search results even when a
+// crawler discovers their URLs elsewhere.
+if (str_starts_with($requestPath, '/admin')
+    || str_starts_with($requestPath, '/checklist/')
+    || $requestPath === '/contacto/gracias') {
+    header('X-Robots-Tag: noindex, nofollow');
+}
+
+// Redirect trailing-slash duplicates so links, sitemap and HTTP signals agree.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $requestPath !== '/' && str_ends_with($requestPath, '/')) {
+    $normalizedPath = rtrim($requestPath, '/');
+    $query = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
+    $location = canonical_url($normalizedPath) . ($query ? '?' . $query : '');
+    header('Location: ' . $location, true, 301);
+    exit;
+}
+
 use App\Core\Router;
 
 // Load routes

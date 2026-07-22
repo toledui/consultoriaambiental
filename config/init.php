@@ -156,6 +156,47 @@ if (!function_exists('asset_url')) {
     }
 }
 
+if (!function_exists('public_base_url')) {
+    /** Return the public base URL, preserving HTTPS reported by the edge proxy. */
+    function public_base_url(): string
+    {
+        $baseUrl = rtrim(BASE_URL, '/');
+        $forwardedProto = strtolower(trim(explode(',', (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0]));
+        $cfVisitor = json_decode((string) ($_SERVER['HTTP_CF_VISITOR'] ?? ''), true);
+        $cfScheme = is_array($cfVisitor) ? strtolower((string) ($cfVisitor['scheme'] ?? '')) : '';
+        $requestIsHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443
+            || $forwardedProto === 'https'
+            || $cfScheme === 'https';
+
+        if ($requestIsHttps && str_starts_with($baseUrl, 'http://')) {
+            $baseUrl = 'https://' . substr($baseUrl, 7);
+        }
+
+        return $baseUrl;
+    }
+}
+
+if (!function_exists('canonical_url')) {
+    /** Build an absolute canonical URL without arbitrary query strings. */
+    function canonical_url(?string $path = null, array $query = []): string
+    {
+        $path = $path ?? (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $path = '/' . ltrim($path !== '' ? $path : '/', '/');
+        if ($path !== '/') {
+            $path = rtrim($path, '/');
+        }
+
+        $url = public_base_url() . $path;
+        if ($query !== []) {
+            ksort($query);
+            $url .= '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+        }
+
+        return $url;
+    }
+}
+
 if (!function_exists('asset_prefer_webp')) {
     function asset_prefer_webp(?string $asset): string
     {

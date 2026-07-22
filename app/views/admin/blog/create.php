@@ -1,4 +1,14 @@
 <div class="max-w-5xl mx-auto">
+  <?php if (isset($_SESSION['flash_message'])): ?>
+    <div class="mb-6 p-4 rounded-lg border <?= ($_SESSION['flash_type'] ?? 'success') === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700' ?>">
+      <div class="flex items-center gap-2">
+        <i class="fas <?= ($_SESSION['flash_type'] ?? 'success') === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' ?>"></i>
+        <span><?= htmlspecialchars($_SESSION['flash_message'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
+      </div>
+    </div>
+    <?php unset($_SESSION['flash_message'], $_SESSION['flash_type']); ?>
+  <?php endif; ?>
+
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
     <!-- Tabs -->
     <div class="border-b border-gray-200">
@@ -64,6 +74,9 @@
                 <button type="button" onclick="clearFeaturedImage()" class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors">
                   <i class="fas fa-times mr-1"></i> Quitar imagen
                 </button>
+                <button type="button" onclick="document.getElementById('featuredImageInput').click()" class="text-ca-green hover:text-ca-navy text-sm font-medium transition-colors">
+                  <i class="fas fa-folder-open mr-1"></i> Subir otra imagen
+                </button>
                 <button type="button" onclick="openMediaBrowserForFeatured()" class="text-ca-green hover:text-ca-navy text-sm font-medium transition-colors">
                   <i class="fas fa-photo-video mr-1"></i> Cambiar desde mediateca
                 </button>
@@ -73,9 +86,8 @@
               <i class="fas fa-image text-4xl text-ca-light-gray mb-3"></i>
               <p class="text-sm text-gray-500 mb-2">Arrastra una imagen aqu&iacute; o</p>
               <div class="flex items-center justify-center gap-3">
-                <label class="inline-block bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm cursor-pointer">
+                <label for="featuredImageInput" class="inline-block bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm cursor-pointer">
                   <i class="fas fa-folder-open mr-1"></i> Subir imagen
-                  <input type="file" name="featured_image" id="featuredImageInput" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp,image/avif" onchange="previewFeaturedImage(this)"/>
                 </label>
                 <button type="button" onclick="openMediaBrowserForFeatured()" class="inline-block bg-ca-navy hover:bg-gray-800 text-white text-sm font-bold py-2 px-5 rounded-lg transition-colors shadow-sm">
                   <i class="fas fa-photo-video mr-1"></i> Mediateca
@@ -84,6 +96,7 @@
               <p class="text-xs text-gray-400 mt-3">JPG, PNG, GIF, WebP &mdash; M&aacute;x. 10 MB</p>
             </div>
           </div>
+          <input type="file" name="featured_image" id="featuredImageInput" class="hidden" accept="image/jpeg,image/png,image/gif,image/webp,image/avif" onchange="previewFeaturedImage(this)"/>
           <!-- Hidden input to store selected media URL as featured image -->
           <input type="hidden" id="featuredMediaUrl" name="featured_media_url" value=""/>
         </div>
@@ -235,6 +248,7 @@ function previewFeaturedImage(input) {
   var img = document.getElementById('featuredPreviewImg');
 
   if (input.files && input.files[0]) {
+    document.getElementById('featuredMediaUrl').value = '';
     var reader = new FileReader();
     reader.onload = function(e) {
       img.src = e.target.result;

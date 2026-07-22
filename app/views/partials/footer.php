@@ -218,6 +218,13 @@
           </label>
         </div>
 
+        <?php
+          $turnstileAction = 'checklist_download';
+          $turnstileClass = 'flex justify-center mb-4';
+          include VIEWS_DIR . '/partials/turnstile.php';
+          unset($turnstileAction, $turnstileClass);
+        ?>
+
         <!-- Error messages -->
         <div id="checklistError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4"></div>
 
@@ -262,6 +269,9 @@
     modalContent.classList.remove('scale-95', 'opacity-0');
     modalContent.classList.add('scale-100', 'opacity-100');
     document.body.style.overflow = 'hidden';
+    if (window.renderTurnstileWidgets) {
+      window.renderTurnstileWidgets(modal);
+    }
   }
 
   function closeModal() {
@@ -279,6 +289,9 @@
         submitBtn.disabled = false;
         submitText.textContent = 'Descargar Checklist';
         spinner.classList.add('hidden');
+        if (window.resetTurnstileWidgets) {
+          window.resetTurnstileWidgets(modal);
+        }
       }, 100);
     }, 300);
   }
@@ -366,6 +379,9 @@
           submitBtn.disabled = false;
           submitText.textContent = 'Descargar Checklist';
           spinner.classList.add('hidden');
+          if (window.resetTurnstileWidgets) {
+            window.resetTurnstileWidgets(form);
+          }
         }
       })
       .catch(function() {
@@ -374,6 +390,9 @@
         submitBtn.disabled = false;
         submitText.textContent = 'Descargar Checklist';
         spinner.classList.add('hidden');
+        if (window.resetTurnstileWidgets) {
+          window.resetTurnstileWidgets(form);
+        }
       });
     });
   }

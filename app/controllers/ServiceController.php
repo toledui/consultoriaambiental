@@ -28,7 +28,13 @@ class ServiceController extends Controller
                 'title'       => 'Servicio no encontrado',
                 'service'     => null,
                 'currentPage' => 'servicios',
+                'robotsContent' => 'noindex, nofollow',
             ]);
+            return;
+        }
+
+        if ($service['slug'] !== $slug) {
+            header('Location: ' . canonical_url('/servicios/' . $service['slug']), true, 301);
             return;
         }
 
@@ -43,10 +49,10 @@ class ServiceController extends Controller
             'provider'    => [
                 '@type' => 'ProfessionalService',
                 'name'  => APP_NAME,
-                'url'   => BASE_URL,
+                'url'   => public_base_url(),
             ],
             'areaServed'  => 'México',
-            'url'         => BASE_URL . '/servicios/' . $service['slug'],
+            'url'         => canonical_url('/servicios/' . $service['slug']),
         ];
 
         $headExtra = '<meta property="og:title" content="' . htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') . '"/>' . "\n";

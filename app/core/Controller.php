@@ -13,6 +13,10 @@ abstract class Controller
      */
     protected function view(string $view, array $data = [], string $layout = 'main'): void
     {
+        // Layout partials can safely render on detail/error pages that do not
+        // explicitly identify a navigation section.
+        $data['currentPage'] = $data['currentPage'] ?? '';
+
         // Auto-inject global settings (brand logo, company name, SMTP, etc.)
         if (!isset($data['settings'])) {
             $data['settings'] = \App\Models\Setting::getAll();

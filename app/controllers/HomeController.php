@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\Setting;
 use App\Models\ChecklistDownload;
 use App\Helpers\Mail;
+use App\Helpers\Turnstile;
 
 class HomeController extends Controller
 {
@@ -57,6 +58,7 @@ class HomeController extends Controller
         $this->view('home/gracias', [
             'title'       => 'Gracias por contactarnos',
             'currentPage' => 'contacto',
+            'robotsContent' => 'noindex, nofollow',
         ]);
     }
 
@@ -98,6 +100,12 @@ class HomeController extends Controller
 
         if (!empty($errors)) {
             $this->json(['success' => false, 'message' => implode(' ', $errors)], 400);
+            return;
+        }
+
+        $turnstile = Turnstile::verify($_POST['cf-turnstile-response'] ?? '', 'checklist_download');
+        if (empty($turnstile['success'])) {
+            $this->json(['success' => false, 'message' => $turnstile['message']], 400);
             return;
         }
 
@@ -152,6 +160,13 @@ class HomeController extends Controller
             return;
         }
 
+        $turnstile = Turnstile::verify($_POST['cf-turnstile-response'] ?? '', 'blog_newsletter');
+        if (empty($turnstile['success'])) {
+            $_SESSION['newsletter_error'] = $turnstile['message'];
+            $this->redirect(BASE_URL . '/blog');
+            return;
+        }
+
         // Save to contacts table as a newsletter subscription
         Contact::create([
             'nombre'     => 'Suscriptor Newsletter',
@@ -191,6 +206,13 @@ class HomeController extends Controller
 
         if (!empty($errors)) {
             $_SESSION['contact_error'] = implode(' ', $errors);
+            $this->redirect(BASE_URL . '/contacto');
+            return;
+        }
+
+        $turnstile = Turnstile::verify($_POST['cf-turnstile-response'] ?? '', 'contact_form');
+        if (empty($turnstile['success'])) {
+            $_SESSION['contact_error'] = $turnstile['message'];
             $this->redirect(BASE_URL . '/contacto');
             return;
         }

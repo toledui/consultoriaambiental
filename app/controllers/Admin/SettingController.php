@@ -304,7 +304,29 @@ class SettingController extends Controller
 
         $contactEmails = trim($_POST['contact_emails'] ?? '');
 
-        Setting::set('contact_emails', $contactEmails);
+        $turnstileEnabled = isset($_POST['turnstile_enabled']) ? '1' : '0';
+        $turnstileSiteKey = trim($_POST['turnstile_site_key'] ?? '');
+        $turnstileSecretKey = trim($_POST['turnstile_secret_key'] ?? '');
+        $storedSecretKey = trim((string)Setting::get('turnstile_secret_key', ''));
+        $effectiveSecretKey = $turnstileSecretKey !== '' ? $turnstileSecretKey : $storedSecretKey;
+
+        if ($turnstileEnabled === '1' && ($turnstileSiteKey === '' || $effectiveSecretKey === '')) {
+            $_SESSION['flash_message'] = 'Para activar Turnstile debes ingresar la clave del sitio y la clave secreta.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/settings?tab=contacto');
+        }
+
+        $data = [
+            'contact_emails'     => $contactEmails,
+            'turnstile_enabled'  => $turnstileEnabled,
+            'turnstile_site_key' => $turnstileSiteKey,
+        ];
+
+        if ($turnstileSecretKey !== '') {
+            $data['turnstile_secret_key'] = $turnstileSecretKey;
+        }
+
+        Setting::setMultiple($data);
 
         $_SESSION['flash_message'] = 'Configuración de contacto guardada correctamente.';
         $_SESSION['flash_type'] = 'success';
