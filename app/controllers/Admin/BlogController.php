@@ -7,6 +7,7 @@ use App\Models\BlogPost;
 use App\Models\BlogCategory;
 use App\Models\MediaFile;
 use App\Models\User;
+use App\Services\BlogCsvImporter;
 
 class BlogController extends Controller
 {
@@ -19,10 +20,13 @@ class BlogController extends Controller
         }
 
         $posts = BlogPost::getAll();
+        $users = User::getAll();
 
         $this->view('admin/blog/index', [
             'title' => 'Administrar Blog',
             'posts' => $posts,
+            'users' => $users,
+            'quickEditCsrfToken' => $this->quickEditCsrfToken(),
         ], 'admin');
     }
 
@@ -181,12 +185,239 @@ class BlogController extends Controller
         $this->redirect(BASE_URL . '/admin/blog');
     }
 
+    public function quickUpdate(int $id): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+
+        if (!$this->verifyQuickEditCsrfToken((string)($_POST['csrf_token'] ?? ''))) {
+            $_SESSION['flash_message'] = 'La sesión de edición rápida expiró. Recarga la página.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        $post = BlogPost::findById($id);
+        if (!$post) {
+            $_SESSION['flash_message'] = 'El artículo ya no existe.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        $status = (string)($_POST['status'] ?? '');
+        if (!in_array($status, ['draft', 'published', 'scheduled'], true)) {
+            $_SESSION['flash_message'] = 'Selecciona un estado válido.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        $publishedAtInput = trim((string)($_POST['published_at'] ?? ''));
+        $publishedAt = $this->normalizePublishedAt($publishedAtInput);
+        if ($publishedAtInput !== '' && $publishedAt === null) {
+            $_SESSION['flash_message'] = 'La fecha de publicación no es válida.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        $now = new \DateTimeImmutable('now', app_timezone());
+        $publicationDate = $publishedAt !== null
+            ? new \DateTimeImmutable($publishedAt, app_timezone())
+            : null;
+
+        if ($status === 'scheduled'
+            && (!$publicationDate || $publicationDate <= $now)
+        ) {
+            $_SESSION['flash_message'] = 'Un post programado necesita una fecha futura.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        if ($status === 'published'
+            && $publicationDate
+            && $publicationDate > $now
+        ) {
+            $_SESSION['flash_message'] = 'Para usar una fecha futura selecciona el estado Programado.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        $authorInput = trim((string)($_POST['author_id'] ?? ''));
+        $authorId = $authorInput === '' ? null : $this->normalizeAuthorId($authorInput);
+        if ($authorInput !== '' && $authorId === null) {
+            $_SESSION['flash_message'] = 'El autor seleccionado no es válido.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog');
+        }
+
+        BlogPost::updatePost($id, [
+            'published' => $status === 'draft' ? 0 : 1,
+            'published_at' => $publishedAt,
+            'author_id' => $authorId,
+        ]);
+
+        $_SESSION['flash_message'] = 'Estado, fecha y autor actualizados correctamente.';
+        $_SESSION['flash_type'] = 'success';
+        $this->redirect(BASE_URL . '/admin/blog');
+    }
+
+    public function importForm(): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+
+        $importer = new BlogCsvImporter();
+        $importer->cleanupExpiredBatches();
+
+        $this->view('admin/blog/import', [
+            'title' => 'Importar Artículos',
+            'csrfToken' => $importer->csrfToken(),
+            'expectedHeaders' => BlogCsvImporter::expectedHeaders(),
+            'preview' => null,
+            'batchToken' => null,
+            'globalError' => null,
+        ], 'admin');
+    }
+
+    public function previewImport(): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+
+        $importer = new BlogCsvImporter();
+        $csrfToken = (string)($_POST['csrf_token'] ?? '');
+        if (!$importer->verifyCsrfToken($csrfToken)) {
+            http_response_code(403);
+            $this->renderImportPage(
+                $importer,
+                null,
+                null,
+                'La sesión del formulario expiró. Recarga la página e inténtalo nuevamente.'
+            );
+            return;
+        }
+
+        try {
+            $preview = $importer->parseUploadedFile(
+                $_FILES['csv_file'] ?? [],
+                BlogPost::getAllSlugs(),
+                BlogCategory::getAll()
+            );
+            $batchToken = null;
+            if ($preview['can_import']) {
+                $batchToken = $importer->createBatch(
+                    $preview,
+                    (int)$_SESSION['admin_id']
+                );
+            } else {
+                http_response_code(422);
+            }
+
+            $this->renderImportPage($importer, $preview, $batchToken, null);
+        } catch (\Throwable $e) {
+            http_response_code(422);
+            $this->renderImportPage(
+                $importer,
+                null,
+                null,
+                $this->importErrorMessage($e)
+            );
+        }
+    }
+
+    public function confirmImport(): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+
+        $importer = new BlogCsvImporter();
+        $csrfToken = (string)($_POST['csrf_token'] ?? '');
+        if (!$importer->verifyCsrfToken($csrfToken)) {
+            http_response_code(403);
+            $this->renderImportPage(
+                $importer,
+                null,
+                null,
+                'La sesión del formulario expiró. Vuelve a previsualizar el CSV.'
+            );
+            return;
+        }
+
+        try {
+            $rows = $importer->consumeBatch(
+                (string)($_POST['batch_token'] ?? ''),
+                (int)$_SESSION['admin_id']
+            );
+            $result = BlogPost::importBatch(
+                $rows,
+                (int)$_SESSION['admin_id']
+            );
+            $importer->rotateCsrfToken();
+
+            $this->view('admin/blog/import_result', [
+                'title' => 'Importación completada',
+                'result' => $result,
+            ], 'admin');
+        } catch (\Throwable $e) {
+            http_response_code(422);
+            $this->renderImportPage(
+                $importer,
+                null,
+                null,
+                $this->importErrorMessage($e)
+                    . ' El lote temporal ya no puede reutilizarse; vuelve a previsualizar el CSV.'
+            );
+        }
+    }
+
     // ─── Categories CRUD ─────────────────────────────────────────────
 
     private function normalizePostSlug(string $slug, string $title): string
     {
         $source = trim($slug) !== '' ? $slug : $title;
         return BlogPost::generateSlug($source);
+    }
+
+    private function quickEditCsrfToken(): string
+    {
+        if (empty($_SESSION['blog_quick_edit_csrf'])) {
+            $_SESSION['blog_quick_edit_csrf'] = bin2hex(random_bytes(32));
+        }
+        return (string)$_SESSION['blog_quick_edit_csrf'];
+    }
+
+    private function verifyQuickEditCsrfToken(string $token): bool
+    {
+        $stored = (string)($_SESSION['blog_quick_edit_csrf'] ?? '');
+        return $stored !== '' && $token !== '' && hash_equals($stored, $token);
+    }
+
+    private function renderImportPage(
+        BlogCsvImporter $importer,
+        ?array $preview,
+        ?string $batchToken,
+        ?string $globalError
+    ): void {
+        $this->view('admin/blog/import', [
+            'title' => 'Importar Artículos',
+            'csrfToken' => $importer->csrfToken(),
+            'expectedHeaders' => BlogCsvImporter::expectedHeaders(),
+            'preview' => $preview,
+            'batchToken' => $batchToken,
+            'globalError' => $globalError,
+        ], 'admin');
+    }
+
+    private function importErrorMessage(\Throwable $e): string
+    {
+        if ($e instanceof \RuntimeException || $e instanceof \InvalidArgumentException) {
+            return $e->getMessage();
+        }
+
+        error_log('Blog CSV import failed: ' . $e->getMessage());
+        return 'Ocurrió un error inesperado durante la importación.';
     }
 
     private function normalizePublishedAt(?string $value): ?string
@@ -199,7 +430,10 @@ class BlogController extends Controller
         $timezone = app_timezone();
         foreach (['Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i'] as $format) {
             $date = \DateTimeImmutable::createFromFormat($format, $value, $timezone);
-            if ($date instanceof \DateTimeImmutable) {
+            $errors = \DateTimeImmutable::getLastErrors();
+            $isStrictlyValid = $errors === false
+                || ((int)$errors['warning_count'] === 0 && (int)$errors['error_count'] === 0);
+            if ($date instanceof \DateTimeImmutable && $isStrictlyValid) {
                 return $date->format('Y-m-d H:i:s');
             }
         }

@@ -108,8 +108,12 @@ $router->get('/admin/dashboard',          'Admin\DashboardController@index');
 $router->get('/admin/blog',               'Admin\BlogController@index');
 $router->get('/admin/blog/crear',         'Admin\BlogController@create');
 $router->post('/admin/blog/crear',        'Admin\BlogController@store');
+$router->get('/admin/blog/importar',      'Admin\BlogController@importForm');
+$router->post('/admin/blog/importar/previsualizar', 'Admin\BlogController@previewImport');
+$router->post('/admin/blog/importar/confirmar',     'Admin\BlogController@confirmImport');
 $router->get('/admin/blog/editar/{id}',   'Admin\BlogController@edit');
 $router->post('/admin/blog/editar/{id}',  'Admin\BlogController@update');
+$router->post('/admin/blog/actualizar-rapido/{id}', 'Admin\BlogController@quickUpdate');
 $router->post('/admin/blog/eliminar/{id}','Admin\BlogController@destroy');
 
 // Admin — Blog Categories CRUD

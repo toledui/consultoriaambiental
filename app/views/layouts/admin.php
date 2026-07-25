@@ -5,6 +5,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title><?= $title ?? 'Admin' ?> | <?= APP_NAME ?></title>
   
+  <link href="<?= BASE_URL ?>/css/tailwind.css?v=<?= filemtime(PUBLIC_DIR . '/css/tailwind.css') ?>" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -148,7 +149,8 @@
           }
         });
       },
-      extended_valid_elements: 'i[class],span[class],div[class|data-*],section[class],main[class]',
+      extended_valid_elements: 'i[class],span[class],div[class|data-*],section[class],main[class],iframe[src|title|loading|allow|referrerpolicy|allowfullscreen|width|height|frameborder]',
+      media_live_embeds: true,
       images_upload_handler: tinymceUploadHandler,
       automatic_uploads: true,
       file_picker_types: 'image media',
@@ -357,6 +359,16 @@
         h2 { font-size: 1.5em; font-weight: 700; margin: 1em 0 0.5em; color: #1B3A4B; }
         h3 { font-size: 1.25em; font-weight: 600; margin: 0.8em 0 0.4em; color: #1B3A4B; }
         img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        .video-embed {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          margin: 1.5rem 0;
+          overflow: hidden;
+          border-radius: 0.75rem;
+          background: #0f172a;
+        }
+        .video-embed iframe { width: 100%; height: 100%; border: 0; }
         a, a:link, a:visited { text-decoration: none !important; color: #2E7D32; }
         a:hover { color: #1B5E20; }
       `

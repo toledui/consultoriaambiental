@@ -142,9 +142,9 @@
 
         <div>
           <label class="block text-sm font-medium text-ca-dark-gray mb-1.5" for="meta_description">Meta Descripci&oacute;n</label>
-          <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green outline-none transition" id="meta_description" name="meta_description" rows="3" placeholder="Descripci&oacute;n para resultados de b&uacute;squeda" maxlength="160"></textarea>
+          <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green outline-none transition" id="meta_description" name="meta_description" rows="3" placeholder="Descripci&oacute;n para resultados de b&uacute;squeda"></textarea>
           <div class="flex justify-between mt-1">
-            <p class="text-xs text-gray-400">M&aacute;ximo 160 caracteres recomendado.</p>
+            <p class="text-xs text-gray-400">Se recomiendan hasta 160 caracteres; el texto completo se guardar&aacute;.</p>
             <span id="metaDescCount" class="text-xs text-gray-400">0/160</span>
           </div>
         </div>
@@ -296,8 +296,12 @@ document.getElementById('meta_title').addEventListener('input', function() {
 });
 
 document.getElementById('meta_description').addEventListener('input', function() {
-  var count = this.value.length;
-  document.getElementById('metaDescCount').textContent = count + '/160';
+  var count = Array.from(this.value).length;
+  var counter = document.getElementById('metaDescCount');
+  counter.textContent = count + '/160';
+  counter.classList.toggle('text-yellow-600', count > 160);
+  counter.classList.toggle('font-semibold', count > 160);
+  counter.classList.toggle('text-gray-400', count <= 160);
   updateGooglePreview();
 });
 
