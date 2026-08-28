@@ -40,7 +40,7 @@
       </div>
       <div>
         <label for="smtp_from_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre remitente</label>
-        <input type="text" id="smtp_from_name" name="smtp_from_name" value="<?= htmlspecialchars($settings['smtp_from_name'] ?? 'Gestoría Ambiental') ?>" placeholder="Gestoría Ambiental" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+        <input type="text" id="smtp_from_name" name="smtp_from_name" value="<?= htmlspecialchars($settings['smtp_from_name'] ?? 'Consultoría Ambiental') ?>" placeholder="Consultoría Ambiental" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
       </div>
     </div>
   </div>

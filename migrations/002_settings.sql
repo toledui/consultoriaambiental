@@ -16,9 +16,9 @@ INSERT INTO settings (`key`, `value`, `type`) VALUES
 ('smtp_username', '', 'string'),
 ('smtp_password', '', 'string'),
 ('smtp_from_email', '', 'string'),
-('smtp_from_name', 'Gestoría Ambiental', 'string'),
+('smtp_from_name', 'Consultoría Ambiental', 'string'),
 ('brand_logo', '', 'string'),
 ('brand_favicon', '', 'string'),
 ('brand_og_image', '', 'string'),
-('brand_company_name', 'Gestoría Ambiental', 'string')
+('brand_company_name', 'Consultoría Ambiental', 'string')
 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);

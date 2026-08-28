@@ -4,7 +4,7 @@
     <div class="grid grid-cols-1 gap-4">
       <div>
         <label for="brand_company_name" class="block text-sm font-medium text-gray-700 mb-1">Nombre de la empresa</label>
-        <input type="text" id="brand_company_name" name="brand_company_name" value="<?= htmlspecialchars($settings['brand_company_name'] ?? 'Gestoría Ambiental') ?>" placeholder="Gestoría Ambiental" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+        <input type="text" id="brand_company_name" name="brand_company_name" value="<?= htmlspecialchars($settings['brand_company_name'] ?? 'Consultoría Ambiental') ?>" placeholder="Consultoría Ambiental" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
       </div>
     </div>
   </div>
@@ -51,11 +51,11 @@
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Favicon actual</label>
-        <?php $faviconPreview = !empty($settings['brand_favicon']) ? BASE_URL . '/' . ltrim($settings['brand_favicon'], '/') : BASE_URL . '/favicon.svg'; ?>
+        <?php $faviconPreview = rtrim(BASE_URL, '/') . '/favicon.png'; ?>
         <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
           <img src="<?= htmlspecialchars($faviconPreview) ?>" alt="Favicon actual" class="h-20 w-20 object-contain rounded-lg">
           <p class="text-xs text-gray-500 mt-2">
-            <?= !empty($settings['brand_favicon']) ? htmlspecialchars(basename($settings['brand_favicon'])) : 'favicon.svg (predeterminado)' ?>
+            /favicon.png (URL pública permanente)
           </p>
         </div>
       </div>

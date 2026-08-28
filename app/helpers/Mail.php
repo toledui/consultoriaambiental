@@ -28,7 +28,7 @@ class Mail
         $this->username   = $settings['smtp_username'] ?? '';
         $this->password   = $settings['smtp_password'] ?? '';
         $this->fromEmail  = $settings['smtp_from_email'] ?? '';
-        $this->fromName   = $settings['smtp_from_name'] ?? 'Gestoría Ambiental';
+        $this->fromName   = $settings['smtp_from_name'] ?? 'Consultoría Ambiental';
     }
 
     /**
@@ -300,7 +300,7 @@ class Mail
      *
      * @return array{0: string, 1: string, 2: string} [subject, htmlBody, textBody]
      */
-    public static function buildTestEmail(string $companyName = 'Gestoría Ambiental'): array
+    public static function buildTestEmail(string $companyName = 'Consultoría Ambiental'): array
     {
         $serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
         $date = date('d/m/Y H:i:s');

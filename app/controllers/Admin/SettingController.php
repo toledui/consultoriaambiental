@@ -65,7 +65,7 @@ class SettingController extends Controller
             'smtp_username'   => $_POST['smtp_username'] ?? '',
             'smtp_password'   => $_POST['smtp_password'] ?? '',
             'smtp_from_email' => $_POST['smtp_from_email'] ?? '',
-            'smtp_from_name'  => $_POST['smtp_from_name'] ?? 'Gestoría Ambiental',
+            'smtp_from_name'  => $_POST['smtp_from_name'] ?? 'Consultoría Ambiental',
         ];
 
         Setting::setMultiple($data);
@@ -100,7 +100,7 @@ class SettingController extends Controller
         $this->checkAuth();
 
         $data = [
-            'brand_company_name' => $_POST['brand_company_name'] ?? 'Gestoría Ambiental',
+            'brand_company_name' => $_POST['brand_company_name'] ?? 'Consultoría Ambiental',
         ];
 
         $errors = [];
@@ -265,7 +265,7 @@ class SettingController extends Controller
         }
 
         $settings = Setting::getAll();
-        $companyName = $settings['brand_company_name'] ?? 'Gestoría Ambiental';
+        $companyName = $settings['brand_company_name'] ?? 'Consultoría Ambiental';
 
         $mail = new Mail();
 

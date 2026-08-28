@@ -22,24 +22,24 @@
       ? (string) $seoTitle
       : (!empty($title)
         ? (string) $title . ' | ' . APP_NAME
-        : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME);
+        : 'Consultoría Ambiental para Empresas e Industrias en México');
     $canonicalHref = $canonicalUrl ?? canonical_url();
     $robotsMeta = $robotsContent ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
     $metaDescriptionText = !empty($metaDesc)
       ? (string) $metaDesc
-      : 'Consultoría ambiental para empresas e industrias en México. Gestionamos MIA, residuos, emisiones, COA, LAU, inspecciones PROEPA/PROFEPA y cumplimiento normativo con más de 10 años de experiencia.';
+      : 'Consultoría ambiental para empresas en México: permisos, residuos, emisiones, MIA, COA, LAU y atención de inspecciones PROFEPA.';
     $ogTitleText = !empty($ogTitle) ? (string) $ogTitle : $pageTitleText;
     $ogDescriptionText = !empty($ogDescription)
       ? (string) $ogDescription
       : (!empty($metaDesc)
         ? (string) $metaDesc
-        : 'Consultoría ambiental para empresas e industrias en México. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.');
+        : 'Permisos, residuos, emisiones, MIA, COA, LAU e inspecciones ambientales para empresas en México.');
     $twitterTitleText = !empty($twitterTitle) ? (string) $twitterTitle : $ogTitleText;
     $twitterDescriptionText = !empty($twitterDescription)
       ? (string) $twitterDescription
       : (!empty($metaDesc)
         ? (string) $metaDesc
-        : 'Consultoría ambiental para empresas e industrias en México. Cumplimiento ambiental, permisos, residuos, emisiones e inspecciones para empresas.');
+        : 'Permisos, residuos, emisiones, MIA, COA, LAU e inspecciones ambientales para empresas en México.');
     $ogTypeValue = !empty($ogType) ? (string) $ogType : 'website';
     $siteName = (string) ($settings['brand_company_name'] ?? APP_NAME);
 
@@ -79,24 +79,8 @@
       ? (string) $ogImageAlt
       : $siteName . ' — imagen para compartir';
 
-    $faviconRelative = !empty($settings['brand_favicon'])
-      ? ltrim((string) $settings['brand_favicon'], '/')
-      : 'favicon.svg';
-    $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
-    if (!is_file($faviconPath)) {
-      $faviconRelative = 'favicon.svg';
-      $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
-    }
-    $faviconVersion = is_file($faviconPath) ? (string) filemtime($faviconPath) : '1';
-    $faviconHref = asset_url($faviconRelative) . '?v=' . $faviconVersion;
-    $faviconExt = strtolower(pathinfo($faviconRelative, PATHINFO_EXTENSION));
-    $faviconType = match ($faviconExt) {
-      'webp' => 'image/webp',
-      'jpg', 'jpeg' => 'image/jpeg',
-      'svg' => 'image/svg+xml',
-      'ico' => 'image/x-icon',
-      default => 'image/png',
-    };
+    // Keep this URL stable so Google can retain and refresh the favicon.
+    $faviconHref = rtrim(public_base_url(), '/') . '/favicon.png';
   ?>
   <title><?= htmlspecialchars($pageTitleText, ENT_QUOTES, 'UTF-8') ?></title>
 
@@ -165,9 +149,9 @@
   ?>
 
   <!-- Favicon -->
-  <link rel="icon" type="<?= $faviconType ?>" sizes="<?= $faviconExt === 'svg' ? 'any' : '512x512' ?>" href="<?= htmlspecialchars($faviconHref) ?>">
+  <link rel="icon" sizes="512x512" href="<?= htmlspecialchars($faviconHref) ?>">
   <link rel="apple-touch-icon" href="<?= htmlspecialchars($faviconHref) ?>">
-  <link rel="shortcut icon" type="<?= $faviconType ?>" href="<?= htmlspecialchars($faviconHref) ?>">
+  <link rel="shortcut icon" href="<?= htmlspecialchars($faviconHref) ?>">
   
   <!-- Preconnect to CDN resources for faster loading -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>

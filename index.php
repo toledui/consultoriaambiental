@@ -85,6 +85,7 @@ $router->get('/contacto/gracias',  'HomeController@gracias');
 $router->get('/aviso-de-privacidad', 'HomeController@avisoPrivacidad');
 $router->get('/robots.txt',          'SeoController@robots');
 $router->get('/sitemap.xml',         'SeoController@sitemap');
+$router->get('/favicon.png',          'SeoController@favicon');
 
 // Checklist download lead capture (AJAX)
 $router->post('/checklist/descargar', 'HomeController@checklistDownload');

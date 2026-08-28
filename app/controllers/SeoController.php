@@ -4,9 +4,49 @@ namespace App\Controllers;
 
 use App\Models\BlogPost;
 use App\Models\ServiceCatalog;
+use App\Models\Setting;
 
 class SeoController
 {
+    /**
+     * Serve the configured favicon through a permanent public URL.
+     *
+     * The uploaded filename may change when an administrator replaces the
+     * image, but search engines must always discover it at /favicon.png.
+     */
+    public function favicon(): void
+    {
+        $configuredPath = ltrim((string) Setting::get('brand_favicon', ''), '/');
+        $faviconPath = $this->publicFilePath($configuredPath);
+
+        if ($faviconPath === null) {
+            $faviconPath = $this->publicFilePath('favicon.svg');
+        }
+
+        if ($faviconPath === null) {
+            http_response_code(404);
+            return;
+        }
+
+        $mimeType = strtolower(pathinfo($faviconPath, PATHINFO_EXTENSION)) === 'svg'
+            ? 'image/svg+xml'
+            : 'image/png';
+        $modifiedAt = (int) filemtime($faviconPath);
+        $etag = '"' . hash('sha256', $faviconPath . '|' . $modifiedAt . '|' . filesize($faviconPath)) . '"';
+
+        header('Content-Type: ' . $mimeType);
+        header('Cache-Control: public, max-age=86400, must-revalidate');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $modifiedAt) . ' GMT');
+        header('ETag: ' . $etag);
+
+        if (trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === $etag) {
+            http_response_code(304);
+            return;
+        }
+
+        readfile($faviconPath);
+    }
+
     public function robots(): void
     {
         header('Content-Type: text/plain; charset=UTF-8');
@@ -75,5 +115,23 @@ class SeoController
     private function escapeXml(string $value): string
     {
         return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+    }
+
+    private function publicFilePath(string $relativePath): ?string
+    {
+        if ($relativePath === '') {
+            return null;
+        }
+
+        $publicDirectory = realpath(PUBLIC_DIR);
+        $candidate = realpath(PUBLIC_DIR . '/' . $relativePath);
+        if ($publicDirectory === false
+            || $candidate === false
+            || !is_file($candidate)
+            || !str_starts_with($candidate, $publicDirectory . DIRECTORY_SEPARATOR)) {
+            return null;
+        }
+
+        return $candidate;
     }
 }

@@ -20,7 +20,10 @@ class HomeController extends Controller
 
         $this->view('home/index', [
             'title'       => 'Inicio',
-            'seoTitle'    => 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME,
+            'seoTitle'    => 'Consultoría Ambiental para Empresas e Industrias en México',
+            'metaDesc'    => 'Consultoría ambiental para empresas en México: permisos, residuos, emisiones, MIA, COA, LAU y atención de inspecciones PROFEPA.',
+            'ogDescription' => 'Permisos, residuos, emisiones, MIA, COA, LAU e inspecciones ambientales para empresas en México.',
+            'twitterDescription' => 'Permisos, residuos, emisiones, MIA, COA, LAU e inspecciones ambientales para empresas en México.',
             'currentPage' => 'home',
             'headExtra'   => '<link rel="preload" as="image" href="' . asset_url('images/impacto ambiental imagen3.webp') . '" fetchpriority="high">',
             'services'    => $services,
