@@ -331,6 +331,32 @@ class SettingController extends Controller
     {
         $this->checkAuth();
 
+        // Location phone numbers: Mexico's country code is added when links are rendered.
+        $locations = [];
+        foreach (($_POST['footer_locations'] ?? []) as $location) {
+            $city = trim((string) ($location['city'] ?? ''));
+            $phone = preg_replace('/\D/', '', (string) ($location['phone'] ?? ''));
+            $hasCall = !empty($location['call']);
+            $hasWhatsapp = !empty($location['whatsapp']);
+
+            if ($city === '' && $phone === '') {
+                continue;
+            }
+
+            if ($city === '' || !preg_match('/^\d{10}$/', $phone) || (!$hasCall && !$hasWhatsapp)) {
+                $_SESSION['flash_message'] = 'Cada ubicación debe incluir ciudad, un teléfono de exactamente 10 dígitos y al menos una opción: llamada o WhatsApp.';
+                $_SESSION['flash_type'] = 'error';
+                $this->redirect(BASE_URL . '/admin/settings?tab=footer');
+            }
+
+            $locations[] = [
+                'city' => $city,
+                'phone' => $phone,
+                'call' => $hasCall,
+                'whatsapp' => $hasWhatsapp,
+            ];
+        }
+
         // Contact info
         $data = [
             'footer_phone_label'   => $_POST['footer_phone_label'] ?? 'Teléfono',
@@ -344,6 +370,7 @@ class SettingController extends Controller
             'footer_checklist_label' => $_POST['footer_checklist_label'] ?? 'Checklist Ambiental',
             'whatsapp_floating_number'  => $_POST['whatsapp_floating_number'] ?? '523387654321',
             'whatsapp_floating_message' => $_POST['whatsapp_floating_message'] ?? 'Hola, me gustaría recibir información sobre sus servicios de consultoría ambiental.',
+            'footer_locations' => json_encode($locations, JSON_UNESCAPED_UNICODE),
         ];
 
         // Handle checklist file upload

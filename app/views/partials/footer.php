@@ -83,6 +83,37 @@
             <a href="mailto:<?= htmlspecialchars($settings['footer_email_value'] ?? 'contacto@consultoria-ca.com') ?>" class="hover:text-white transition"><?= htmlspecialchars($settings['footer_email_value'] ?? 'contacto@consultoria-ca.com') ?></a>
           </div>
         </li>
+        <?php
+          $footerLocations = [];
+          if (!empty($settings['footer_locations'])) {
+              $decodedLocations = json_decode($settings['footer_locations'], true);
+              $footerLocations = is_array($decodedLocations) ? $decodedLocations : [];
+          }
+          foreach ($footerLocations as $location):
+              $city = trim((string) ($location['city'] ?? ''));
+              $phone = preg_replace('/\D/', '', (string) ($location['phone'] ?? ''));
+              if ($city === '' || !preg_match('/^\d{10}$/', $phone)) continue;
+              $internationalPhone = '52' . $phone;
+        ?>
+          <li class="flex items-center justify-between gap-3 border-t border-gray-700/60 pt-3">
+            <div class="min-w-0">
+              <span class="block text-xs text-gray-400 uppercase">Ubicación</span>
+              <span class="text-white font-semibold"><?= htmlspecialchars($city) ?></span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <?php if (!empty($location['whatsapp'])): ?>
+                <a href="https://wa.me/<?= $internationalPhone ?>" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded bg-ca-navy text-ca-light-green flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-colors" aria-label="Enviar WhatsApp a <?= htmlspecialchars($city) ?> al +52 <?= htmlspecialchars($phone) ?>" title="WhatsApp — <?= htmlspecialchars($city) ?>">
+                  <i class="fab fa-whatsapp"></i>
+                </a>
+              <?php endif; ?>
+              <?php if (!empty($location['call'])): ?>
+                <a href="tel:+<?= $internationalPhone ?>" class="w-9 h-9 rounded bg-ca-navy text-ca-light-green flex items-center justify-center hover:bg-ca-green hover:text-white transition-colors" aria-label="Llamar a <?= htmlspecialchars($city) ?> al +52 <?= htmlspecialchars($phone) ?>" title="Llamar — <?= htmlspecialchars($city) ?>">
+                  <i class="fas fa-phone-alt"></i>
+                </a>
+              <?php endif; ?>
+            </div>
+          </li>
+        <?php endforeach; ?>
       </ul>
     </div>
 

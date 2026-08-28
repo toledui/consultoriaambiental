@@ -7,6 +7,13 @@
       $decoded = json_decode($settings['footer_links'], true);
       $footerLinks = is_array($decoded) ? $decoded : [];
   }
+
+  // Decode location phone numbers JSON
+  $footerLocations = [];
+  if (!empty($settings['footer_locations'])) {
+      $decoded = json_decode($settings['footer_locations'], true);
+      $footerLocations = is_array($decoded) ? $decoded : [];
+  }
   ?>
 
   <!-- ─── Contact Info ─────────────────────────────────────────── -->
@@ -93,6 +100,50 @@
           <i class="fas fa-envelope mr-1 text-ca-navy"></i> Correo — Valor
         </label>
         <input type="email" name="footer_email_value" value="<?= htmlspecialchars($settings['footer_email_value'] ?? 'contacto@consultoria-ca.com') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+      </div>
+
+      <!-- Location phone numbers -->
+      <div class="md:col-span-2">
+        <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/70">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+            <div>
+              <h4 class="text-sm font-semibold text-ca-navy">
+                <i class="fas fa-map-marker-alt mr-1 text-ca-green"></i> Teléfonos por ubicación
+              </h4>
+              <p class="text-xs text-gray-500 mt-1">Agrega todas las ciudades que necesites y elige si cada número acepta llamadas, WhatsApp o ambos.</p>
+              <p class="text-xs font-medium text-amber-700 mt-1">El teléfono debe contener exactamente 10 dígitos.</p>
+            </div>
+            <button type="button" id="add-footer-location" class="shrink-0 px-4 py-2 bg-ca-navy/10 text-ca-navy rounded-lg hover:bg-ca-navy/20 transition-colors text-sm font-medium">
+              <i class="fas fa-plus mr-1"></i> Agregar ubicación
+            </button>
+          </div>
+
+          <div id="footer-locations-container" class="space-y-3">
+            <?php foreach ($footerLocations as $index => $location): ?>
+              <div class="footer-location-row grid grid-cols-1 md:grid-cols-[1fr_1fr_auto_auto_auto] gap-3 items-end bg-white border border-gray-200 rounded-lg p-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Ciudad</label>
+                  <input type="text" name="footer_locations[<?= (int) $index ?>][city]" value="<?= htmlspecialchars($location['city'] ?? '') ?>" placeholder="Ej. León" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Teléfono (10 dígitos)</label>
+                  <input type="text" name="footer_locations[<?= (int) $index ?>][phone]" value="<?= htmlspecialchars($location['phone'] ?? '') ?>" inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="5513287333" required class="location-phone w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+                </div>
+                <label class="flex items-center justify-center gap-2 h-[38px] px-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50" title="Mostrar enlace de WhatsApp">
+                  <input type="checkbox" name="footer_locations[<?= (int) $index ?>][whatsapp]" value="1" <?= !empty($location['whatsapp']) ? 'checked' : '' ?> class="rounded border-gray-300 text-ca-green focus:ring-ca-green">
+                  <i class="fab fa-whatsapp text-[#25D366]"></i><span class="md:hidden text-sm">WhatsApp</span>
+                </label>
+                <label class="flex items-center justify-center gap-2 h-[38px] px-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50" title="Mostrar enlace de llamada">
+                  <input type="checkbox" name="footer_locations[<?= (int) $index ?>][call]" value="1" <?= !empty($location['call']) ? 'checked' : '' ?> class="rounded border-gray-300 text-ca-green focus:ring-ca-green">
+                  <i class="fas fa-phone-alt text-ca-navy"></i><span class="md:hidden text-sm">Llamada</span>
+                </label>
+                <button type="button" class="remove-location-btn h-[38px] px-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar ubicación" aria-label="Eliminar ubicación">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -220,6 +271,51 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const locationsContainer = document.getElementById('footer-locations-container');
+    let nextLocationIndex = <?= count($footerLocations) ?>;
+
+    function attachLocationHandlers(row) {
+        row.querySelector('.remove-location-btn')?.addEventListener('click', function() {
+            row.remove();
+        });
+
+        row.querySelector('.location-phone')?.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '').slice(0, 10);
+        });
+    }
+
+    document.querySelectorAll('.footer-location-row').forEach(attachLocationHandlers);
+
+    document.getElementById('add-footer-location')?.addEventListener('click', function() {
+        const index = nextLocationIndex++;
+        const row = document.createElement('div');
+        row.className = 'footer-location-row grid grid-cols-1 md:grid-cols-[1fr_1fr_auto_auto_auto] gap-3 items-end bg-white border border-gray-200 rounded-lg p-3';
+        row.innerHTML = `
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Ciudad</label>
+              <input type="text" name="footer_locations[${index}][city]" placeholder="Ej. León" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Teléfono (10 dígitos)</label>
+              <input type="text" name="footer_locations[${index}][phone]" inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="5513287333" required class="location-phone w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ca-green focus:border-ca-green text-sm">
+            </div>
+            <label class="flex items-center justify-center gap-2 h-[38px] px-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50" title="Mostrar enlace de WhatsApp">
+              <input type="checkbox" name="footer_locations[${index}][whatsapp]" value="1" class="rounded border-gray-300 text-ca-green focus:ring-ca-green">
+              <i class="fab fa-whatsapp text-[#25D366]"></i><span class="md:hidden text-sm">WhatsApp</span>
+            </label>
+            <label class="flex items-center justify-center gap-2 h-[38px] px-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50" title="Mostrar enlace de llamada">
+              <input type="checkbox" name="footer_locations[${index}][call]" value="1" class="rounded border-gray-300 text-ca-green focus:ring-ca-green">
+              <i class="fas fa-phone-alt text-ca-navy"></i><span class="md:hidden text-sm">Llamada</span>
+            </label>
+            <button type="button" class="remove-location-btn h-[38px] px-3 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar ubicación" aria-label="Eliminar ubicación">
+              <i class="fas fa-times"></i>
+            </button>
+        `;
+        locationsContainer.appendChild(row);
+        attachLocationHandlers(row);
+        row.querySelector('input')?.focus();
+    });
+
     // Add link row
     document.querySelector('.add-link-btn')?.addEventListener('click', function() {
         const container = document.getElementById('footer-links-container');
