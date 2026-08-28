@@ -62,21 +62,14 @@ class BlogController extends Controller
         $pageTitle = !empty($post['meta_title']) ? $post['meta_title'] : $post['title'];
         $metaDesc  = $post['meta_description'] ?? '';
 
-        // Build head extra content (JSON-LD + Open Graph)
+        // Keep headExtra for structured data only. Open Graph is rendered once
+        // by the main layout from the values passed below.
         $headExtra = '';
 
         // JSON-LD Schema
         if (!empty($post['json_ld'])) {
             $headExtra .= '<script type="application/ld+json">' . "\n" . $post['json_ld'] . "\n" . '</script>' . "\n";
         }
-
-        // Open Graph tags
-        $headExtra .= '<meta property="og:title" content="' . htmlspecialchars($pageTitle) . '"/>' . "\n";
-        $headExtra .= '<meta property="og:description" content="' . htmlspecialchars($metaDesc ?: ($post['excerpt'] ?? '')) . '"/>' . "\n";
-        if (!empty($post['featured_image'])) {
-            $headExtra .= '<meta property="og:image" content="' . htmlspecialchars($post['featured_image']) . '"/>' . "\n";
-        }
-        $headExtra .= '<meta property="og:type" content="article"/>' . "\n";
 
         // Fix hardcoded localhost URLs in content (from admin editor)
         if (!empty($post['content'])) {
@@ -107,6 +100,10 @@ class BlogController extends Controller
             'metaDesc'    => $metaDesc,
             'headExtra'   => $headExtra,
             'post'        => $post,
+            'ogDescription' => $metaDesc ?: ($post['excerpt'] ?? ''),
+            'ogImage'       => $post['featured_image'] ?? '',
+            'ogImageAlt'    => $post['title'],
+            'ogType'        => 'article',
         ]);
     }
 }

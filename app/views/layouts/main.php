@@ -15,31 +15,119 @@
       }
     })();
   </script>
-  <title><?= !empty($seoTitle) ? htmlspecialchars($seoTitle) : (!empty($title) ? htmlspecialchars($title) . ' | ' . APP_NAME : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME) ?></title>
-  
   <?php
+    // Keep page titles unchanged while centralizing all share metadata so each
+    // property is emitted exactly once.
+    $pageTitleText = !empty($seoTitle)
+      ? (string) $seoTitle
+      : (!empty($title)
+        ? (string) $title . ' | ' . APP_NAME
+        : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME);
     $canonicalHref = $canonicalUrl ?? canonical_url();
     $robotsMeta = $robotsContent ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    $metaDescriptionText = !empty($metaDesc)
+      ? (string) $metaDesc
+      : 'Consultoría ambiental para empresas e industrias en México. Gestionamos MIA, residuos, emisiones, COA, LAU, inspecciones PROEPA/PROFEPA y cumplimiento normativo con más de 10 años de experiencia.';
+    $ogTitleText = !empty($ogTitle) ? (string) $ogTitle : $pageTitleText;
+    $ogDescriptionText = !empty($ogDescription)
+      ? (string) $ogDescription
+      : (!empty($metaDesc)
+        ? (string) $metaDesc
+        : 'Consultoría ambiental para empresas e industrias en México. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.');
+    $twitterTitleText = !empty($twitterTitle) ? (string) $twitterTitle : $ogTitleText;
+    $twitterDescriptionText = !empty($twitterDescription)
+      ? (string) $twitterDescription
+      : (!empty($metaDesc)
+        ? (string) $metaDesc
+        : 'Consultoría ambiental para empresas e industrias en México. Cumplimiento ambiental, permisos, residuos, emisiones e inspecciones para empresas.');
+    $ogTypeValue = !empty($ogType) ? (string) $ogType : 'website';
+    $siteName = (string) ($settings['brand_company_name'] ?? APP_NAME);
+
+    $defaultOgImage = !empty($settings['brand_og_image'])
+      ? (string) $settings['brand_og_image']
+      : 'images/consultoria-ambiental-logo.webp';
+    $ogImageSource = !empty($ogImage) ? (string) $ogImage : $defaultOgImage;
+    $ogImageHref = $ogImageSource;
+    $ogImagePath = null;
+    $ogImageParts = parse_url($ogImageSource);
+    $baseParts = parse_url(BASE_URL);
+
+    if (empty($ogImageParts['host']) || ($ogImageParts['host'] ?? '') === ($baseParts['host'] ?? '')) {
+      $ogImageRelative = ltrim(rawurldecode((string) ($ogImageParts['path'] ?? $ogImageSource)), '/');
+      if (str_starts_with($ogImageRelative, 'public/')) {
+        $ogImageRelative = substr($ogImageRelative, 7);
+      }
+      $ogImagePath = PUBLIC_DIR . '/' . $ogImageRelative;
+      $ogImageHref = asset_url($ogImageRelative);
+      if (is_file($ogImagePath)) {
+        $ogImageHref .= '?v=' . filemtime($ogImagePath);
+      }
+    }
+
+    $ogImageWidth = null;
+    $ogImageHeight = null;
+    $ogImageMime = null;
+    if ($ogImagePath && is_file($ogImagePath)) {
+      $ogImageInfo = @getimagesize($ogImagePath);
+      if ($ogImageInfo) {
+        $ogImageWidth = (int) $ogImageInfo[0];
+        $ogImageHeight = (int) $ogImageInfo[1];
+        $ogImageMime = (string) ($ogImageInfo['mime'] ?? '');
+      }
+    }
+    $ogImageAltText = !empty($ogImageAlt)
+      ? (string) $ogImageAlt
+      : $siteName . ' — imagen para compartir';
+
+    $faviconRelative = !empty($settings['brand_favicon'])
+      ? ltrim((string) $settings['brand_favicon'], '/')
+      : 'favicon.svg';
+    $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
+    if (!is_file($faviconPath)) {
+      $faviconRelative = 'favicon.svg';
+      $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
+    }
+    $faviconVersion = is_file($faviconPath) ? (string) filemtime($faviconPath) : '1';
+    $faviconHref = asset_url($faviconRelative) . '?v=' . $faviconVersion;
+    $faviconExt = strtolower(pathinfo($faviconRelative, PATHINFO_EXTENSION));
+    $faviconType = match ($faviconExt) {
+      'webp' => 'image/webp',
+      'jpg', 'jpeg' => 'image/jpeg',
+      'svg' => 'image/svg+xml',
+      'ico' => 'image/x-icon',
+      default => 'image/png',
+    };
   ?>
+  <title><?= htmlspecialchars($pageTitleText, ENT_QUOTES, 'UTF-8') ?></title>
+
   <!-- Indexing directives and canonical URL -->
   <meta name="robots" content="<?= htmlspecialchars($robotsMeta, ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="canonical" href="<?= htmlspecialchars($canonicalHref, ENT_QUOTES, 'UTF-8') ?>"/>
 
   <!-- Meta Description - Default SEO -->
-  <meta name="description" content="<?= !empty($metaDesc) ? htmlspecialchars($metaDesc) : 'Consultoría ambiental para empresas e industrias en México. Gestionamos MIA, residuos, emisiones, COA, LAU, inspecciones PROEPA/PROFEPA y cumplimiento normativo con más de 10 años de experiencia.' ?>"/>
+  <meta name="description" content="<?= htmlspecialchars($metaDescriptionText, ENT_QUOTES, 'UTF-8') ?>"/>
   
   <!-- Open Graph -->
-  <meta property="og:title" content="<?= !empty($seoTitle) ? htmlspecialchars($seoTitle) : (!empty($title) ? htmlspecialchars($title) . ' | ' . APP_NAME : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME) ?>"/>
-  <meta property="og:description" content="<?= !empty($metaDesc) ? htmlspecialchars($metaDesc) : 'Consultoría ambiental para empresas e industrias en México. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.' ?>"/>
-  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="<?= htmlspecialchars($ogTitleText, ENT_QUOTES, 'UTF-8') ?>"/>
+  <meta property="og:description" content="<?= htmlspecialchars($ogDescriptionText, ENT_QUOTES, 'UTF-8') ?>"/>
+  <meta property="og:type" content="<?= htmlspecialchars($ogTypeValue, ENT_QUOTES, 'UTF-8') ?>"/>
   <meta property="og:url" content="<?= htmlspecialchars($canonicalHref, ENT_QUOTES, 'UTF-8') ?>"/>
-  <meta property="og:image" content="<?= asset_prefer_webp('images/consultoria-ambiental-logo.png') ?>"/>
+  <meta property="og:image" content="<?= htmlspecialchars($ogImageHref, ENT_QUOTES, 'UTF-8') ?>"/>
+  <?php if ($ogImageMime): ?><meta property="og:image:type" content="<?= htmlspecialchars($ogImageMime, ENT_QUOTES, 'UTF-8') ?>"/><?php endif; ?>
+  <?php if ($ogImageWidth && $ogImageHeight): ?>
+  <meta property="og:image:width" content="<?= $ogImageWidth ?>"/>
+  <meta property="og:image:height" content="<?= $ogImageHeight ?>"/>
+  <?php endif; ?>
+  <meta property="og:image:alt" content="<?= htmlspecialchars($ogImageAltText, ENT_QUOTES, 'UTF-8') ?>"/>
+  <meta property="og:site_name" content="<?= htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8') ?>"/>
   <meta property="og:locale" content="es_MX"/>
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="<?= !empty($seoTitle) ? htmlspecialchars($seoTitle) : (!empty($title) ? htmlspecialchars($title) . ' | ' . APP_NAME : 'Consultoría Ambiental para Empresas e Industrias en México | ' . APP_NAME) ?>"/>
-  <meta name="twitter:description" content="<?= !empty($metaDesc) ? htmlspecialchars($metaDesc) : 'Consultoría ambiental para empresas e industrias en México. Cumplimiento ambiental, permisos, residuos, emisiones e inspecciones para empresas.' ?>"/>
+  <meta name="twitter:title" content="<?= htmlspecialchars($twitterTitleText, ENT_QUOTES, 'UTF-8') ?>"/>
+  <meta name="twitter:description" content="<?= htmlspecialchars($twitterDescriptionText, ENT_QUOTES, 'UTF-8') ?>"/>
+  <meta name="twitter:image" content="<?= htmlspecialchars($ogImageHref, ENT_QUOTES, 'UTF-8') ?>"/>
+  <meta name="twitter:image:alt" content="<?= htmlspecialchars($ogImageAltText, ENT_QUOTES, 'UTF-8') ?>"/>
 
   <!-- Schema.org - ProfessionalService -->
   <script type="application/ld+json">
@@ -49,6 +137,7 @@
     "name": "<?= htmlspecialchars($settings['brand_company_name'] ?? APP_NAME) ?>",
     "description": "Consultoría ambiental para empresas e industrias. Gestión de permisos, residuos, emisiones, MIA, COA, LAU e inspecciones PROEPA/PROFEPA.",
     "url": "<?= htmlspecialchars(public_base_url(), ENT_QUOTES, 'UTF-8') ?>",
+    "logo": "<?= htmlspecialchars(!empty($settings['brand_logo']) ? asset_url($settings['brand_logo']) : asset_url('images/consultoria-ambiental-logo.webp'), ENT_QUOTES, 'UTF-8') ?>",
     "telephone": "<?= htmlspecialchars($settings['footer_whatsapp_value'] ?? '+523387654321') ?>",
     "email": "<?= htmlspecialchars($settings['footer_email_value'] ?? 'contacto@consultoria-ca.com') ?>",
     "areaServed": "México",
@@ -68,25 +157,6 @@
   <?php endif; ?>
   
   <?php
-    $faviconRelative = !empty($settings['brand_logo'])
-      ? ltrim((string) $settings['brand_logo'], '/')
-      : 'images/consultoria-ambiental-logo.webp';
-    $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
-    if (!file_exists($faviconPath)) {
-      $faviconRelative = 'images/consultoria-ambiental-logo.webp';
-      $faviconPath = PUBLIC_DIR . '/' . $faviconRelative;
-    }
-    $faviconVersion = file_exists($faviconPath) ? (string) filemtime($faviconPath) : '1';
-    $faviconHref = BASE_URL . '/' . $faviconRelative . '?v=' . $faviconVersion;
-    $faviconExt = strtolower(pathinfo($faviconRelative, PATHINFO_EXTENSION));
-    $faviconType = match ($faviconExt) {
-      'webp' => 'image/webp',
-      'jpg', 'jpeg' => 'image/jpeg',
-      'svg' => 'image/svg+xml',
-      'ico' => 'image/x-icon',
-      default => 'image/png',
-    };
-
     $tailwindPath = PUBLIC_DIR . '/css/tailwind.css';
     $tailwindVersion = file_exists($tailwindPath) ? (string) filemtime($tailwindPath) : '1';
     $tailwindHref = BASE_URL . '/css/tailwind.css?v=' . $tailwindVersion;
@@ -95,7 +165,7 @@
   ?>
 
   <!-- Favicon -->
-  <link rel="icon" type="<?= $faviconType ?>" href="<?= htmlspecialchars($faviconHref) ?>">
+  <link rel="icon" type="<?= $faviconType ?>" sizes="<?= $faviconExt === 'svg' ? 'any' : '512x512' ?>" href="<?= htmlspecialchars($faviconHref) ?>">
   <link rel="apple-touch-icon" href="<?= htmlspecialchars($faviconHref) ?>">
   <link rel="shortcut icon" type="<?= $faviconType ?>" href="<?= htmlspecialchars($faviconHref) ?>">
   

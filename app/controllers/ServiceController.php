@@ -55,11 +55,7 @@ class ServiceController extends Controller
             'url'         => canonical_url('/servicios/' . $service['slug']),
         ];
 
-        $headExtra = '<meta property="og:title" content="' . htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') . '"/>' . "\n";
-        $headExtra .= '<meta property="og:description" content="' . htmlspecialchars($metaDesc, ENT_QUOTES, 'UTF-8') . '"/>' . "\n";
-        $headExtra .= '<meta property="og:image" content="' . htmlspecialchars($ogImage, ENT_QUOTES, 'UTF-8') . '"/>' . "\n";
-        $headExtra .= '<meta property="og:type" content="website"/>' . "\n";
-        $headExtra .= '<script type="application/ld+json">' . "\n";
+        $headExtra = '<script type="application/ld+json">' . "\n";
         $headExtra .= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
         $headExtra .= '</script>' . "\n";
 
@@ -92,6 +88,9 @@ class ServiceController extends Controller
             'relatedServices' => ServiceCatalog::related($service['slug']),
             'currentPage'  => 'servicios',
             'currentSlug'  => $service['slug'],
+            'ogImage'      => $ogImage,
+            'ogImageAlt'   => $service['title'],
+            'ogType'       => 'website',
         ]);
     }
 }

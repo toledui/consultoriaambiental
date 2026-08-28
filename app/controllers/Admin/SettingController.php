@@ -103,47 +103,150 @@ class SettingController extends Controller
             'brand_company_name' => $_POST['brand_company_name'] ?? 'Gestoría Ambiental',
         ];
 
-        // Handle logo upload
-        if (isset($_FILES['brand_logo']) && $_FILES['brand_logo']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = PUBLIC_DIR . '/images/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
+        $errors = [];
+        $uploads = [
+            [
+                'field'       => 'brand_logo',
+                'setting'     => 'brand_logo',
+                'prefix'      => 'brand_logo_',
+                'label'       => 'logo corporativo',
+                'mimeTypes'   => [
+                    'image/jpeg'   => 'jpg',
+                    'image/png'    => 'png',
+                    'image/gif'    => 'gif',
+                    'image/svg+xml'=> 'svg',
+                    'image/webp'   => 'webp',
+                    'image/avif'   => 'avif',
+                ],
+                'dimensions'  => null,
+                'convertWebp' => true,
+            ],
+            [
+                'field'       => 'brand_favicon',
+                'setting'     => 'brand_favicon',
+                'prefix'      => 'brand_favicon_',
+                'label'       => 'favicon',
+                'mimeTypes'   => ['image/png' => 'png'],
+                'dimensions'  => [512, 512],
+                'convertWebp' => false,
+            ],
+            [
+                'field'       => 'brand_og_image',
+                'setting'     => 'brand_og_image',
+                'prefix'      => 'brand_og_',
+                'label'       => 'imagen para redes sociales',
+                'mimeTypes'   => [
+                    'image/jpeg' => 'jpg',
+                    'image/png'  => 'png',
+                ],
+                'dimensions'  => [1200, 630],
+                'convertWebp' => false,
+            ],
+        ];
 
-            $ext = strtolower(pathinfo($_FILES['brand_logo']['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'avif'];
-
-            if (in_array($ext, $allowed)) {
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                $mimeType = finfo_file($finfo, $_FILES['brand_logo']['tmp_name']);
-                finfo_close($finfo);
-
-                $shouldConvertToWebp = in_array($mimeType, ['image/jpeg', 'image/png', 'image/avif'], true);
-                $storedExt = $shouldConvertToWebp ? 'webp' : $ext;
-                $filename = 'brand_logo_' . time() . '.' . $storedExt;
-                $destPath = $uploadDir . $filename;
-
-                $uploaded = $shouldConvertToWebp
-                    ? convert_image_file_to_webp($_FILES['brand_logo']['tmp_name'], $mimeType, $destPath)
-                    : move_uploaded_file($_FILES['brand_logo']['tmp_name'], $destPath);
-
-                if ($uploaded) {
-                    // Delete old logo if exists
-                    $oldLogo = Setting::get('brand_logo');
-                    if ($oldLogo && file_exists($uploadDir . basename($oldLogo))) {
-                        unlink($uploadDir . basename($oldLogo));
-                    }
-                    $data['brand_logo'] = 'images/' . $filename;
-                }
+        foreach ($uploads as $options) {
+            $result = $this->storeBrandImage($options);
+            if ($result['error'] !== null) {
+                $errors[] = $result['error'];
+            } elseif ($result['path'] !== null) {
+                $data[$options['setting']] = $result['path'];
             }
         }
 
         Setting::setMultiple($data);
 
-        $_SESSION['flash_message'] = 'Configuración de marca guardada correctamente.';
-        $_SESSION['flash_type'] = 'success';
+        if ($errors !== []) {
+            $_SESSION['flash_message'] = 'La configuración se guardó, pero algunas imágenes no se actualizaron: ' . implode(' ', $errors);
+            $_SESSION['flash_type'] = 'error';
+        } else {
+            $_SESSION['flash_message'] = 'Configuración de marca guardada correctamente.';
+            $_SESSION['flash_type'] = 'success';
+        }
 
         $this->redirect(BASE_URL . '/admin/settings?tab=brand');
+    }
+
+    /**
+     * Validate and store one image from the brand settings form.
+     *
+     * @param array{
+     *   field:string,
+     *   setting:string,
+     *   prefix:string,
+     *   label:string,
+     *   mimeTypes:array<string,string>,
+     *   dimensions:?array{0:int,1:int},
+     *   convertWebp:bool
+     * } $options
+     * @return array{path:?string,error:?string}
+     */
+    private function storeBrandImage(array $options): array
+    {
+        $field = $options['field'];
+        if (!isset($_FILES[$field]) || (int) $_FILES[$field]['error'] === UPLOAD_ERR_NO_FILE) {
+            return ['path' => null, 'error' => null];
+        }
+
+        $file = $_FILES[$field];
+        if ((int) $file['error'] !== UPLOAD_ERR_OK) {
+            return ['path' => null, 'error' => 'No fue posible subir el ' . $options['label'] . '.'];
+        }
+
+        if ((int) $file['size'] > 5 * 1024 * 1024) {
+            return ['path' => null, 'error' => 'El ' . $options['label'] . ' supera el máximo de 5 MB.'];
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo ? (string) finfo_file($finfo, $file['tmp_name']) : '';
+        if ($finfo) {
+            finfo_close($finfo);
+        }
+
+        if (!isset($options['mimeTypes'][$mimeType])) {
+            return ['path' => null, 'error' => 'El formato del ' . $options['label'] . ' no está permitido.'];
+        }
+
+        if ($options['dimensions'] !== null) {
+            $imageInfo = @getimagesize($file['tmp_name']);
+            [$requiredWidth, $requiredHeight] = $options['dimensions'];
+            if (!$imageInfo || (int) $imageInfo[0] !== $requiredWidth || (int) $imageInfo[1] !== $requiredHeight) {
+                return [
+                    'path' => null,
+                    'error' => 'El ' . $options['label'] . ' debe medir exactamente '
+                        . $requiredWidth . '×' . $requiredHeight . ' px.',
+                ];
+            }
+        }
+
+        $uploadDir = PUBLIC_DIR . '/images/';
+        if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+            return ['path' => null, 'error' => 'No fue posible preparar la carpeta para el ' . $options['label'] . '.'];
+        }
+
+        $shouldConvertToWebp = $options['convertWebp']
+            && in_array($mimeType, ['image/jpeg', 'image/png', 'image/avif'], true);
+        $storedExt = $shouldConvertToWebp ? 'webp' : $options['mimeTypes'][$mimeType];
+        $filename = $options['prefix'] . time() . '_' . bin2hex(random_bytes(3)) . '.' . $storedExt;
+        $destPath = $uploadDir . $filename;
+
+        $uploaded = $shouldConvertToWebp
+            ? convert_image_file_to_webp($file['tmp_name'], $mimeType, $destPath)
+            : move_uploaded_file($file['tmp_name'], $destPath);
+
+        if (!$uploaded) {
+            return ['path' => null, 'error' => 'No fue posible procesar el ' . $options['label'] . '.'];
+        }
+
+        $oldImage = (string) Setting::get($options['setting'], '');
+        $oldFilename = basename($oldImage);
+        $oldPath = $uploadDir . $oldFilename;
+        if ($oldFilename !== ''
+            && str_starts_with($oldFilename, $options['prefix'])
+            && is_file($oldPath)) {
+            unlink($oldPath);
+        }
+
+        return ['path' => 'images/' . $filename, 'error' => null];
     }
 
     /**
