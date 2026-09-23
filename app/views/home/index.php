@@ -96,9 +96,9 @@
       <div class="w-full lg:w-1/2 relative" data-aos="fade-left">
         <div class="rounded-2xl overflow-hidden shadow-2xl relative z-10 border-4 border-white">
           <div id="aboutSlideshow" class="relative w-full aspect-[4/3]">
-            <img alt="Impacto ambiental imagen 1" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen1.webp" data-index="0"/>
-            <img alt="Impacto ambiental imagen 2" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen2.webp" data-index="1"/>
-            <img alt="Impacto ambiental imagen 3" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen3.webp" data-index="2"/>
+            <img alt="Impacto ambiental imagen 1" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen1.webp" width="1200" height="630" loading="lazy" decoding="async" data-index="0"/>
+            <img alt="Impacto ambiental imagen 2" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen2.webp" width="1200" height="630" loading="lazy" decoding="async" data-index="1"/>
+            <img alt="Impacto ambiental imagen 3" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" src="<?= BASE_URL ?>/images/impacto%20ambiental%20imagen3.webp" width="1200" height="630" loading="lazy" decoding="async" data-index="2"/>
           </div>
         </div>
         <div class="absolute -bottom-8 -left-8 bg-ca-navy p-6 rounded-xl shadow-xl z-20 hidden md:block">

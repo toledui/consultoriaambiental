@@ -269,10 +269,35 @@
   </style>
 
   <?php if ($turnstileEnabled): ?>
-  <!-- Cloudflare Turnstile: explicit rendering also supports forms inside hidden modals. -->
+  <!-- Cloudflare Turnstile: load only when a visible form or modal needs it. -->
   <script>
+    (function() {
+      var pendingRoot = null;
+
+      window.loadTurnstile = function(root) {
+        pendingRoot = root || pendingRoot || document;
+        if (window.turnstile) {
+          window.renderTurnstileWidgets(pendingRoot);
+          return;
+        }
+        if (document.getElementById('turnstile-api')) return;
+
+        var script = document.createElement('script');
+        script.id = 'turnstile-api';
+        script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit';
+        script.async = true;
+        script.defer = true;
+        script.onerror = function() {
+          script.remove();
+        };
+        document.head.appendChild(script);
+      };
+
     window.renderTurnstileWidgets = function(root) {
-      if (!window.turnstile) return;
+      if (!window.turnstile) {
+        window.loadTurnstile(root);
+        return;
+      }
 
       (root || document).querySelectorAll('.js-turnstile').forEach(function(container) {
         if (container.dataset.widgetId || container.getClientRects().length === 0) return;
@@ -297,10 +322,24 @@
     };
 
     window.onTurnstileLoad = function() {
-      window.renderTurnstileWidgets(document);
+      window.renderTurnstileWidgets(pendingRoot || document);
     };
+
+      function loadForVisibleWidget() {
+        var visibleWidget = Array.prototype.find.call(
+          document.querySelectorAll('.js-turnstile'),
+          function(widget) { return widget.getClientRects().length > 0; }
+        );
+        if (visibleWidget) window.loadTurnstile(visibleWidget.closest('form') || document);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadForVisibleWidget, { once: true });
+      } else {
+        loadForVisibleWidget();
+      }
+    })();
   </script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&amp;render=explicit" async defer></script>
   <?php endif; ?>
 
   <!-- Custom Header Code (from admin settings) -->
@@ -347,6 +386,7 @@
       var totalWidth = 0;
       var animationId = 0;
       var lastTime = 0;
+      var isInViewport = false;
       var isPointerDown = false;
       var isDragging = false;
       var isHovering = false;
@@ -411,7 +451,19 @@
           applyTransform(false);
         }
 
+        animationId = isInViewport ? requestAnimationFrame(tick) : 0;
+      }
+
+      function startAnimation() {
+        if (animationId || !isInViewport || prefersReducedMotion || document.visibilityState !== 'visible') return;
+        lastTime = 0;
         animationId = requestAnimationFrame(tick);
+      }
+
+      function stopAnimation() {
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = 0;
+        lastTime = 0;
       }
 
       function endDrag(event) {
@@ -510,7 +562,21 @@
 
       window.addEventListener('load', measure, { once: true });
       requestAnimationFrame(measure);
-      animationId = requestAnimationFrame(tick);
+      if ('IntersectionObserver' in window) {
+        var viewportObserver = new IntersectionObserver(function(entries) {
+          isInViewport = entries[0].isIntersecting;
+          if (isInViewport) startAnimation();
+          else stopAnimation();
+        }, { rootMargin: '150px 0px' });
+        viewportObserver.observe(viewport);
+      } else {
+        isInViewport = true;
+        startAnimation();
+      }
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') startAnimation();
+        else stopAnimation();
+      });
     })();
   </script>
 
@@ -763,6 +829,7 @@
           var halfWidth = 0;
           var rafId = 0;
           var lastTime = 0;
+          var isInViewport = false;
           var isDragging = false;
           var isHovering = false;
           var startX = 0;
@@ -799,7 +866,19 @@
               }
             }
 
+            rafId = isInViewport ? window.requestAnimationFrame(tick) : 0;
+          }
+
+          function startAnimation() {
+            if (rafId || !isInViewport || prefersReducedMotion || document.visibilityState !== 'visible') return;
+            lastTime = 0;
             rafId = window.requestAnimationFrame(tick);
+          }
+
+          function stopAnimation() {
+            if (rafId) window.cancelAnimationFrame(rafId);
+            rafId = 0;
+            lastTime = 0;
           }
 
           function endDrag(event) {
@@ -877,7 +956,21 @@
             normalizeScroll();
           });
 
-          rafId = window.requestAnimationFrame(tick);
+          if ('IntersectionObserver' in window) {
+            var carouselObserver = new IntersectionObserver(function(entries) {
+              isInViewport = entries[0].isIntersecting;
+              if (isInViewport) startAnimation();
+              else stopAnimation();
+            }, { rootMargin: '150px 0px' });
+            carouselObserver.observe(carousel);
+          } else {
+            isInViewport = true;
+            startAnimation();
+          }
+          document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') startAnimation();
+            else stopAnimation();
+          });
         });
       });
     })();

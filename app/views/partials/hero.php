@@ -4,8 +4,9 @@
     class="home-hero__image"
     src="<?= BASE_URL ?>/images/imagen%20de%20background.webp"
     alt=""
-    width="1920"
-    height="1080"
+    width="1200"
+    height="630"
+    loading="eager"
     fetchpriority="high"
     decoding="async"
   />
@@ -14,22 +15,22 @@
 
   <div class="container mx-auto px-4 md:px-8 home-hero__inner">
     <div class="home-hero__content">
-      <div class="home-hero__eyebrow" data-aos="fade-up">
+      <div class="home-hero__eyebrow">
         <span></span>
         <b>Gesti&oacute;n y cumplimiento ambiental</b>
       </div>
 
-      <h1 id="homeHeroTitle" class="home-hero__title" data-aos="fade-up" data-aos-delay="80">
+      <h1 id="homeHeroTitle" class="home-hero__title">
         Consultor&iacute;a Ambiental
         <span><em>para Empresas</em> <em>e Industrias</em></span>
         en M&eacute;xico
       </h1>
 
-      <p class="home-hero__copy" data-aos="fade-up" data-aos-delay="160">
+      <p class="home-hero__copy">
         Gestionamos permisos, estudios ambientales, residuos, emisiones, COA, LAU, MIA y atenci&oacute;n a inspecciones PROEPA/PROFEPA para reducir riesgos regulatorios y mantener tu operaci&oacute;n en regla.
       </p>
 
-      <div class="home-hero__actions" data-aos="fade-up" data-aos-delay="240">
+      <div class="home-hero__actions">
         <a class="home-hero__button home-hero__button--primary" href="<?= BASE_URL ?>/contacto">
           Solicitar diagn&oacute;stico
         </a>
@@ -299,11 +300,13 @@
   (function () {
     var hero = document.querySelector('.home-hero');
     var poster = document.querySelector('.home-hero__image');
-    var videoUrl = '<?= BASE_URL ?>/images/video%20background%20hero.mp4';
+    var desktopVideoUrl = '<?= asset_url('images/hero-background-desktop.mp4') ?>?v=<?= filemtime(PUBLIC_DIR . '/images/hero-background-desktop.mp4') ?>';
+    var mobileVideoUrl = '<?= asset_url('images/hero-background-mobile.mp4') ?>?v=<?= filemtime(PUBLIC_DIR . '/images/hero-background-mobile.mp4') ?>';
 
     if (!hero || !poster) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (navigator.connection && navigator.connection.saveData) return;
+    if (navigator.connection && /(^|-)2g$/.test(navigator.connection.effectiveType || '')) return;
 
     function loadHeroVideo() {
       var video = document.createElement('video');
@@ -322,7 +325,9 @@
       video.setAttribute('autoplay', '');
 
       var source = document.createElement('source');
-      source.src = videoUrl;
+      source.src = window.matchMedia && window.matchMedia('(max-width: 767px)').matches
+        ? mobileVideoUrl
+        : desktopVideoUrl;
       source.type = 'video/mp4';
       video.appendChild(source);
 
