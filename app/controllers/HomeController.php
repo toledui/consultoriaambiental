@@ -25,7 +25,7 @@ class HomeController extends Controller
             'ogDescription' => 'Permisos, residuos, emisiones, MIA, COA, LAU e inspecciones ambientales para empresas en México.',
             'twitterDescription' => 'Permisos, residuos, emisiones, MIA, COA, LAU e inspecciones ambientales para empresas en México.',
             'currentPage' => 'home',
-            'headExtra'   => '<link rel="preload" as="image" href="' . asset_url('images/imagen de background.webp') . '" fetchpriority="high">',
+            'headExtra'   => '<link rel="preload" as="image" type="image/avif" href="' . asset_url('images/hero-background.avif') . '?v=' . filemtime(PUBLIC_DIR . '/images/hero-background.avif') . '" fetchpriority="high">',
             'services'    => $services,
             'blogPosts'   => $blogPosts,
         ]);

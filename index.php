@@ -18,6 +18,7 @@ if ($uri !== '/' && file_exists($publicPath) && is_file($publicPath)) {
         'gif'  => 'image/gif',
         'svg'  => 'image/svg+xml',
         'webp' => 'image/webp',
+        'avif' => 'image/avif',
         'mp4'  => 'video/mp4',
         'css'  => 'text/css',
         'js'   => 'application/javascript',

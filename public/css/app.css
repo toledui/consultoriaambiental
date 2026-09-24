@@ -1106,6 +1106,7 @@
   .blog-rich-content a.cta,
   .blog-rich-content a.button,
   .blog-rich-content a.btn,
+  .blog-rich-content a.ca-editor-button,
   .blog-rich-content a[class*="bg-ca-green"],
   .blog-rich-content a[class*="bg-ca-navy"],
   .blog-rich-content a[class*="bg-green-"] {
@@ -1127,9 +1128,18 @@
     box-shadow: 0 12px 24px rgba(46, 125, 50, .18);
   }
 
+  .blog-rich-content a.ca-editor-button {
+    padding: var(--ca-button-padding, .78rem 1.2rem);
+    border-color: var(--ca-button-bg, #2E7D32);
+    border-radius: var(--ca-button-radius, 8px);
+    background-color: var(--ca-button-bg, #2E7D32);
+    color: var(--ca-button-color, #ffffff) !important;
+  }
+
   .blog-rich-content a.cta:hover,
   .blog-rich-content a.button:hover,
   .blog-rich-content a.btn:hover,
+  .blog-rich-content a.ca-editor-button:hover,
   .blog-rich-content a[class*="bg-ca-green"]:hover,
   .blog-rich-content a[class*="bg-ca-navy"]:hover,
   .blog-rich-content a[class*="bg-green-"]:hover {
@@ -1138,6 +1148,17 @@
     color: #ffffff !important;
     transform: translateY(-1px);
     box-shadow: 0 16px 30px rgba(27, 58, 75, .2);
+  }
+
+  .blog-rich-content a.ca-editor-button:hover {
+    background-color: var(--ca-button-bg, #2E7D32);
+    border-color: var(--ca-button-bg, #2E7D32);
+    color: var(--ca-button-color, #ffffff) !important;
+    filter: brightness(.9);
+  }
+
+  .blog-rich-content .ca-button-row {
+    margin: 1.4rem 0;
   }
 
   .blog-rich-content ul,
@@ -1306,7 +1327,8 @@
 
     .blog-rich-content a.cta,
     .blog-rich-content a.button,
-    .blog-rich-content a.btn {
+    .blog-rich-content a.btn,
+    .blog-rich-content a.ca-editor-button {
       width: 100%;
     }
   }
@@ -1469,11 +1491,11 @@
     color: #c6d8d2 !important;
   }
 
-  html.dark .blog-rich-content a:not(.cta):not(.button):not(.btn):not([class*="bg-ca-green"]):not([class*="bg-ca-navy"]):not([class*="bg-green-"]) {
+  html.dark .blog-rich-content a:not(.cta):not(.button):not(.btn):not(.ca-editor-button):not([class*="bg-ca-green"]):not([class*="bg-ca-navy"]):not([class*="bg-green-"]) {
     color: #9df0a2 !important;
   }
 
-  html.dark .blog-rich-content a:not(.cta):not(.button):not(.btn):not([class*="bg-ca-green"]):not([class*="bg-ca-navy"]):not([class*="bg-green-"]):hover {
+  html.dark .blog-rich-content a:not(.cta):not(.button):not(.btn):not(.ca-editor-button):not([class*="bg-ca-green"]):not([class*="bg-ca-navy"]):not([class*="bg-green-"]):hover {
     color: #ffffff !important;
   }
 

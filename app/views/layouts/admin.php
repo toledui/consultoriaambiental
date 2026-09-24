@@ -81,6 +81,8 @@
     var BASE_URL = '<?= BASE_URL ?>';
   </script>
 
+  <script src="<?= BASE_URL ?>/js/admin-blog-editor.js?v=<?= filemtime(PUBLIC_DIR . '/js/admin-blog-editor.js') ?>"></script>
+
   <!-- TinyMCE Initialization -->
   <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -131,12 +133,17 @@
         '|', 'bullist numlist outdent indent | blockquote removeformat',
         '|', 'link image media table codesample',
         '|', 'emoticons charmap insertdatetime | preview fullscreen code',
-        '|', 'mediateca'
+        '|', 'botonpost mediateca'
       ],
       toolbar_mode: 'wrap',
       setup: function(editor) {
         // Store editor instance globally for media browser callback
         window.tinymceEditor = editor;
+
+        // Add the blog CTA button builder/editing tool.
+        if (typeof window.setupBlogButtonTool === 'function') {
+          window.setupBlogButtonTool(editor);
+        }
 
         // Add custom "Mediateca" button
         editor.ui.registry.addButton('mediateca', {
@@ -149,7 +156,7 @@
           }
         });
       },
-      extended_valid_elements: 'i[class],span[class],div[class|data-*],section[class],main[class],iframe[src|title|loading|allow|referrerpolicy|allowfullscreen|width|height|frameborder]',
+      extended_valid_elements: 'a[href|target|rel|class|style|data-ca-*],i[class],span[class],div[class|data-*],section[class],main[class],iframe[src|title|loading|allow|referrerpolicy|allowfullscreen|width|height|frameborder]',
       media_live_embeds: true,
       images_upload_handler: tinymceUploadHandler,
       automatic_uploads: true,
@@ -371,6 +378,25 @@
         .video-embed iframe { width: 100%; height: 100%; border: 0; }
         a, a:link, a:visited { text-decoration: none !important; color: #2E7D32; }
         a:hover { color: #1B5E20; }
+        .ca-button-row { margin: 1.25rem 0; }
+        a.ca-editor-button,
+        a.ca-editor-button:link,
+        a.ca-editor-button:visited {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 42px;
+          padding: var(--ca-button-padding, .75rem 1.25rem);
+          border: 1px solid var(--ca-button-bg, #2E7D32);
+          border-radius: var(--ca-button-radius, 8px);
+          background-color: var(--ca-button-bg, #2E7D32);
+          color: var(--ca-button-color, #ffffff) !important;
+          font-weight: 700;
+          line-height: 1.2;
+          text-decoration: none !important;
+          cursor: pointer;
+        }
+        a.ca-editor-button:hover { filter: brightness(.9); }
       `
     });
   });

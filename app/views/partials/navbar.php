@@ -23,9 +23,9 @@
     <!-- Logo -->
     <a class="flex items-center group bg-white rounded-md p-1.5 shadow-sm" href="<?= BASE_URL ?>" aria-label="Ir al inicio">
       <?php if (!empty($settings['brand_logo'])): ?>
-        <img alt="<?= htmlspecialchars($settings['brand_company_name'] ?? 'Consultoría Ambiental') ?>" width="64" height="64" class="h-16 w-auto object-contain" src="<?= BASE_URL ?>/<?= htmlspecialchars($settings['brand_logo']) ?>"/>
+        <img alt="<?= htmlspecialchars($settings['brand_company_name'] ?? 'Consultoría Ambiental') ?>" width="64" height="64" class="h-16 w-auto object-contain" src="<?= BASE_URL ?>/<?= htmlspecialchars($settings['brand_logo']) ?>" loading="eager" fetchpriority="high" decoding="async"/>
       <?php else: ?>
-        <img alt="Consultoría Ambiental" width="64" height="64" class="h-16 w-auto object-contain" src="<?= BASE_URL ?>/images/consultoria-ambiental-logo.webp"/>
+        <img alt="Consultoría Ambiental" width="64" height="64" class="h-16 w-auto object-contain" src="<?= BASE_URL ?>/images/consultoria-ambiental-logo.webp" loading="eager" fetchpriority="high" decoding="async"/>
       <?php endif; ?>
     </a>
     

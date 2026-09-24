@@ -1,15 +1,18 @@
 <!-- Hero Section -->
 <section class="home-hero" aria-labelledby="homeHeroTitle">
-  <img
-    class="home-hero__image"
-    src="<?= BASE_URL ?>/images/imagen%20de%20background.webp"
-    alt=""
-    width="1200"
-    height="630"
-    loading="eager"
-    fetchpriority="high"
-    decoding="async"
-  />
+  <picture>
+    <source srcset="<?= BASE_URL ?>/images/hero-background.avif?v=<?= filemtime(PUBLIC_DIR . '/images/hero-background.avif') ?>" type="image/avif" />
+    <img
+      class="home-hero__image"
+      src="<?= BASE_URL ?>/images/imagen%20de%20background.webp"
+      alt=""
+      width="1200"
+      height="630"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </picture>
   <div class="home-hero__shade"></div>
   <div class="home-hero__grid" aria-hidden="true"></div>
 

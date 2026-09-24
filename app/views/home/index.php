@@ -289,7 +289,7 @@
               <a href="<?= BASE_URL ?>/blog/<?= htmlspecialchars($post['slug']) ?>" class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-ca-light-green transition-all duration-300 overflow-hidden group h-24">
                 <div class="w-24 h-24 flex-shrink-0 overflow-hidden bg-ca-bg">
                   <?php if (!empty($post['featured_image'])): ?>
-                    <img alt="<?= htmlspecialchars($post['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="<?= htmlspecialchars(asset_prefer_webp($post['featured_image'])) ?>"/>
+                    <img alt="<?= htmlspecialchars($post['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="<?= htmlspecialchars(asset_prefer_webp($post['featured_image'])) ?>" loading="lazy" decoding="async"/>
                   <?php else: ?>
                     <div class="w-full h-full flex items-center justify-center text-ca-light-gray text-2xl"><i class="fas fa-newspaper"></i></div>
                   <?php endif; ?>
