@@ -53,6 +53,91 @@
     .tox .tox-statusbar__branding {
       display: none !important;
     }
+    .ca-button-modal[hidden] { display: none !important; }
+    .ca-button-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .ca-button-modal__backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, .62);
+      backdrop-filter: blur(2px);
+    }
+    .ca-button-modal__dialog {
+      position: relative;
+      width: min(620px, 100%);
+      max-height: calc(100vh - 2rem);
+      overflow: hidden;
+      border-radius: .75rem;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, .28);
+    }
+    .ca-button-modal__header,
+    .ca-button-modal__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-color: #e5e7eb;
+    }
+    .ca-button-modal__header { border-bottom-width: 1px; }
+    .ca-button-modal__header h2 { color: #1B3A4B; font-size: 1.125rem; font-weight: 700; }
+    .ca-button-modal__close {
+      padding: .15rem .5rem;
+      border-radius: .375rem;
+      color: #64748b;
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+    .ca-button-modal__close:hover { background: #f1f5f9; color: #0f172a; }
+    .ca-button-modal__form { display: flex; max-height: calc(100vh - 7rem); flex-direction: column; }
+    .ca-button-modal__body { min-height: 0; flex: 1; overflow-y: auto; padding: 1.25rem; }
+    .ca-button-modal__body label { display: block; margin-bottom: 1rem; color: #334155; font-size: .875rem; font-weight: 600; }
+    .ca-button-modal__body input[type="text"],
+    .ca-button-modal__body select {
+      width: 100%;
+      margin-top: .375rem;
+      border: 1px solid #cbd5e1;
+      border-radius: .5rem;
+      padding: .65rem .75rem;
+      background: #fff;
+      color: #0f172a;
+    }
+    .ca-button-modal__body input:focus,
+    .ca-button-modal__body select:focus { border-color: #2E7D32; outline: 2px solid rgba(46, 125, 50, .15); }
+    .ca-button-modal__body input[type="color"] {
+      display: block;
+      width: 100%;
+      height: 44px;
+      margin-top: .375rem;
+      padding: .2rem;
+      border: 1px solid #cbd5e1;
+      border-radius: .5rem;
+      background: #fff;
+      cursor: pointer;
+    }
+    .ca-button-modal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; }
+    .ca-button-modal__checkbox { display: flex !important; align-items: center; gap: .55rem; }
+    .ca-button-modal__checkbox input { width: 1rem; height: 1rem; color: #2E7D32; }
+    .ca-button-modal__error { margin-top: .5rem; border-radius: .5rem; background: #fef2f2; padding: .75rem; color: #b91c1c; font-size: .875rem; }
+    .ca-button-modal__footer { justify-content: flex-end; border-top-width: 1px; background: #f8fafc; }
+    .ca-button-modal__cancel,
+    .ca-button-modal__submit { border-radius: .5rem; padding: .65rem 1rem; font-size: .875rem; font-weight: 700; }
+    .ca-button-modal__cancel { border: 1px solid #cbd5e1; background: #fff; color: #334155; }
+    .ca-button-modal__submit { background: #2E7D32; color: #fff; }
+    .ca-button-modal__submit:hover { background: #256b29; }
+    @media (max-width: 520px) {
+      .ca-button-modal { align-items: stretch; padding: .5rem; }
+      .ca-button-modal__dialog { max-height: calc(100vh - 1rem); }
+      .ca-button-modal__grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex">

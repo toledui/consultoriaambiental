@@ -14,8 +14,15 @@
     pill: '9999px'
   };
 
-  function closestButton(editor) {
-    return editor.dom.getParent(editor.selection.getNode(), 'a.ca-editor-button');
+  var modalState = {
+    editor: null,
+    button: null,
+    bookmark: null,
+    previousOverflow: ''
+  };
+
+  function closestButton(editor, node) {
+    return editor.dom.getParent(node || editor.selection.getNode(), 'a.ca-editor-button');
   }
 
   function readButtonData(editor, button) {
@@ -33,10 +40,6 @@
     };
   }
 
-  function validUrl(value) {
-    return /^(https?:\/\/|mailto:|tel:|\/|\.\/|\.\.\/|#)/i.test(value);
-  }
-
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, '&amp;')
@@ -44,6 +47,15 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function normalizeUrl(value) {
+    var url = String(value || '').trim();
+    if (/^[\w.-]+\.[a-z]{2,}(?:[\/?#]|$)/i.test(url)) {
+      url = 'https://' + url;
+    }
+
+    return /^(https?:\/\/|mailto:|tel:|\/|\.\/|\.\.\/|#|\?)/i.test(url) ? url : '';
   }
 
   function buttonAttributes(data) {
@@ -62,114 +74,189 @@
       + ' style="' + escapeHtml(style) + '"' + target;
   }
 
-  function openDialog(editor) {
-    var currentButton = closestButton(editor);
-    var initialData = readButtonData(editor, currentButton);
+  function field(form, name) {
+    return form.elements.namedItem(name);
+  }
 
-    editor.windowManager.open({
-      title: currentButton ? 'Editar botón' : 'Insertar botón',
-      size: 'normal',
-      body: {
-        type: 'panel',
-        items: [
-          { type: 'input', name: 'text', label: 'Texto del botón' },
-          { type: 'urlinput', name: 'url', label: 'Enlace' },
-          { type: 'colorinput', name: 'backgroundColor', label: 'Color de fondo' },
-          { type: 'colorinput', name: 'textColor', label: 'Color del texto' },
-          {
-            type: 'selectbox', name: 'size', label: 'Tamaño', items: [
-              { text: 'Pequeño', value: 'small' },
-              { text: 'Mediano', value: 'medium' },
-              { text: 'Grande', value: 'large' }
-            ]
-          },
-          {
-            type: 'selectbox', name: 'radius', label: 'Esquinas', items: [
-              { text: 'Cuadradas', value: 'square' },
-              { text: 'Suaves', value: 'soft' },
-              { text: 'Redondeadas', value: 'rounded' },
-              { text: 'Píldora', value: 'pill' }
-            ]
-          },
-          {
-            type: 'selectbox', name: 'alignment', label: 'Alineación', items: [
-              { text: 'Izquierda', value: 'left' },
-              { text: 'Centro', value: 'center' },
-              { text: 'Derecha', value: 'right' }
-            ]
-          },
-          { type: 'checkbox', name: 'newTab', label: 'Abrir en una pestaña nueva' }
-        ]
-      },
-      initialData: initialData,
-      buttons: [
-        { type: 'cancel', text: 'Cancelar' },
-        { type: 'submit', text: currentButton ? 'Guardar cambios' : 'Insertar', primary: true }
-      ],
-      onSubmit: function (api) {
-        var data = api.getData();
-        data.text = String(data.text || '').trim();
-        data.url = String(data.url || '').trim();
+  function setError(message) {
+    var error = document.getElementById('ca-button-modal-error');
+    error.textContent = message || '';
+    error.hidden = !message;
+  }
 
-        if (!data.text) {
-          editor.notificationManager.open({ text: 'Escribe el texto del botón.', type: 'error' });
-          return;
+  function closeModal() {
+    var modal = document.getElementById('ca-button-modal');
+    if (!modal || modal.hidden) return;
+
+    modal.hidden = true;
+    document.body.style.overflow = modalState.previousOverflow;
+    setError('');
+
+    if (modalState.editor) {
+      modalState.editor.focus();
+    }
+
+    modalState.editor = null;
+    modalState.button = null;
+    modalState.bookmark = null;
+  }
+
+  function submitButton(event) {
+    event.preventDefault();
+
+    var editor = modalState.editor;
+    var form = event.currentTarget;
+    if (!editor) {
+      closeModal();
+      return;
+    }
+
+    var data = {
+      text: String(field(form, 'text').value || '').trim(),
+      url: normalizeUrl(field(form, 'url').value),
+      backgroundColor: field(form, 'backgroundColor').value,
+      textColor: field(form, 'textColor').value,
+      size: field(form, 'size').value,
+      radius: field(form, 'radius').value,
+      alignment: field(form, 'alignment').value,
+      newTab: field(form, 'newTab').checked
+    };
+
+    if (!data.text) {
+      setError('Escribe el texto que mostrará el botón.');
+      field(form, 'text').focus();
+      return;
+    }
+
+    if (!data.url) {
+      setError('Escribe un enlace válido, por ejemplo https://sitio.com o /contacto.');
+      field(form, 'url').focus();
+      return;
+    }
+
+    editor.undoManager.transact(function () {
+      var attributes = buttonAttributes(data);
+      var currentButton = modalState.button;
+
+      if (currentButton && currentButton.isConnected) {
+        var holder = editor.getDoc().createElement('div');
+        holder.innerHTML = '<a ' + attributes + '>' + escapeHtml(data.text) + '</a>';
+        var updatedButton = holder.firstElementChild;
+        var row = editor.dom.getParent(currentButton, '.ca-button-row');
+
+        currentButton.parentNode.replaceChild(updatedButton, currentButton);
+        if (row) {
+          editor.dom.setStyle(row, 'text-align', data.alignment);
         }
-
-        if (!data.url || !validUrl(data.url)) {
-          editor.notificationManager.open({
-            text: 'Usa un enlace válido que comience con https://, /, #, mailto: o tel:.',
-            type: 'error'
-          });
-          return;
+        editor.selection.select(updatedButton);
+      } else {
+        if (modalState.bookmark) {
+          editor.selection.moveToBookmark(modalState.bookmark);
         }
-
-        editor.undoManager.transact(function () {
-          var attributes = buttonAttributes(data);
-
-          if (currentButton && currentButton.isConnected) {
-            var holder = editor.dom.create('div', {}, '<a ' + attributes + '>' + escapeHtml(data.text) + '</a>');
-            var updatedButton = holder.firstChild;
-            var row = editor.dom.getParent(currentButton, '.ca-button-row');
-
-            currentButton.replaceWith(updatedButton);
-            if (row) {
-              editor.dom.setStyle(row, 'text-align', data.alignment);
-            } else {
-              editor.dom.setAttrib(updatedButton, 'data-ca-align', data.alignment);
-            }
-            editor.selection.select(updatedButton);
-          } else {
-            editor.insertContent(
-              '<p class="ca-button-row" style="text-align:' + escapeHtml(data.alignment) + '">'
-              + '<a ' + attributes + '>' + escapeHtml(data.text) + '</a></p><p>&nbsp;</p>'
-            );
-          }
-        });
-
-        editor.nodeChanged();
-        api.close();
+        editor.insertContent(
+          '<p class="ca-button-row" style="text-align:' + escapeHtml(data.alignment) + '">'
+          + '<a ' + attributes + '>' + escapeHtml(data.text) + '</a></p><p>&nbsp;</p>'
+        );
       }
     });
+
+    editor.nodeChanged();
+    closeModal();
+  }
+
+  function createModal() {
+    var modal = document.getElementById('ca-button-modal');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'ca-button-modal';
+    modal.className = 'ca-button-modal';
+    modal.hidden = true;
+    modal.innerHTML = [
+      '<div class="ca-button-modal__backdrop" data-ca-close></div>',
+      '<section class="ca-button-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ca-button-modal-title">',
+        '<header class="ca-button-modal__header">',
+          '<h2 id="ca-button-modal-title">Insertar botón</h2>',
+          '<button type="button" class="ca-button-modal__close" data-ca-close aria-label="Cerrar">&times;</button>',
+        '</header>',
+        '<form id="ca-button-form" class="ca-button-modal__form">',
+          '<div class="ca-button-modal__body">',
+            '<label>Texto del botón<input type="text" name="text" maxlength="120" required></label>',
+            '<label>Enlace<input type="text" name="url" placeholder="https://sitio.com o /contacto" required></label>',
+            '<div class="ca-button-modal__grid">',
+              '<label>Color de fondo<input type="color" name="backgroundColor"></label>',
+              '<label>Color del texto<input type="color" name="textColor"></label>',
+              '<label>Tamaño<select name="size"><option value="small">Pequeño</option><option value="medium">Mediano</option><option value="large">Grande</option></select></label>',
+              '<label>Esquinas<select name="radius"><option value="square">Cuadradas</option><option value="soft">Suaves</option><option value="rounded">Redondeadas</option><option value="pill">Píldora</option></select></label>',
+              '<label>Alineación<select name="alignment"><option value="left">Izquierda</option><option value="center">Centro</option><option value="right">Derecha</option></select></label>',
+            '</div>',
+            '<label class="ca-button-modal__checkbox"><input type="checkbox" name="newTab"> Abrir en una pestaña nueva</label>',
+            '<p id="ca-button-modal-error" class="ca-button-modal__error" role="alert" hidden></p>',
+          '</div>',
+          '<footer class="ca-button-modal__footer">',
+            '<button type="button" class="ca-button-modal__cancel" data-ca-close>Cancelar</button>',
+            '<button type="submit" class="ca-button-modal__submit">Insertar botón</button>',
+          '</footer>',
+        '</form>',
+      '</section>'
+    ].join('');
+
+    document.body.appendChild(modal);
+    modal.querySelector('#ca-button-form').addEventListener('submit', submitButton);
+    modal.querySelectorAll('[data-ca-close]').forEach(function (control) {
+      control.addEventListener('click', closeModal);
+    });
+    modal.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeModal();
+      }
+    });
+
+    return modal;
+  }
+
+  function openModal(editor, requestedButton) {
+    var modal = createModal();
+    var button = requestedButton || closestButton(editor);
+    var data = readButtonData(editor, button);
+    var form = modal.querySelector('#ca-button-form');
+
+    modalState.editor = editor;
+    modalState.button = button;
+    modalState.bookmark = button ? null : editor.selection.getBookmark(2, true);
+    modalState.previousOverflow = document.body.style.overflow;
+
+    field(form, 'text').value = data.text;
+    field(form, 'url').value = data.url;
+    field(form, 'backgroundColor').value = data.backgroundColor;
+    field(form, 'textColor').value = data.textColor;
+    field(form, 'size').value = data.size;
+    field(form, 'radius').value = data.radius;
+    field(form, 'alignment').value = data.alignment;
+    field(form, 'newTab').checked = data.newTab;
+
+    modal.querySelector('#ca-button-modal-title').textContent = button ? 'Editar botón' : 'Insertar botón';
+    modal.querySelector('.ca-button-modal__submit').textContent = button ? 'Guardar cambios' : 'Insertar botón';
+    setError('');
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    window.setTimeout(function () { field(form, 'text').focus(); }, 0);
   }
 
   window.setupBlogButtonTool = function (editor) {
-    editor.ui.registry.addToggleButton('botonpost', {
+    editor.ui.registry.addButton('botonpost', {
       text: 'Botón',
       tooltip: 'Insertar o editar botón',
-      onAction: function () { openDialog(editor); },
-      onSetup: function (api) {
-        function updateState() {
-          api.setActive(Boolean(closestButton(editor)));
-        }
-        editor.on('NodeChange', updateState);
-        return function () { editor.off('NodeChange', updateState); };
-      }
+      onAction: function () { openModal(editor); }
     });
 
-    editor.ui.registry.addMenuItem('botonpost', {
-      text: 'Botón de llamada a la acción',
-      onAction: function () { openDialog(editor); }
+    editor.on('dblclick', function (event) {
+      var button = closestButton(editor, event.target);
+      if (button) {
+        event.preventDefault();
+        openModal(editor, button);
+      }
     });
   };
 }());
