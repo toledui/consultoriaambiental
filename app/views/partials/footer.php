@@ -30,7 +30,7 @@
 
     <!-- Links -->
     <div>
-      <h3 class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Enlaces</h3>
+      <p class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Enlaces</p>
       <ul class="space-y-3 text-sm">
         <?php
         $footerLinks = [];
@@ -60,7 +60,7 @@
 
     <!-- Contact -->
     <div>
-      <h3 class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Contacto</h3>
+      <p class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Contacto</p>
       <ul class="space-y-4 text-sm">
         <li class="flex items-start gap-3">
           <div class="bg-ca-navy p-2 rounded text-ca-light-green"><i class="fas fa-phone-alt"></i></div>
@@ -119,7 +119,7 @@
 
     <!-- Social / News -->
     <div>
-      <h3 class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Síguenos</h3>
+      <p class="text-white font-bold mb-6 uppercase text-sm tracking-widest border-l-2 border-ca-green pl-3">Síguenos</p>
       <div class="flex items-center space-x-3 mb-8 flex-wrap gap-y-3">
         <?php
         $footerSocial = [];

@@ -146,6 +146,31 @@
     $tailwindHref = BASE_URL . '/css/tailwind.css?v=' . $tailwindVersion;
     $hasAos = true;
     $turnstileEnabled = \App\Helpers\Turnstile::canRender($settings);
+
+    // Keep custom integrations configurable while loading Tawk after the
+    // critical rendering window. Other custom snippets remain untouched.
+    $deferredTawkUrl = null;
+    $extractTawkSnippet = static function (string $code) use (&$deferredTawkUrl): string {
+      return (string) preg_replace_callback(
+        '~<script\b[^>]*>.*?</script>~is',
+        static function (array $match) use (&$deferredTawkUrl): string {
+          $script = $match[0];
+          if (stripos($script, 'embed.tawk.to') === false && stripos($script, 'Tawk_API') === false) {
+            return $script;
+          }
+
+          if ($deferredTawkUrl === null
+              && preg_match('~https://embed\.tawk\.to/[A-Za-z0-9/_-]+~i', $script, $urlMatch)) {
+            $deferredTawkUrl = $urlMatch[0];
+          }
+
+          return '';
+        },
+        $code
+      );
+    };
+    $customHeadCode = $extractTawkSnippet((string) ($settings['custom_head_code'] ?? ''));
+    $customBodyCode = $extractTawkSnippet((string) ($settings['custom_body_code'] ?? ''));
   ?>
 
   <!-- Favicon -->
@@ -343,7 +368,7 @@
   <?php endif; ?>
 
   <!-- Custom Header Code (from admin settings) -->
-  <?= $settings['custom_head_code'] ?? '' ?>
+  <?= $customHeadCode ?>
 
 </head>
 <body class="font-sans text-ca-dark-gray antialiased bg-ca-bg flex flex-col min-h-screen">
@@ -977,7 +1002,65 @@
   </script>
 
   <!-- Custom Body Code (from admin settings) -->
-  <?= $settings['custom_body_code'] ?? '' ?>
+  <?= $customBodyCode ?>
+  <?php if ($deferredTawkUrl): ?>
+  <script>
+    (function() {
+      var originalTitle = document.title;
+      var titleElement = document.querySelector('title');
+      var tawkLoaded = false;
+      var fallbackTimer = 0;
+
+      function preserveSiteTitle() {
+        if (document.title !== originalTitle) document.title = originalTitle;
+      }
+
+      if (titleElement && 'MutationObserver' in window) {
+        new MutationObserver(preserveSiteTitle).observe(titleElement, {
+          childList: true,
+          characterData: true,
+          subtree: true
+        });
+      }
+
+      window.Tawk_API = window.Tawk_API || {};
+      var previousOnLoad = window.Tawk_API.onLoad;
+      window.Tawk_API.onLoad = function() {
+        preserveSiteTitle();
+        if (typeof previousOnLoad === 'function') previousOnLoad();
+      };
+
+      function removeInteractionListeners() {
+        window.removeEventListener('pointerdown', loadTawk);
+        window.removeEventListener('touchstart', loadTawk);
+        window.removeEventListener('keydown', loadTawk);
+        window.removeEventListener('wheel', loadTawk);
+      }
+
+      function loadTawk() {
+        if (tawkLoaded) return;
+        tawkLoaded = true;
+        removeInteractionListeners();
+        if (fallbackTimer) window.clearTimeout(fallbackTimer);
+
+        window.Tawk_LoadStart = new Date();
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = <?= json_encode($deferredTawkUrl, JSON_UNESCAPED_SLASHES) ?>;
+        script.charset = 'UTF-8';
+        script.setAttribute('crossorigin', '*');
+        script.addEventListener('load', preserveSiteTitle, { once: true });
+        document.body.appendChild(script);
+      }
+
+      window.addEventListener('pointerdown', loadTawk, { once: true, passive: true });
+      window.addEventListener('touchstart', loadTawk, { once: true, passive: true });
+      window.addEventListener('keydown', loadTawk, { once: true });
+      window.addEventListener('wheel', loadTawk, { once: true, passive: true });
+      fallbackTimer = window.setTimeout(loadTawk, 12000);
+    })();
+  </script>
+  <?php endif; ?>
   <script>
     (function() {
       var STORAGE_KEY = 'ca-theme';

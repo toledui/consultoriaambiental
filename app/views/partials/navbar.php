@@ -71,7 +71,6 @@
 
       <a class="text-white/90 hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green pb-1 transition-all whitespace-nowrap" href="<?= BASE_URL ?>/servicios#esquemas-contratacion">Contrataci&oacute;n</a>
 
-      <a class="<?= $currentPage === 'blog' ? 'text-ca-light-green border-b-2 border-ca-light-green' : 'text-white/90 hover:text-ca-light-green hover:border-b-2 hover:border-ca-light-green' ?> pb-1 transition-all" href="<?= BASE_URL ?>/blog">Blog</a>
     </nav>
 
     <!-- Desktop Actions -->
@@ -105,7 +104,7 @@
   </div>
 </header>
 
-<!-- Mobile Theme Toggle - junto al botón hamburguesa -->
+<!-- Mobile Theme Toggle - junto al botÃ³n hamburguesa -->
 <button type="button" data-theme-toggle class="theme-toggle-btn theme-toggle-mobile lg:hidden" aria-label="Cambiar a modo oscuro" aria-pressed="false">
   <i class="fas fa-moon" data-theme-icon="moon" aria-hidden="true"></i>
   <i class="fas fa-sun" data-theme-icon="sun" aria-hidden="true" style="display:none"></i>
@@ -196,12 +195,6 @@
       <a class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-medium transition-all text-white hover:text-ca-light-green hover:bg-white/5" href="<?= BASE_URL ?>/servicios#esquemas-contratacion">
         <span class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-sm"><i class="fas fa-file-contract"></i></span>
         Contrataci&oacute;n
-      </a>
-
-      <!-- Blog -->
-      <a class="flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-medium transition-all <?= $currentPage === 'blog' ? 'text-ca-light-green bg-white/10' : 'text-white hover:text-ca-light-green hover:bg-white/5' ?>" href="<?= BASE_URL ?>/blog">
-        <span class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-sm"><i class="fas fa-newspaper"></i></span>
-        Blog
       </a>
 
       <hr class="border-white/10 my-4">

@@ -358,12 +358,33 @@
       video.load();
     }
 
-    window.addEventListener('load', function () {
+    function loadVideoWhenIdle() {
       if ('requestIdleCallback' in window) {
         window.requestIdleCallback(loadHeroVideo, { timeout: 1800 });
       } else {
         window.setTimeout(loadHeroVideo, 700);
       }
-    }, { once: true });
+    }
+
+    var mobileViewport = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+    if (mobileViewport) {
+      var videoRequested = false;
+      function requestMobileVideo() {
+        if (videoRequested) return;
+        videoRequested = true;
+        window.removeEventListener('pointerdown', requestMobileVideo);
+        window.removeEventListener('touchstart', requestMobileVideo);
+        window.removeEventListener('keydown', requestMobileVideo);
+        window.removeEventListener('wheel', requestMobileVideo);
+        loadVideoWhenIdle();
+      }
+
+      window.addEventListener('pointerdown', requestMobileVideo, { once: true, passive: true });
+      window.addEventListener('touchstart', requestMobileVideo, { once: true, passive: true });
+      window.addEventListener('keydown', requestMobileVideo, { once: true });
+      window.addEventListener('wheel', requestMobileVideo, { once: true, passive: true });
+    } else {
+      window.addEventListener('load', loadVideoWhenIdle, { once: true });
+    }
   })();
 </script>
