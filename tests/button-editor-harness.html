@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Button editor harness</title>
+  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/8/tinymce.min.js" referrerpolicy="origin"></script>
+  <style>
+    .ca-button-modal[hidden] { display: none !important; }
+    .ca-button-modal { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; }
+    .ca-button-modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.5); }
+    .ca-button-modal__dialog { position: relative; width: 600px; background: white; padding: 20px; }
+    .ca-button-modal__grid { display: grid; grid-template-columns: 1fr 1fr; }
+  </style>
+</head>
+<body>
+  <textarea id="content"><p>Texto inicial</p></textarea>
+  <script src="../public/js/admin-blog-editor.js"></script>
+  <script>
+    tinymce.init({
+      selector: '#content',
+      toolbar: 'botonpost',
+      setup: function (editor) { window.editorUnderTest = editor; window.setupBlogButtonTool(editor); }
+    });
+  </script>
+</body>
+</html>
