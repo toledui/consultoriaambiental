@@ -312,6 +312,7 @@
     if (navigator.connection && /(^|-)2g$/.test(navigator.connection.effectiveType || '')) return;
 
     function loadHeroVideo() {
+      var posterContainer = poster.closest('picture') || poster;
       var video = document.createElement('video');
       video.className = 'home-hero__video';
       video.muted = true;
@@ -357,7 +358,7 @@
         }
       });
 
-      hero.insertBefore(video, poster.nextSibling);
+      hero.insertBefore(video, posterContainer.nextSibling);
       video.load();
     }
 
