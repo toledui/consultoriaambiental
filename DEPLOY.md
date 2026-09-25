@@ -42,6 +42,7 @@ La estructura debe quedar así:
 ├── package.json           ← Dependencias (solo referencia, no se ejecuta en prod)
 ├── config/
 │   ├── database.php       ← Configuración de BD
+│   ├── database.local.example.php ← Plantilla para credenciales del servidor
 │   └── app.php            ← Constantes de la app
 ├── app/                   ← Código de la aplicación
 ├── migrations/            ← Migraciones SQL
@@ -73,20 +74,24 @@ Accede a tu panel de control (cPanel, phpMyAdmin, etc.) y crea una base de datos
 
 ### 3.2 Configurar credenciales
 
-Edita [`config/database.php`](config/database.php):
+No uses el usuario `root` de MySQL para la aplicación: en muchos VPS solo permite iniciar sesión desde la cuenta administradora del sistema. Si todavía no tienes un usuario MySQL para el sitio, créalo desde la consola administrativa de MySQL (`sudo mysql`; en MariaDB puede ser `sudo mariadb`). Sustituye `nombre_bd` por la base real creada en el paso anterior:
 
-```php
-return [
-    'host'     => 'localhost',           // Servidor MySQL
-    'port'     => '3306',                // Puerto
-    'dbname'   => 'nombre_bd',           // Nombre de la BD
-    'username' => 'tu_usuario',          // Usuario MySQL
-    'password' => 'tu_contraseña',       // Contraseña MySQL
-    'charset'  => 'utf8mb4',
-];
+```sql
+CREATE USER 'consultoria_app'@'localhost' IDENTIFIED BY 'una_contraseña_larga_y_unica';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES
+ON `nombre_bd`.* TO 'consultoria_app'@'localhost';
 ```
 
-> **Alternativa con variables de entorno**: Puedes definir las variables `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` en el servidor y el archivo las usará automáticamente.
+Si ya existe un usuario con acceso a esa base, úsalo sin crearlo de nuevo. En el servidor, copia [`config/database.local.example.php`](config/database.local.example.php), completa el nombre de la base, usuario y contraseña reales y permite que PHP lea el archivo:
+
+```bash
+cp config/database.local.example.php config/database.local.php
+nano config/database.local.php
+sudo chgrp www-data config/database.local.php
+chmod 640 config/database.local.php
+```
+
+`config/database.local.php` está ignorado por Git y sirve tanto para la web como para `php migrate`, por lo que no generará conflictos en futuros `git pull`. Ajusta `www-data` si PHP usa otro grupo. También puedes definir `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` como variables de entorno; estas tienen prioridad sobre el archivo local.
 
 ### 3.3 Ejecutar migraciones
 
@@ -115,6 +120,10 @@ Si tu servidor usa **nginx**, agrega esta regla en el bloque `server`:
 ```nginx
 location / {
     try_files $uri $uri/ /index.php?$query_string;
+}
+
+location ^~ /config/ {
+    deny all;
 }
 
 location ~ \.php$ {
@@ -187,7 +196,7 @@ npm run watch:css
 
 # 4. Subir archivos (vía FTP, Git, etc.) — sin node_modules/
 
-# 5. Configurar base de datos (editar config/database.php)
+# 5. Configurar base de datos (config/database.local.php)
 
 # 6. Ejecutar migraciones
 php migrate

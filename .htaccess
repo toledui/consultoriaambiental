@@ -2,6 +2,7 @@ RewriteEngine On
 
 # Migration scripts are CLI-only, including the legacy setup entry point.
 RewriteRule ^(migrate|setup\.php)$ - [F,L,NC]
+RewriteRule ^config/ - [F,L,NC]
 
 # Serve compiled public assets directly, so CSS/JS/images do not go through PHP.
 RewriteRule ^(css|js|images|uploads)/(.*)$ public/$1/$2 [L,NC]

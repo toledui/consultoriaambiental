@@ -1,5 +1,8 @@
 # CakePHP 3
 
+# Server-specific database credentials (never commit).
+/config/database.local.php
+
 /vendor/*
 /config/app.php
 
