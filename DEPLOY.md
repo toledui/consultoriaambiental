@@ -128,13 +128,14 @@ location ~ \.php$ {
 
 ## 5. Configurar la aplicación
 
-Edita [`config/app.php`](config/app.php) si es necesario:
+Define `BASE_URL` con la URL pública del sitio, preferentemente como variable de entorno:
 
-```php
-define('BASE_URL', 'https://tudominio.com');  // URL del sitio
-define('APP_NAME', 'Consultoría Ambiental');   // Nombre del sitio
-define('APP_DEBUG', false);                     // false en producción
+```bash
+BASE_URL=https://tudominio.com
+APP_DEBUG=false
 ```
+
+Si `BASE_URL` no está definida, [`config/app.php`](config/app.php) la detecta a partir de la petición. Mantén `APP_DEBUG=false` en producción.
 
 ---
 
@@ -160,7 +161,7 @@ chmod -R 755 storage/logs
 
 1. Abre `https://tudominio.com/` — Deberías ver el sitio funcionando.
 2. Abre `https://tudominio.com/admin/login` — Deberías ver el formulario de login.
-3. Inicia sesión con:
+3. Solo en una instalación nueva, inicia sesión con:
    - **Usuario**: `admin`
    - **Contraseña**: `admin123`
 
