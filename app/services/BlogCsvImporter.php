@@ -52,6 +52,240 @@ class BlogCsvImporter
         return self::EXPECTED_HEADERS;
     }
 
+    public static function mappingFields(): array
+    {
+        return array_merge(self::EXPECTED_HEADERS, ['Contenido', 'Extracto', 'Meta Título', 'Identificador', 'Imagen destacada']);
+    }
+
+    /** Fields shown in the current post mapper; the legacy columns remain readable in saved templates. */
+    public static function postMappingFields(): array
+    {
+        return ['Título', 'Contenido', 'Imagen destacada', 'Categoría', 'Extracto', 'Slug-Seo', 'Meta Título', 'Meta Descripción'];
+    }
+
+    /** Validate a saved mapping against its source column names without needing an uploaded file. */
+    public static function validateMapping(array $headers, array $mapping): array
+    {
+        $tokenIndexes = array_flip(self::columnTokens($headers));
+        $templates = [];
+        foreach (self::mappingFields() as $field) {
+            $template = $mapping[$field] ?? '';
+            if (!is_string($template) || strlen($template) > 10000) {
+                throw new \RuntimeException('El mapeo de ' . $field . ' es demasiado largo o inválido.');
+            }
+            preg_match_all('/\{[^{}]+\}/u', $template, $matches);
+            foreach ($matches[0] as $reference) {
+                if (!array_key_exists($reference, $tokenIndexes)) {
+                    throw new \RuntimeException('El mapeo de ' . $field . ' usa una columna desconocida: ' . $reference . '.');
+                }
+            }
+            $templates[$field] = $template;
+        }
+        if (trim($templates['Título']) === '') {
+            throw new \RuntimeException('Asigna al menos una columna al campo Título.');
+        }
+        return $templates;
+    }
+
+    /** Make readable, unique placeholders from the source file's column headings. */
+    public static function columnTokens(array $headers): array
+    {
+        $tokens = [];
+        $used = [];
+        foreach ($headers as $header) {
+            $label = trim(str_replace(['{', '}'], '', (string)$header));
+            $label = preg_replace('/\s+/u', ' ', $label) ?? $label;
+            if ($label === '') {
+                $label = 'Columna ' . (count($tokens) + 1);
+            }
+            $candidate = $label;
+            $suffix = 2;
+            while (isset($used[$candidate])) {
+                $candidate = $label . ' (' . $suffix++ . ')';
+            }
+            $used[$candidate] = true;
+            $tokens[] = '{' . $candidate . '}';
+        }
+        return $tokens;
+    }
+
+    /** Store a source file for the mapping step without trusting its later form fields. */
+    public function prepareUploadedFile(array $file, int $adminId, ?int $profileId = null): array
+    {
+        $error = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($error !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException($this->uploadErrorMessage($error));
+        }
+        $name = trim((string)($file['name'] ?? ''));
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        if (!in_array($extension, ['csv', 'xlsx'], true)) {
+            throw new \RuntimeException('Selecciona un archivo .csv o .xlsx.');
+        }
+        $size = (int)($file['size'] ?? 0);
+        if ($size <= 0 || $size > self::MAX_FILE_SIZE) {
+            throw new \RuntimeException('El archivo debe contener datos y no superar 10 MB.');
+        }
+        $path = (string)($file['tmp_name'] ?? '');
+        if ($path === '' || !is_file($path) || !is_readable($path)
+            || (PHP_SAPI !== 'cli' && !is_uploaded_file($path))) {
+            throw new \RuntimeException('No se pudo leer el archivo recibido.');
+        }
+        $actualSize = filesize($path);
+        if ($actualSize === false || $actualSize <= 0 || $actualSize > self::MAX_FILE_SIZE) {
+            throw new \RuntimeException('El archivo debe contener datos y no superar 10 MB.');
+        }
+
+        [$headers, $records] = $extension === 'xlsx'
+            ? $this->readXlsx($path)
+            : $this->readMappedCsv($path);
+        if ($records === []) {
+            throw new \RuntimeException('El archivo no contiene filas de datos.');
+        }
+        $token = bin2hex(random_bytes(32));
+        $payload = [
+            'admin_id' => $adminId,
+            'expires_at' => time() + self::BATCH_TTL,
+            'name' => basename($name),
+            'profile_id' => $profileId,
+            'headers' => $headers,
+            'records' => $records,
+        ];
+        $this->writePayload($this->sourcePath($token), $payload);
+        $_SESSION['blog_import_sources'][$token] = [
+            'admin_id' => $adminId,
+            'expires_at' => $payload['expires_at'],
+        ];
+        return $this->sourceSummary($token, $payload);
+    }
+
+    public function getPreparedSource(string $token, int $adminId): array
+    {
+        $payload = $this->readSourcePayload($token, $adminId);
+        return $this->sourceSummary($token, $payload);
+    }
+
+    public function getPreparedSourceData(string $token, int $adminId): array
+    {
+        $payload = $this->readSourcePayload($token, $adminId);
+        return [
+            'name' => $payload['name'],
+            'headers' => $payload['headers'],
+            'records' => $payload['records'],
+        ];
+    }
+
+    public function prepareStoredSource(array $snapshot, int $adminId, int $profileId): array
+    {
+        $headers = $snapshot['headers'] ?? null;
+        $records = $snapshot['records'] ?? null;
+        if (!is_array($headers) || $headers === []
+            || !is_array($records) || $records === [] || count($records) > self::MAX_ROWS) {
+            throw new \RuntimeException('El archivo guardado de esta plantilla no es válido.');
+        }
+        $token = bin2hex(random_bytes(32));
+        $payload = [
+            'admin_id' => $adminId,
+            'expires_at' => time() + self::BATCH_TTL,
+            'name' => (string)($snapshot['name'] ?? 'archivo-guardado.csv'),
+            'profile_id' => $profileId,
+            'headers' => $headers,
+            'records' => $records,
+            'reused' => true,
+        ];
+        $this->writePayload($this->sourcePath($token), $payload);
+        $_SESSION['blog_import_sources'][$token] = [
+            'admin_id' => $adminId,
+            'expires_at' => $payload['expires_at'],
+        ];
+        return $this->sourceSummary($token, $payload);
+    }
+
+    public function previewMappedSource(
+        string $token,
+        int $adminId,
+        array $mapping,
+        array $existingSlugs = [],
+        array $existingCategories = [],
+        array $categoryOverrides = [],
+        ?string $bulkCategory = null,
+        array $preservedCategories = []
+    ): array {
+        $payload = $this->readSourcePayload($token, $adminId);
+        $headers = $payload['headers'];
+        $columnTokens = self::columnTokens($headers);
+        $templates = self::validateMapping($headers, $mapping);
+
+        $usedSlugs = array_fill_keys(array_map('strval', $existingSlugs), true);
+        $categoryMap = [];
+        foreach ($existingCategories as $category) {
+            $slug = (string)($category['slug'] ?? '');
+            if ($slug !== '') {
+                $categoryMap[$slug] = $category;
+            }
+        }
+        $rows = [];
+        $usedSourceKeys = [];
+        foreach ($payload['records'] as $record) {
+            $replacements = [];
+            foreach ($columnTokens as $index => $reference) {
+                $replacements[$reference] = (string)($record['values'][$index] ?? '');
+            }
+            $source = [];
+            foreach ($templates as $field => $template) {
+                $source[$field] = strtr($template, $replacements);
+            }
+            $recordNumber = (int)$record['row_number'];
+            if ($bulkCategory === null && !array_key_exists($recordNumber, $categoryOverrides)
+                && $preservedCategories !== []) {
+                $sourceKey = trim($source['Identificador']);
+                if ($sourceKey === '') {
+                    $slugSource = trim($source['Slug-Seo']);
+                    $sourceKey = BlogPost::generateSlug($slugSource !== '' ? $slugSource : trim($source['Título']));
+                }
+                $sourceKeyHash = hash('sha256', $sourceKey);
+                if (array_key_exists($sourceKeyHash, $preservedCategories)) {
+                    $source['Categoría'] = (string)$preservedCategories[$sourceKeyHash];
+                }
+            }
+            if ($bulkCategory !== null || array_key_exists($recordNumber, $categoryOverrides)) {
+                $categoryName = $bulkCategory ?? $categoryOverrides[$recordNumber];
+                if (!is_string($categoryName) || strlen($categoryName) > 2000) {
+                    throw new \RuntimeException('La categoría de la fila ' . $recordNumber . ' es inválida.');
+                }
+                $categoryName = trim($categoryName);
+                $categorySlug = $categoryName !== '' ? BlogCategory::generateSlug($categoryName) : '';
+                $source['Categoría'] = isset($categoryMap[$categorySlug])
+                    ? (string)$categoryMap[$categorySlug]['name']
+                    : $categoryName;
+            }
+            $row = $this->normalizeRow($source, $recordNumber, $usedSlugs, $categoryMap);
+            $sourceKey = (string)($row['data']['source_key'] ?? '');
+            if ($sourceKey !== '') {
+                if (isset($usedSourceKeys[$sourceKey])) {
+                    $row['errors'][] = 'El identificador de importación se repite en otra fila. Asigna una columna única.';
+                    $row['data'] = null;
+                } else {
+                    $usedSourceKeys[$sourceKey] = true;
+                }
+            }
+            $rows[] = $row;
+            if ($row['errors'] === []) {
+                $usedSlugs[$row['slug']] = true;
+            }
+        }
+        $errorCount = array_sum(array_map(static fn(array $row): int => count($row['errors']), $rows));
+        $warningCount = array_sum(array_map(static fn(array $row): int => count($row['warnings']), $rows));
+        return [
+            'headers' => $headers,
+            'rows' => $rows,
+            'total_rows' => count($rows),
+            'valid_rows' => count($rows) - count(array_filter($rows, static fn(array $row): bool => $row['errors'] !== [])),
+            'error_count' => $errorCount,
+            'warning_count' => $warningCount,
+            'can_import' => $errorCount === 0,
+        ];
+    }
+
     public function parseUploadedFile(
         array $file,
         array $existingSlugs,
@@ -216,7 +450,7 @@ class BlogCsvImporter
         ];
     }
 
-    public function createBatch(array $preview, int $adminId): string
+    public function createBatch(array $preview, int $adminId, array $context = []): string
     {
         if (($preview['can_import'] ?? false) !== true || empty($preview['rows'])) {
             throw new \RuntimeException('El lote contiene errores y no puede prepararse para importar.');
@@ -239,6 +473,7 @@ class BlogCsvImporter
             'created_at' => $now,
             'expires_at' => $now + self::BATCH_TTL,
             'rows' => $rows,
+            'context' => $context,
         ];
 
         $encoded = json_encode(
@@ -260,6 +495,11 @@ class BlogCsvImporter
     }
 
     public function consumeBatch(string $token, int $adminId): array
+    {
+        return $this->consumeBatchPayload($token, $adminId)['rows'];
+    }
+
+    public function consumeBatchPayload(string $token, int $adminId): array
     {
         $this->cleanupExpiredBatches();
         if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
@@ -298,7 +538,7 @@ class BlogCsvImporter
             throw new \RuntimeException('El lote temporal ya no es válido.');
         }
 
-        return $payload['rows'];
+        return $payload;
     }
 
     public function csrfToken(): string
@@ -340,6 +580,262 @@ class BlogCsvImporter
                 @unlink($path);
             }
         }
+        foreach ((array)($_SESSION['blog_import_sources'] ?? []) as $token => $entry) {
+            if (!is_array($entry) || (int)($entry['expires_at'] ?? 0) < $now) {
+                if (preg_match('/^[a-f0-9]{64}$/', (string)$token)) {
+                    @unlink($this->sourcePath((string)$token));
+                }
+                unset($_SESSION['blog_import_sources'][$token]);
+            }
+        }
+    }
+
+    private function readMappedCsv(string $path): array
+    {
+        $raw = file_get_contents($path);
+        if ($raw === false || !mb_check_encoding($raw, 'UTF-8')) {
+            throw new \RuntimeException('El CSV debe estar codificado en UTF-8.');
+        }
+        $firstLine = strtok($raw, "\r\n") ?: '';
+        $delimiter = ',';
+        $max = -1;
+        foreach ([',', ';', "\t"] as $candidate) {
+            $count = count(str_getcsv($firstLine, $candidate, '"', ''));
+            if ($count > $max) {
+                $max = $count;
+                $delimiter = $candidate;
+            }
+        }
+        $handle = fopen($path, 'rb');
+        if ($handle === false) {
+            throw new \RuntimeException('No se pudo abrir el CSV.');
+        }
+        try {
+            $headers = fgetcsv($handle, null, $delimiter, '"', '');
+            if (!is_array($headers)) {
+                throw new \RuntimeException('El archivo no contiene encabezados.');
+            }
+            $headers[0] = preg_replace('/^\xEF\xBB\xBF/', '', (string)$headers[0]);
+            $headers = $this->validateSourceHeaders($headers);
+            $records = [];
+            $rowNumber = 1;
+            while (($values = fgetcsv($handle, null, $delimiter, '"', '')) !== false) {
+                $rowNumber++;
+                if ($this->isBlankRecord($values)) {
+                    continue;
+                }
+                if (count($records) >= self::MAX_ROWS) {
+                    throw new \RuntimeException('El archivo excede el máximo de 500 filas.');
+                }
+                if (count($values) > count($headers)) {
+                    throw new \RuntimeException('La fila ' . $rowNumber . ' tiene más columnas que el encabezado.');
+                }
+                $records[] = [
+                    'row_number' => $rowNumber,
+                    'values' => array_pad(array_map('strval', $values), count($headers), ''),
+                ];
+            }
+        } finally {
+            fclose($handle);
+        }
+        return [$headers, $records];
+    }
+
+    private function readXlsx(string $path): array
+    {
+        if (!class_exists(\ZipArchive::class)) {
+            throw new \RuntimeException('El servidor necesita la extensión ZIP para leer .xlsx.');
+        }
+        $zip = new \ZipArchive();
+        if ($zip->open($path) !== true) {
+            throw new \RuntimeException('El archivo .xlsx no es válido.');
+        }
+        try {
+            $totalSize = 0;
+            for ($index = 0; $index < $zip->numFiles; $index++) {
+                $stat = $zip->statIndex($index);
+                $totalSize += (int)($stat['size'] ?? 0);
+                if ($totalSize > 50 * 1024 * 1024) {
+                    throw new \RuntimeException('El archivo .xlsx descomprimido excede 50 MB.');
+                }
+            }
+            $workbook = $this->xlsxXml($zip, 'xl/workbook.xml');
+            $relations = $this->xlsxXml($zip, 'xl/_rels/workbook.xml.rels');
+            $workbook->registerXPathNamespace('x', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+            $sheet = ($workbook->xpath('//x:sheets/x:sheet') ?: [])[0] ?? null;
+            if (!$sheet instanceof \SimpleXMLElement) {
+                throw new \RuntimeException('El Excel no contiene hojas.');
+            }
+            $relationId = (string)$sheet->attributes('http://schemas.openxmlformats.org/officeDocument/2006/relationships')['id'];
+            $target = '';
+            foreach ($relations->children('http://schemas.openxmlformats.org/package/2006/relationships') as $relation) {
+                $attributes = $relation->attributes();
+                if ((string)$attributes['Id'] === $relationId) {
+                    $target = (string)$attributes['Target'];
+                    break;
+                }
+            }
+            $sheetPath = str_starts_with($target, '/')
+                ? ltrim($target, '/')
+                : 'xl/' . ltrim($target, '/');
+            if ($target === '' || str_contains($sheetPath, '..')) {
+                throw new \RuntimeException('No se pudo ubicar la primera hoja del Excel.');
+            }
+            $shared = [];
+            if ($zip->locateName('xl/sharedStrings.xml') !== false) {
+                $strings = $this->xlsxXml($zip, 'xl/sharedStrings.xml');
+                $strings->registerXPathNamespace('x', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+                foreach ($strings->xpath('//x:si') ?: [] as $item) {
+                    $item->registerXPathNamespace('x', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+                    $shared[] = implode('', array_map('strval', $item->xpath('.//x:t') ?: []));
+                }
+            }
+            $worksheet = $this->xlsxXml($zip, $sheetPath);
+            $worksheet->registerXPathNamespace('x', 'http://schemas.openxmlformats.org/spreadsheetml/2006/main');
+            $grid = [];
+            foreach ($worksheet->xpath('//x:sheetData/x:row') ?: [] as $row) {
+                $number = (int)$row->attributes()['r'];
+                if ($number < 1 || $number > 1000000) {
+                    throw new \RuntimeException('La hoja contiene un número de fila inválido.');
+                }
+                $cells = [];
+                foreach ($row->children('http://schemas.openxmlformats.org/spreadsheetml/2006/main') as $cell) {
+                    $cellAttributes = $cell->attributes();
+                    if (!preg_match('/^([A-Z]+)\d+$/i', (string)$cellAttributes['r'], $match)) {
+                        continue;
+                    }
+                    $column = 0;
+                    foreach (str_split(strtoupper($match[1])) as $letter) {
+                        $column = $column * 26 + ord($letter) - 64;
+                    }
+                    $column--;
+                    if ($column >= 200) {
+                        throw new \RuntimeException('La hoja excede el máximo de 200 columnas.');
+                    }
+                    $type = (string)$cellAttributes['t'];
+                    $value = $type === 'inlineStr'
+                        ? implode('', array_map('strval', $cell->xpath('.//*[local-name()="t"]') ?: []))
+                        : (string)(($cell->xpath('./*[local-name()="v"]') ?: [])[0] ?? '');
+                    $cells[$column] = $type === 's' ? (string)($shared[(int)$value] ?? '') : $value;
+                }
+                if ($this->isBlankRecord($cells)) {
+                    continue;
+                }
+                $grid[$number] = $cells;
+                if (count($grid) > self::MAX_ROWS + 1) {
+                    throw new \RuntimeException('El archivo excede el máximo de 500 filas.');
+                }
+            }
+            if ($grid === []) {
+                throw new \RuntimeException('La primera hoja está vacía.');
+            }
+            ksort($grid);
+            $headerRow = (int)array_key_first($grid);
+            $columnCount = max(array_keys($grid[$headerRow] ?: [0 => ''])) + 1;
+            $headers = $this->validateSourceHeaders(array_replace(array_fill(0, $columnCount, ''), $grid[$headerRow]));
+            $records = [];
+            foreach ($grid as $number => $cells) {
+                if ($number === $headerRow || $this->isBlankRecord($cells)) {
+                    continue;
+                }
+                if (count($records) >= self::MAX_ROWS) {
+                    throw new \RuntimeException('El archivo excede el máximo de 500 filas.');
+                }
+                $records[] = [
+                    'row_number' => $number,
+                    'values' => array_replace(array_fill(0, count($headers), ''), $cells),
+                ];
+            }
+            return [$headers, $records];
+        } finally {
+            $zip->close();
+        }
+    }
+
+    private function xlsxXml(\ZipArchive $zip, string $name): \SimpleXMLElement
+    {
+        $xml = $zip->getFromName($name);
+        if ($xml === false || strlen($xml) > 25 * 1024 * 1024) {
+            throw new \RuntimeException('No se pudo leer ' . $name . ' del archivo Excel.');
+        }
+        $previous = libxml_use_internal_errors(true);
+        try {
+            $parsed = simplexml_load_string($xml, \SimpleXMLElement::class, LIBXML_NONET);
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
+        if (!$parsed instanceof \SimpleXMLElement) {
+            throw new \RuntimeException('El archivo Excel contiene XML inválido.');
+        }
+        return $parsed;
+    }
+
+    private function validateSourceHeaders(array $headers): array
+    {
+        if ($headers === [] || count($headers) > 200) {
+            throw new \RuntimeException('El archivo debe tener entre 1 y 200 columnas.');
+        }
+        $headers = array_map(static fn($value): string => trim((string)$value), $headers);
+        foreach ($headers as $index => &$header) {
+            if ($header === '') {
+                $header = 'Columna ' . ($index + 1);
+            }
+            if (mb_strlen($header, 'UTF-8') > 150) {
+                throw new \RuntimeException('Un encabezado excede 150 caracteres.');
+            }
+        }
+        return $headers;
+    }
+
+    private function readSourcePayload(string $token, int $adminId): array
+    {
+        $entry = $_SESSION['blog_import_sources'][$token] ?? null;
+        if (!preg_match('/^[a-f0-9]{64}$/', $token) || !is_array($entry)
+            || (int)($entry['admin_id'] ?? 0) !== $adminId
+            || (int)($entry['expires_at'] ?? 0) < time()) {
+            throw new \RuntimeException('El archivo temporal expiró. Vuelve a subirlo.');
+        }
+        $raw = file_get_contents($this->sourcePath($token));
+        $payload = $raw === false ? null : json_decode($raw, true);
+        if (!is_array($payload) || (int)($payload['admin_id'] ?? 0) !== $adminId
+            || (int)($payload['expires_at'] ?? 0) < time()
+            || !is_array($payload['headers'] ?? null)
+            || !is_array($payload['records'] ?? null)) {
+            throw new \RuntimeException('No se encontró el archivo temporal. Vuelve a subirlo.');
+        }
+        return $payload;
+    }
+
+    private function sourceSummary(string $token, array $payload): array
+    {
+        return [
+            'token' => $token,
+            'name' => $payload['name'],
+            'profile_id' => isset($payload['profile_id']) ? (int)$payload['profile_id'] : null,
+            'reused' => !empty($payload['reused']),
+            'headers' => $payload['headers'],
+            'column_tokens' => self::columnTokens($payload['headers']),
+            'sample' => array_map(
+                static fn($value): string => mb_strimwidth((string)$value, 0, 500, '…', 'UTF-8'),
+                $payload['records'][0]['values'] ?? []
+            ),
+            'total_rows' => count($payload['records']),
+        ];
+    }
+
+    private function sourcePath(string $token): string
+    {
+        return $this->batchDirectory() . DIRECTORY_SEPARATOR . hash('sha256', 'source-' . $token) . '.json';
+    }
+
+    private function writePayload(string $path, array $payload): void
+    {
+        $encoded = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        if (file_put_contents($path, $encoded, LOCK_EX) === false) {
+            throw new \RuntimeException('No se pudo guardar el archivo temporal.');
+        }
+        @chmod($path, 0600);
     }
 
     private function normalizeRow(
@@ -353,6 +849,9 @@ class BlogCsvImporter
 
         $title = trim((string)$source['Título']);
         $metaDescription = trim((string)$source['Meta Descripción']);
+        $metaTitle = trim((string)($source['Meta Título'] ?? ''));
+        $excerpt = trim((string)($source['Extracto'] ?? ''));
+        $featuredImage = trim((string)($source['Imagen destacada'] ?? ''));
         $categoryName = trim((string)$source['Categoría']);
         $slugSource = trim((string)$source['Slug-Seo']);
 
@@ -364,6 +863,27 @@ class BlogCsvImporter
 
         if (strlen($metaDescription) > 65535) {
             $errors[] = 'La meta descripción excede la capacidad del campo TEXT.';
+        }
+        if (mb_strlen($metaTitle, 'UTF-8') > 255) {
+            $errors[] = 'El meta título excede 255 caracteres.';
+        }
+        if (strlen($excerpt) > 65535) {
+            $errors[] = 'El extracto excede la capacidad del campo TEXT.';
+        }
+        if ($featuredImage !== '') {
+            if (preg_match('~^https?://~i', $featuredImage)) {
+                if (filter_var($featuredImage, FILTER_VALIDATE_URL) === false) {
+                    $errors[] = 'La URL de la imagen destacada no es válida.';
+                }
+            } elseif (preg_match('~^/?uploads/[A-Za-z0-9_./%+\-]+$~', $featuredImage)
+                && !str_contains($featuredImage, '..')) {
+                $featuredImage = \asset_url(ltrim($featuredImage, '/'));
+            } else {
+                $errors[] = 'La imagen destacada debe ser una URL http(s) o una ruta de uploads.';
+            }
+            if (mb_strlen($featuredImage, 'UTF-8') > 255) {
+                $errors[] = 'La URL de la imagen destacada excede 255 caracteres.';
+            }
         }
         if (mb_strlen($metaDescription, 'UTF-8') > 160) {
             $warnings[] = sprintf(
@@ -395,6 +915,13 @@ class BlogCsvImporter
         }
 
         $baseSlug = BlogPost::generateSlug($slugSource !== '' ? $slugSource : $title);
+        $sourceKey = trim((string)($source['Identificador'] ?? ''));
+        if ($sourceKey === '') {
+            $sourceKey = $baseSlug;
+        }
+        if (mb_strlen($sourceKey, 'UTF-8') > 255) {
+            $errors[] = 'El identificador de importación excede 255 caracteres.';
+        }
         if (mb_strlen($baseSlug, 'UTF-8') > 255) {
             $errors[] = 'El slug del post excede 255 caracteres.';
         }
@@ -406,6 +933,10 @@ class BlogCsvImporter
         $content = '';
         try {
             $parts = [];
+            $directContent = trim((string)($source['Contenido'] ?? ''));
+            if ($directContent !== '') {
+                $parts[] = $this->normalizeHtmlFragment($directContent, 'Contenido');
+            }
             $introduction = trim((string)$source['Introducción']);
             if ($introduction !== '') {
                 $introduction = preg_replace('/\s+/u', ' ', $introduction) ?? $introduction;
@@ -452,8 +983,11 @@ class BlogCsvImporter
             $data = [
                 'title' => $title,
                 'base_slug' => $baseSlug,
-                'excerpt' => $metaDescription,
+                'source_key' => $sourceKey,
+                'featured_image' => $featuredImage,
+                'excerpt' => $excerpt !== '' ? $excerpt : $metaDescription,
                 'content' => $content,
+                'meta_title' => $metaTitle,
                 'category_name' => $categoryName,
                 'category_slug' => $categorySlug,
                 'meta_description' => $metaDescription,
@@ -761,11 +1295,11 @@ class BlogCsvImporter
             UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE =>
                 'El archivo excede el tamaño máximo permitido por el servidor.',
             UPLOAD_ERR_PARTIAL => 'El archivo se subió parcialmente.',
-            UPLOAD_ERR_NO_FILE => 'Selecciona un archivo CSV.',
+            UPLOAD_ERR_NO_FILE => 'Selecciona un archivo CSV o Excel.',
             UPLOAD_ERR_NO_TMP_DIR => 'El servidor no tiene un directorio temporal disponible.',
             UPLOAD_ERR_CANT_WRITE => 'El servidor no pudo escribir el archivo temporal.',
             UPLOAD_ERR_EXTENSION => 'Una extensión de PHP detuvo la subida.',
-            default => 'No se pudo recibir el archivo CSV.',
+            default => 'No se pudo recibir el archivo.',
         };
     }
 

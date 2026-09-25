@@ -223,21 +223,60 @@ class BlogPost extends Model
      * Import a validated CSV batch atomically.
      *
      * Categories are resolved/created inside the same transaction and every
-     * imported post is saved as a draft assigned to the confirming admin.
+     * new posts use the selected publication status and the confirming admin.
      */
-    public static function importBatch(array $rows, int $authorId): array
+    public static function importBatch(
+        array $rows,
+        int $authorId,
+        ?int $profileId = null,
+        string $sourceFilename = '',
+        string $publicationStatus = 'published'
+    ): array
     {
         if ($rows === []) {
             throw new \InvalidArgumentException('El lote de importación está vacío.');
         }
+        if (!in_array($publicationStatus, ['published', 'draft'], true)) {
+            throw new \InvalidArgumentException('El estado de publicación no es válido.');
+        }
 
         $pdo = self::getDB();
         $createdPosts = [];
+        $updatedPosts = [];
+        $unchangedPosts = [];
         $createdCategories = [];
         $slugAdjustments = [];
 
         try {
             $pdo->beginTransaction();
+            $runId = null;
+            $importRecords = [];
+            if ($profileId !== null) {
+                $createRun = $pdo->prepare(
+                    "INSERT INTO blog_import_runs (profile_id, source_filename, created_by)
+                     VALUES (:profile_id, :source_filename, :created_by)"
+                );
+                $createRun->execute([
+                    'profile_id' => $profileId,
+                    'source_filename' => mb_strimwidth($sourceFilename, 0, 255, '', 'UTF-8'),
+                    'created_by' => $authorId,
+                ]);
+                $runId = (int)$pdo->lastInsertId();
+                $recordsQuery = $pdo->prepare(
+                    'SELECT r.source_key_hash, r.post_id, r.last_run_id, p.title, p.slug, p.excerpt,
+                     p.content, p.featured_image, p.category_id, p.meta_title, p.meta_description,
+                     p.published, p.published_at,
+                     c.slug AS category_slug
+                     FROM blog_import_records r
+                     LEFT JOIN blog_posts p ON p.id = r.post_id
+                     LEFT JOIN blog_categories c ON c.id = p.category_id
+                     WHERE r.profile_id = :profile_id FOR UPDATE'
+                );
+                $recordsQuery->execute(['profile_id' => $profileId]);
+                foreach ($recordsQuery->fetchAll() as $record) {
+                    $importRecords[$record['source_key_hash']] = $record;
+                }
+            }
 
             $categoryRows = $pdo->query(
                 "SELECT id, name, slug FROM blog_categories"
@@ -265,9 +304,29 @@ class BlogPost extends Model
                      published_at, category_id, author_id, meta_title,
                      meta_description, json_ld)
                  VALUES
-                    (:title, :slug, :excerpt, :content, '', 0,
-                     NULL, :category_id, :author_id, '',
+                    (:title, :slug, :excerpt, :content, :featured_image, :published,
+                     NULL, :category_id, :author_id, :meta_title,
                      :meta_description, '')"
+            );
+            $postUpdate = $pdo->prepare(
+                "UPDATE blog_posts SET title = :title, excerpt = :excerpt, content = :content,
+                 featured_image = COALESCE(NULLIF(:featured_image, ''), featured_image),
+                 category_id = :category_id, meta_title = :meta_title, meta_description = :meta_description,
+                 published = :published, published_at = :published_at
+                 WHERE id = :id"
+            );
+            $recordInsert = $pdo->prepare(
+                'INSERT INTO blog_import_records (profile_id, source_key_hash, post_id, last_run_id)
+                 VALUES (:profile_id, :source_key_hash, :post_id, :last_run_id)'
+            );
+            $recordUpdate = $pdo->prepare(
+                'UPDATE blog_import_records SET last_run_id = :last_run_id
+                 WHERE profile_id = :profile_id AND source_key_hash = :source_key_hash'
+            );
+            $runItemInsert = $pdo->prepare(
+                'INSERT INTO blog_import_run_items
+                 (run_id, post_id, source_key_hash, action, before_json, prior_run_id)
+                 VALUES (:run_id, :post_id, :source_key_hash, :action, :before_json, :prior_run_id)'
             );
 
             foreach ($rows as $row) {
@@ -314,6 +373,73 @@ class BlogPost extends Model
                     }
                 }
 
+                $sourceKey = (string)($row['source_key'] ?? $row['base_slug']);
+                $sourceKeyHash = hash('sha256', $sourceKey);
+                $matched = $profileId !== null ? ($importRecords[$sourceKeyHash] ?? null) : null;
+                if (is_array($matched) && $matched['title'] !== null) {
+                    $postId = (int)$matched['post_id'];
+                    if (!self::importRowHasChanges($row, $matched, $publicationStatus)) {
+                        $unchangedPosts[] = [
+                            'id' => $postId,
+                            'title' => (string)$matched['title'],
+                            'slug' => (string)$matched['slug'],
+                            'category_name' => $categoryName,
+                            'action' => 'unchanged',
+                        ];
+                        continue;
+                    }
+                    $before = [
+                        'title' => $matched['title'],
+                        'excerpt' => $matched['excerpt'],
+                        'content' => $matched['content'],
+                        'featured_image' => $matched['featured_image'],
+                        'category_id' => $matched['category_id'],
+                        'meta_title' => $matched['meta_title'],
+                        'meta_description' => $matched['meta_description'],
+                        'published' => $matched['published'],
+                        'published_at' => $matched['published_at'],
+                    ];
+                    $postUpdate->execute([
+                        'title' => (string)$row['title'],
+                        'excerpt' => (string)$row['excerpt'],
+                        'content' => (string)$row['content'],
+                        'featured_image' => (string)($row['featured_image'] ?? ''),
+                        'category_id' => $categoryId,
+                        'meta_title' => (string)($row['meta_title'] ?? ''),
+                        'meta_description' => (string)$row['meta_description'],
+                        'published' => $publicationStatus === 'published' ? 1 : 0,
+                        'published_at' => self::importPublicationHasChanges($matched, $publicationStatus)
+                            ? null : $matched['published_at'],
+                        'id' => $postId,
+                    ]);
+                    $recordUpdate->execute([
+                        'last_run_id' => $runId,
+                        'profile_id' => $profileId,
+                        'source_key_hash' => $sourceKeyHash,
+                    ]);
+                    $runItemInsert->execute([
+                        'run_id' => $runId,
+                        'post_id' => $postId,
+                        'source_key_hash' => $sourceKeyHash,
+                        'action' => 'updated',
+                        'before_json' => json_encode($before, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
+                        'prior_run_id' => $matched['last_run_id'],
+                    ]);
+                    $updatedPosts[] = [
+                        'id' => $postId,
+                        'title' => (string)$row['title'],
+                        'slug' => (string)$matched['slug'],
+                        'category_name' => $categoryName,
+                        'action' => 'updated',
+                    ];
+                    continue;
+                }
+                if (is_array($matched)) {
+                    $pdo->prepare(
+                        'DELETE FROM blog_import_records WHERE profile_id = :profile_id AND source_key_hash = :source_key_hash'
+                    )->execute(['profile_id' => $profileId, 'source_key_hash' => $sourceKeyHash]);
+                }
+
                 $baseSlug = (string)$row['base_slug'];
                 $slug = self::nextAvailableImportSlug($baseSlug, $usedSlugs);
                 if ($slug !== $baseSlug) {
@@ -331,8 +457,11 @@ class BlogPost extends Model
                             'slug' => $slug,
                             'excerpt' => (string)$row['excerpt'],
                             'content' => (string)$row['content'],
+                            'featured_image' => (string)($row['featured_image'] ?? ''),
+                            'published' => $publicationStatus === 'published' ? 1 : 0,
                             'category_id' => $categoryId,
                             'author_id' => $authorId,
+                            'meta_title' => (string)($row['meta_title'] ?? ''),
                             'meta_description' => (string)$row['meta_description'],
                         ]);
                         break;
@@ -358,17 +487,50 @@ class BlogPost extends Model
                     'title' => (string)$row['title'],
                     'slug' => $slug,
                     'category_name' => $categoryName,
+                    'action' => 'created',
+                    'publication_status' => $publicationStatus,
                 ];
+                if ($profileId !== null) {
+                    $recordInsert->execute([
+                        'profile_id' => $profileId,
+                        'source_key_hash' => $sourceKeyHash,
+                        'post_id' => $postId,
+                        'last_run_id' => $runId,
+                    ]);
+                    $runItemInsert->execute([
+                        'run_id' => $runId,
+                        'post_id' => $postId,
+                        'source_key_hash' => $sourceKeyHash,
+                        'action' => 'created',
+                        'before_json' => null,
+                        'prior_run_id' => null,
+                    ]);
+                }
+            }
+
+            if ($runId !== null) {
+                $pdo->prepare(
+                    'UPDATE blog_import_runs SET created_count = :created_count, updated_count = :updated_count WHERE id = :id'
+                )->execute([
+                    'created_count' => count($createdPosts),
+                    'updated_count' => count($updatedPosts),
+                    'id' => $runId,
+                ]);
             }
 
             $pdo->commit();
 
             return [
-                'posts' => $createdPosts,
+                'posts' => array_merge($createdPosts, $updatedPosts, $unchangedPosts),
                 'categories' => $createdCategories,
                 'slug_adjustments' => $slugAdjustments,
                 'post_count' => count($createdPosts),
+                'updated_count' => count($updatedPosts),
+                'unchanged_count' => count($unchangedPosts),
                 'category_count' => count($createdCategories),
+                'run_id' => $runId,
+                'profile_id' => $profileId,
+                'publication_status' => $publicationStatus,
             ];
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -403,6 +565,36 @@ class BlogPost extends Model
         return $slug !== '' ? $slug : 'post';
     }
 
+    /** Compare fields managed by the import; an empty image keeps the current one. */
+    public static function importRowHasChanges(array $row, array $existing, string $publicationStatus = 'published'): bool
+    {
+        if (self::importPublicationHasChanges($existing, $publicationStatus)) {
+            return true;
+        }
+        foreach (['title', 'excerpt', 'content', 'meta_title', 'meta_description'] as $field) {
+            if ((string)($row[$field] ?? '') !== (string)($existing[$field] ?? '')) {
+                return true;
+            }
+        }
+        if ((string)($row['category_slug'] ?? '') !== (string)($existing['category_slug'] ?? '')) {
+            return true;
+        }
+        $image = (string)($row['featured_image'] ?? '');
+        return $image !== '' && $image !== (string)($existing['featured_image'] ?? '');
+    }
+
+    private static function importPublicationHasChanges(array $existing, string $publicationStatus): bool
+    {
+        if ((int)($existing['published'] ?? 0) !== ($publicationStatus === 'published' ? 1 : 0)) {
+            return true;
+        }
+        if ($publicationStatus !== 'published' || empty($existing['published_at'])) {
+            return false;
+        }
+        return new \DateTimeImmutable((string)$existing['published_at'], app_timezone())
+            > new \DateTimeImmutable('now', app_timezone());
+    }
+
     private static function validateImportRow(array $row): void
     {
         foreach ([
@@ -421,9 +613,19 @@ class BlogPost extends Model
             }
         }
 
+        if (isset($row['source_key']) && (!is_string($row['source_key'])
+            || trim($row['source_key']) === ''
+            || mb_strlen($row['source_key'], 'UTF-8') > 255)) {
+            throw new \InvalidArgumentException('El lote contiene un identificador de importación inválido.');
+        }
+        if (isset($row['featured_image']) && (!is_string($row['featured_image'])
+            || mb_strlen($row['featured_image'], 'UTF-8') > 255)) {
+            throw new \InvalidArgumentException('El lote contiene una imagen destacada inválida.');
+        }
+
         if (trim($row['title']) === ''
             || trim($row['base_slug']) === ''
-            || trim(strip_tags($row['content'])) === ''
+            || (trim(strip_tags($row['content'])) === '' && !str_contains($row['content'], '<iframe'))
         ) {
             throw new \InvalidArgumentException(
                 'El lote contiene un post sin título, slug o contenido.'
@@ -433,6 +635,7 @@ class BlogPost extends Model
             || mb_strlen($row['base_slug'], 'UTF-8') > 255
             || strlen($row['content']) > 65535
             || strlen($row['excerpt']) > 65535
+            || mb_strlen((string)($row['meta_title'] ?? ''), 'UTF-8') > 255
             || strlen($row['meta_description']) > 65535
         ) {
             throw new \InvalidArgumentException(

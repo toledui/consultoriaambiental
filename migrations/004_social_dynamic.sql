@@ -5,4 +5,4 @@ INSERT INTO settings (`key`, `value`, `created_at`, `updated_at`) VALUES
 ('social_header',  '[]', NOW(), NOW()),
 ('social_footer',  '[]', NOW(), NOW()),
 ('social_contact', '[]', NOW(), NOW())
-ON DUPLICATE KEY UPDATE `updated_at` = NOW();
+ON DUPLICATE KEY UPDATE `key` = VALUES(`key`);

@@ -45,6 +45,7 @@ La estructura debe quedar así:
 │   └── app.php            ← Constantes de la app
 ├── app/                   ← Código de la aplicación
 ├── migrations/            ← Migraciones SQL
+├── migrate                ← Ejecutor de migraciones (CLI: php migrate)
 ├── public/
 │   ├── images/            ← Imágenes subidas
 │   ├── js/
@@ -55,7 +56,7 @@ La estructura debe quedar así:
 │       └── tailwind.css         ← Tailwind compilado (¡importante!)
 ├── storage/
 │   └── logs/
-└── setup.php              ← Script de instalación
+└── setup.php              ← Alias CLI de compatibilidad para migrate
 ```
 
 > **Importante**: El `index.php` debe estar en la raíz del dominio, NO dentro de `public/`.
@@ -90,10 +91,16 @@ return [
 ### 3.3 Ejecutar migraciones
 
 ```bash
-php setup.php
+php migrate
 ```
 
-Esto creará todas las tablas y poblara los datos iniciales (usuario admin y servicios de ejemplo).
+Ejecuta el comando desde la raíz del proyecto **en cada despliegue**, tanto en instalaciones nuevas como existentes. Usa la base indicada por `DB_NAME` o `config/database.php`; la base debe existir antes de ejecutar el comando.
+
+En la primera ejecución, `migrate` crea `schema_migrations` y aplica los archivos `.sql` por nombre. En una instalación existente sin historial, comprueba las tablas, columnas, índices y restricciones ya presentes, y completa lo que falte. Los datos iniciales solo se insertan cuando no existen; los valores configurados por el administrador se conservan. Las migraciones 017 y 018 del importador también se aplican por este comando, sin pasos manuales en phpMyAdmin.
+
+Después, cada archivo aplicado queda registrado con su checksum y las siguientes ejecuciones lo omiten. Si una migración falla, el comando termina con error; corrige la causa y vuelve a ejecutar `php migrate`. El ejecutor retomará las operaciones pendientes de las migraciones actuales. Haz un respaldo antes de desplegar cambios de esquema en producción.
+
+Para futuras migraciones, agrega un nuevo archivo SQL con prefijo numérico creciente, por ejemplo `migrations/019_nuevo_cambio.sql`. No edites archivos ya registrados: el ejecutor detecta cambios por checksum y se detiene. `php setup.php` sigue disponible como alias de compatibilidad, pero el comando recomendado es `php migrate`.
 
 ---
 
@@ -182,7 +189,7 @@ npm run watch:css
 # 5. Configurar base de datos (editar config/database.php)
 
 # 6. Ejecutar migraciones
-php setup.php
+php migrate
 
 # 7. Configurar permisos
 chmod -R 755 public/images
@@ -247,7 +254,7 @@ $this->view('ruta/vista', [
 | Error 404 en todas las rutas | `mod_rewrite` deshabilitado | Habilita `mod_rewrite` en Apache |
 | "Database connection failed" | Credenciales incorrectas | Revisa `config/database.php` |
 | Imágenes no se ven | Ruta incorrecta | Verifica que las imágenes estén en `public/images/` |
-| Login no funciona | Hash incorrecto | Ejecuta `setup.php` para regenerar el usuario admin |
+| Login no funciona | Usuario o contraseña incorrectos | Revisa el usuario en la base de datos y restablece su contraseña mediante un procedimiento administrativo; `php migrate` no cambia contraseñas existentes |
 | Estilos no se ven | `tailwind.css` no compilado | Ejecuta `npm run build:css` localmente y vuelve a subir |
 | Animaciones no funcionan | GSAP no encontrado | Verifica que `public/js/gsap.min.js` y `ScrollTrigger.min.js` existan |
 | Caching no funciona | Módulos Apache deshabilitados | Habilita `mod_expires`, `mod_deflate`, `mod_headers` en Apache |

@@ -21,4 +21,4 @@ INSERT INTO settings (`key`, `value`, `type`) VALUES
 ('brand_favicon', '', 'string'),
 ('brand_og_image', '', 'string'),
 ('brand_company_name', 'Consultoría Ambiental', 'string')
-ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);
+ON DUPLICATE KEY UPDATE `key` = VALUES(`key`);

@@ -11,4 +11,4 @@ INSERT INTO settings (`key`, `value`, `created_at`, `updated_at`) VALUES
 ('footer_copyright', 'Consultoría Ambiental CA.', NOW(), NOW()),
 ('footer_tagline', 'Especialistas en soluciones integrales para el cumplimiento ambiental. Protegiendo tu inversión, garantizando resultados y cuidando el entorno con responsabilidad técnica.', NOW(), NOW()),
 ('footer_links', '[{"text":"Inicio","url":"/"},{"text":"Nosotros","url":"#"},{"text":"Servicios","url":"/servicios"},{"text":"Cobertura","url":"#"},{"text":"Aviso de Privacidad","url":"#"}]', NOW(), NOW())
-ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), `updated_at` = NOW();
+ON DUPLICATE KEY UPDATE `key` = VALUES(`key`);

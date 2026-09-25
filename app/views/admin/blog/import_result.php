@@ -6,8 +6,11 @@
       </div>
       <h1 class="text-2xl font-bold text-ca-navy mt-4">Importación completada</h1>
       <p class="text-gray-600 mt-2">
-        Se crearon <strong><?= (int)$result['post_count'] ?> posts</strong> como borradores
-        y <strong><?= (int)$result['category_count'] ?> categorías</strong> nuevas.
+        Se crearon <strong><?= (int)$result['post_count'] ?> posts</strong>,
+        se actualizaron <strong><?= (int)($result['updated_count'] ?? 0) ?> posts</strong>,
+        <strong><?= (int)($result['unchanged_count'] ?? 0) ?> no tenían cambios</strong>
+        y se crearon <strong><?= (int)$result['category_count'] ?> categorías</strong>.
+        El estado de los posts creados o actualizados es <strong><?= ($result['publication_status'] ?? 'published') === 'published' ? 'Publicado' : 'Borrador' ?></strong>.
       </p>
     </div>
 
@@ -58,6 +61,7 @@
         <thead class="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
           <tr>
             <th class="text-left px-6 py-4">Post</th>
+            <th class="text-left px-6 py-4">Resultado</th>
             <th class="text-left px-6 py-4">Slug final</th>
             <th class="text-left px-6 py-4">Categoría</th>
             <th class="text-right px-6 py-4">Acción</th>
@@ -67,11 +71,12 @@
           <?php foreach ($result['posts'] as $post): ?>
             <tr>
               <td class="px-6 py-4 font-semibold text-ca-navy"><?= htmlspecialchars($post['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
+              <td class="px-6 py-4 text-gray-600"><?= match ($post['action'] ?? 'created') { 'updated' => 'Actualizado', 'unchanged' => 'Sin cambios', default => ($post['publication_status'] ?? 'published') === 'published' ? 'Creado · Publicado' : 'Creado · Borrador' } ?></td>
               <td class="px-6 py-4 font-mono text-xs text-gray-500"><?= htmlspecialchars($post['slug'], ENT_QUOTES, 'UTF-8') ?></td>
               <td class="px-6 py-4 text-gray-600"><?= htmlspecialchars($post['category_name'] ?: 'Sin categoría', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></td>
               <td class="px-6 py-4 text-right">
                 <a href="<?= BASE_URL ?>/admin/blog/editar/<?= (int)$post['id'] ?>" class="inline-flex items-center text-ca-green hover:text-ca-navy font-semibold">
-                  <i class="fas fa-edit mr-1"></i>Editar borrador
+                  <i class="fas fa-edit mr-1"></i>Editar post
                 </a>
               </td>
             </tr>
@@ -81,11 +86,16 @@
     </div>
 
     <div class="p-6 border-t border-gray-200 bg-gray-50 flex flex-wrap gap-3">
+      <a href="<?= BASE_URL ?>/admin/blog/importaciones" class="border border-ca-green text-ca-green hover:bg-green-50 font-bold py-2.5 px-5 rounded-lg transition-colors">Ver historial y deshacer</a>
+      <?php if (!empty($result['profile_id'])): ?>
+        <a href="<?= BASE_URL ?>/admin/blog/importar?profile=<?= (int)$result['profile_id'] ?>&amp;reuse=1" class="border border-ca-green text-ca-green hover:bg-green-50 font-bold py-2.5 px-5 rounded-lg transition-colors">Repetir archivo guardado</a>
+        <a href="<?= BASE_URL ?>/admin/blog/importar?profile=<?= (int)$result['profile_id'] ?>" class="border border-ca-green text-ca-green hover:bg-green-50 font-bold py-2.5 px-5 rounded-lg transition-colors">Usar otro CSV / Excel</a>
+      <?php endif; ?>
       <a href="<?= BASE_URL ?>/admin/blog" class="bg-ca-navy hover:bg-gray-800 text-white font-bold py-2.5 px-5 rounded-lg transition-colors">
         Ver todos los posts
       </a>
       <a href="<?= BASE_URL ?>/admin/blog/importar" class="border border-ca-green text-ca-green hover:bg-green-50 font-bold py-2.5 px-5 rounded-lg transition-colors">
-        Importar otro CSV
+        Importar otro archivo
       </a>
     </div>
   </div>

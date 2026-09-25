@@ -1,11 +1,5 @@
 -- Gestoría Ambiental — Initial Database Schema
 
-CREATE DATABASE IF NOT EXISTS gestoriaambiental
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE gestoriaambiental;
-
 -- ─── Users (Admin Login) ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -46,7 +40,7 @@ CREATE TABLE IF NOT EXISTS services (
 -- Password: admin123 (bcrypt hash)
 INSERT INTO users (username, email, password) VALUES
 ('admin', 'admin@consultoriaambiental.com', '$2y$12$Q2EDL9oCyqxiD7XtReV52.wKwYeFzTqmyg2J5fvDy5LLsQriqv3Ci')
-ON DUPLICATE KEY UPDATE password = VALUES(password);
+ON DUPLICATE KEY UPDATE id = id;
 
 -- ─── Seed: Sample Services ────────────────────────────────────────
 INSERT INTO services (title, slug, description, icon, content, published, sort_order) VALUES

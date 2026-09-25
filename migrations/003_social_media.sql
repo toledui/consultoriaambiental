@@ -18,4 +18,4 @@ INSERT INTO settings (`key`, `value`, `created_at`, `updated_at`) VALUES
 ('social_contact_whatsapp',  '', NOW(), NOW()),
 ('social_contact_messenger', '', NOW(), NOW()),
 ('social_contact_telegram',  '', NOW(), NOW())
-ON DUPLICATE KEY UPDATE `updated_at` = NOW();
+ON DUPLICATE KEY UPDATE `key` = VALUES(`key`);

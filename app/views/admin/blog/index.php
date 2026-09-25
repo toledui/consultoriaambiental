@@ -15,8 +15,9 @@
       <p class="text-sm text-gray-500"><?= count($posts) ?> artículo(s) registrados</p>
     </div>
     <div class="flex flex-wrap gap-2">
+      <a href="<?= BASE_URL ?>/admin/blog/importaciones" class="border border-gray-300 text-ca-navy hover:bg-gray-50 text-sm font-bold py-2.5 px-5 rounded-lg transition-colors shadow-sm"><i class="fas fa-history mr-1"></i> Importaciones guardadas</a>
       <a href="<?= BASE_URL ?>/admin/blog/importar" class="border border-ca-green text-ca-green hover:bg-green-50 text-sm font-bold py-2.5 px-5 rounded-lg transition-colors shadow-sm">
-        <i class="fas fa-file-csv mr-1"></i> Importar CSV
+        <i class="fas fa-file-import mr-1"></i> Importar CSV / Excel
       </a>
       <a href="<?= BASE_URL ?>/admin/blog/crear" class="bg-ca-green hover:bg-green-700 text-white text-sm font-bold py-2.5 px-5 rounded-lg transition-colors shadow-sm">
         <i class="fas fa-plus mr-1"></i> Nuevo Artículo
@@ -104,6 +105,18 @@
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex justify-end gap-2">
+                  <?php $postIsPublic = $statusValue === 'published'; ?>
+                  <a
+                    href="<?= BASE_URL ?>/blog/<?= rawurlencode((string)$post['slug']) ?><?= $postIsPublic ? '' : '?preview=1' ?>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1 text-ca-navy hover:text-ca-green transition-colors p-1"
+                    title="<?= $postIsPublic ? 'Ver post' : 'Vista previa del post' ?>"
+                    aria-label="<?= $postIsPublic ? 'Ver post' : 'Vista previa del post' ?>: <?= htmlspecialchars((string)$post['title'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                  >
+                    <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                    <span class="hidden xl:inline text-xs font-semibold"><?= $postIsPublic ? 'Ver' : 'Vista previa' ?></span>
+                  </a>
                   <button
                     type="button"
                     class="inline-flex items-center gap-1 text-blue-600 hover:text-ca-navy transition-colors p-1"

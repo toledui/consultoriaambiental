@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Core\Controller;
 use App\Models\BlogPost;
 use App\Models\BlogCategory;
+use App\Models\BlogImportProfile;
 use App\Models\MediaFile;
 use App\Models\User;
 use App\Services\BlogCsvImporter;
@@ -268,14 +269,43 @@ class BlogController extends Controller
 
         $importer = new BlogCsvImporter();
         $importer->cleanupExpiredBatches();
+        $profileId = isset($_GET['profile']) && ctype_digit((string)$_GET['profile'])
+            ? (int)$_GET['profile']
+            : null;
+        $profile = $profileId !== null ? BlogImportProfile::findProfile($profileId) : null;
+        if ($profileId !== null && $profile === null) {
+            $_SESSION['flash_message'] = 'La importación guardada no existe.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog/importaciones');
+        }
+
+        $source = null;
+        $mapping = [];
+        $globalError = null;
+        if ($profile !== null && ($_GET['reuse'] ?? '') === '1') {
+            try {
+                $snapshot = BlogImportProfile::savedSource($profile);
+                if ($snapshot === null) {
+                    throw new \RuntimeException('Esta plantilla todavía no tiene un archivo guardado. Sube un CSV o Excel una vez para poder repetirlo.');
+                }
+                $source = $importer->prepareStoredSource($snapshot, (int)$_SESSION['admin_id'], $profileId);
+                $mapping = $profile['mapping'];
+            } catch (\Throwable $e) {
+                $globalError = $this->importErrorMessage($e);
+            }
+        }
 
         $this->view('admin/blog/import', [
             'title' => 'Importar Artículos',
             'csrfToken' => $importer->csrfToken(),
-            'expectedHeaders' => BlogCsvImporter::expectedHeaders(),
             'preview' => null,
+            'source' => $source,
+            'mapping' => $mapping,
+            'profile' => $profile,
+            'profileName' => $profile['name'] ?? '',
+            'categoryChoices' => [],
             'batchToken' => null,
-            'globalError' => null,
+            'globalError' => $globalError,
         ], 'admin');
     }
 
@@ -299,29 +329,145 @@ class BlogController extends Controller
         }
 
         try {
-            $preview = $importer->parseUploadedFile(
-                $_FILES['csv_file'] ?? [],
+            $sourceToken = (string)($_POST['source_token'] ?? '');
+            if ($sourceToken === '') {
+                $profileId = isset($_POST['profile_id']) && ctype_digit((string)$_POST['profile_id'])
+                    ? (int)$_POST['profile_id']
+                    : null;
+                $profile = $profileId !== null ? BlogImportProfile::findProfile($profileId) : null;
+                if ($profileId !== null && $profile === null) {
+                    throw new \RuntimeException('La importación guardada ya no existe.');
+                }
+                $source = $importer->prepareUploadedFile(
+                    $_FILES['source_file'] ?? [],
+                    (int)$_SESSION['admin_id'],
+                    $profileId
+                );
+                $mapping = $profile['mapping'] ?? [];
+                if ($mapping === []) {
+                    foreach (BlogCsvImporter::postMappingFields() as $field) {
+                        $index = array_search($field, $source['headers'], true);
+                        $mapping[$field] = $index === false ? '' : $source['column_tokens'][$index];
+                    }
+                }
+                $this->renderImportPage($importer, null, null, null, $source, $mapping, [], $profile['name'] ?? '');
+                return;
+            }
+            $source = $importer->getPreparedSource($sourceToken, (int)$_SESSION['admin_id']);
+            $mapping = is_array($_POST['mapping'] ?? null) ? $_POST['mapping'] : [];
+            $profileName = $this->importProfileName($_POST['profile_name'] ?? '', $source['name']);
+            $categories = BlogCategory::getAll();
+            $categoryOverrides = is_array($_POST['category_overrides'] ?? null)
+                ? $_POST['category_overrides']
+                : [];
+            $bulkCategory = null;
+            if (isset($_POST['use_source_categories'])) {
+                $categoryOverrides = [];
+            } elseif (isset($_POST['apply_bulk_category'])) {
+                if (!is_string($_POST['bulk_category'] ?? null)) {
+                    throw new \RuntimeException('Indica una categoría válida para aplicar a todos.');
+                }
+                $bulkCategory = (string)$_POST['bulk_category'];
+            }
+            $preservedCategories = [];
+            if (!empty($source['reused']) && $source['profile_id'] !== null
+                && !isset($_POST['use_source_categories'])) {
+                foreach (BlogImportProfile::matchedRecords((int)$source['profile_id']) as $hash => $matchedPost) {
+                    $preservedCategories[$hash] = (string)($matchedPost['category_name'] ?? '');
+                }
+            }
+            $preview = $importer->previewMappedSource(
+                $sourceToken,
+                (int)$_SESSION['admin_id'],
+                $mapping,
                 BlogPost::getAllSlugs(),
-                BlogCategory::getAll()
+                $categories,
+                $categoryOverrides,
+                $bulkCategory,
+                $preservedCategories
             );
+            $matchedRecords = $source['profile_id'] !== null
+                ? BlogImportProfile::matchedRecords((int)$source['profile_id'])
+                : [];
+            $preview['status_counts'] = [
+                'published' => ['create_count' => 0, 'update_count' => 0, 'unchanged_count' => 0],
+                'draft' => ['create_count' => 0, 'update_count' => 0, 'unchanged_count' => 0],
+            ];
+            foreach ($preview['rows'] as &$previewRow) {
+                $sourceKey = (string)($previewRow['data']['source_key'] ?? '');
+                $matched = $sourceKey !== '' ? ($matchedRecords[hash('sha256', $sourceKey)] ?? null) : null;
+                $previewRow['import_actions'] = [];
+                foreach (['published', 'draft'] as $status) {
+                    $action = $matched === null
+                        ? 'created'
+                        : (BlogPost::importRowHasChanges((array)($previewRow['data'] ?? []), $matched, $status) ? 'updated' : 'unchanged');
+                    $previewRow['import_actions'][$status] = $action;
+                    if ($previewRow['errors'] === []) {
+                        $preview['status_counts'][$status][match ($action) {
+                            'updated' => 'update_count',
+                            'unchanged' => 'unchanged_count',
+                            default => 'create_count',
+                        }]++;
+                    }
+                }
+                $previewRow['import_action'] = $previewRow['import_actions']['published'];
+                $previewRow['existing_slug'] = $matched['slug'] ?? null;
+                if ($matched !== null) {
+                    $previewRow['slug'] = $matched['slug'];
+                    $previewRow['warnings'] = array_values(array_filter(
+                        $previewRow['warnings'],
+                        static fn(string $warning): bool => !str_starts_with($warning, 'El slug se ajustó de ')
+                    ));
+                }
+            }
+            unset($previewRow);
+            foreach ($preview['status_counts']['published'] as $key => $count) {
+                $preview[$key] = $count;
+            }
+            $preview['warning_count'] = array_sum(array_map(
+                static fn(array $row): int => count($row['warnings']),
+                $preview['rows']
+            ));
             $batchToken = null;
             if ($preview['can_import']) {
                 $batchToken = $importer->createBatch(
                     $preview,
-                    (int)$_SESSION['admin_id']
+                    (int)$_SESSION['admin_id'],
+                    [
+                        'profile_id' => $source['profile_id'],
+                        'profile_name' => $profileName,
+                        'mapping' => $mapping,
+                        'headers' => $source['headers'],
+                        'source_name' => $source['name'],
+                        'source_snapshot' => $importer->getPreparedSourceData($source['token'], (int)$_SESSION['admin_id']),
+                        'status_aware_preview' => true,
+                    ]
                 );
             } else {
                 http_response_code(422);
             }
 
-            $this->renderImportPage($importer, $preview, $batchToken, null);
+            $this->renderImportPage($importer, $preview, $batchToken, null, $source, $mapping, $categories, $profileName);
         } catch (\Throwable $e) {
             http_response_code(422);
+            $source = null;
+            $mapping = is_array($_POST['mapping'] ?? null) ? $_POST['mapping'] : [];
+            if (!empty($_POST['source_token'])) {
+                try {
+                    $source = $importer->getPreparedSource((string)$_POST['source_token'], (int)$_SESSION['admin_id']);
+                } catch (\Throwable) {
+                    // Expired uploads must be selected again.
+                }
+            }
             $this->renderImportPage(
                 $importer,
                 null,
                 null,
-                $this->importErrorMessage($e)
+                $this->importErrorMessage($e),
+                $source,
+                $mapping,
+                [],
+                is_string($_POST['profile_name'] ?? null) ? $_POST['profile_name'] : ''
             );
         }
     }
@@ -340,19 +486,44 @@ class BlogController extends Controller
                 $importer,
                 null,
                 null,
-                'La sesión del formulario expiró. Vuelve a previsualizar el CSV.'
+                'La sesión del formulario expiró. Vuelve a previsualizar el archivo.'
             );
             return;
         }
 
         try {
-            $rows = $importer->consumeBatch(
+            $publicationStatus = (string)($_POST['publication_status'] ?? 'published');
+            if (!in_array($publicationStatus, ['published', 'draft'], true)) {
+                throw new \RuntimeException('Selecciona un estado de publicación válido.');
+            }
+            $batch = $importer->consumeBatchPayload(
                 (string)($_POST['batch_token'] ?? ''),
                 (int)$_SESSION['admin_id']
             );
+            $context = is_array($batch['context'] ?? null) ? $batch['context'] : [];
+            if (($context['status_aware_preview'] ?? false) !== true) {
+                throw new \RuntimeException('Esta vista previa es anterior al cambio de estado. Vuelve a previsualizar la importación guardada antes de ejecutarla.');
+            }
+            $sourceSnapshot = is_array($context['source_snapshot'] ?? null)
+                ? $context['source_snapshot']
+                : null;
+            if ($sourceSnapshot === null) {
+                throw new \RuntimeException('La vista previa no conserva el archivo original. Vuelve a previsualizarlo.');
+            }
+            $profileId = BlogImportProfile::saveProfile(
+                isset($context['profile_id']) ? (int)$context['profile_id'] : null,
+                (string)($context['profile_name'] ?? 'Importación del blog'),
+                (array)($context['mapping'] ?? []),
+                (array)($context['headers'] ?? []),
+                (int)$_SESSION['admin_id'],
+                $sourceSnapshot
+            );
             $result = BlogPost::importBatch(
-                $rows,
-                (int)$_SESSION['admin_id']
+                $batch['rows'],
+                (int)$_SESSION['admin_id'],
+                $profileId,
+                (string)($context['source_name'] ?? ''),
+                $publicationStatus
             );
             $importer->rotateCsrfToken();
 
@@ -367,12 +538,193 @@ class BlogController extends Controller
                 null,
                 null,
                 $this->importErrorMessage($e)
-                    . ' El lote temporal ya no puede reutilizarse; vuelve a previsualizar el CSV.'
+                    . ' El lote temporal ya no puede reutilizarse; vuelve a previsualizar el archivo.'
             );
         }
     }
 
+    public function saveImportTemplate(): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+        $importer = new BlogCsvImporter();
+        if (!$importer->verifyCsrfToken((string)($_POST['csrf_token'] ?? ''))) {
+            http_response_code(403);
+            $this->renderImportPage($importer, null, null, 'La sesión expiró. Vuelve a cargar el archivo.');
+            return;
+        }
+        $source = null;
+        $mapping = is_array($_POST['mapping'] ?? null) ? $_POST['mapping'] : [];
+        try {
+            $source = $importer->getPreparedSource((string)($_POST['source_token'] ?? ''), (int)$_SESSION['admin_id']);
+            $importer->previewMappedSource($source['token'], (int)$_SESSION['admin_id'], $mapping);
+            $name = $this->importProfileName($_POST['profile_name'] ?? '', $source['name']);
+            $profileId = BlogImportProfile::saveProfile(
+                $source['profile_id'],
+                $name,
+                $mapping,
+                $source['headers'],
+                (int)$_SESSION['admin_id'],
+                $importer->getPreparedSourceData($source['token'], (int)$_SESSION['admin_id'])
+            );
+            $_SESSION['flash_message'] = 'Plantilla y archivo guardados. Puedes editarla o repetir la corrida sin subir el archivo otra vez.';
+            $_SESSION['flash_type'] = 'success';
+            $this->redirect(BASE_URL . '/admin/blog/importar?profile=' . $profileId);
+        } catch (\Throwable $e) {
+            http_response_code(422);
+            $this->renderImportPage(
+                $importer,
+                null,
+                null,
+                $this->importErrorMessage($e),
+                $source,
+                $mapping,
+                [],
+                is_string($_POST['profile_name'] ?? null) ? $_POST['profile_name'] : ''
+            );
+        }
+    }
+
+    public function importHistory(): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+        $profiles = BlogImportProfile::all();
+        foreach ($profiles as &$profile) {
+            $profile['mapping'] = json_decode((string)$profile['mapping_json'], true) ?: [];
+            $profile['headers'] = json_decode((string)$profile['headers_json'], true) ?: [];
+            $profile['runs'] = BlogImportProfile::runs((int)$profile['id']);
+            $profile['latest_completed_id'] = null;
+            foreach ($profile['runs'] as $run) {
+                if ($run['status'] === 'completed') {
+                    $profile['latest_completed_id'] = (int)$run['id'];
+                    break;
+                }
+            }
+        }
+        unset($profile);
+        $this->view('admin/blog/import_history', [
+            'title' => 'Importaciones guardadas',
+            'profiles' => $profiles,
+            'csrfToken' => (new BlogCsvImporter())->csrfToken(),
+        ], 'admin');
+    }
+
+    public function editImportTemplate(int $id): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+        $profile = BlogImportProfile::findProfile($id);
+        if ($profile === null) {
+            http_response_code(404);
+            $_SESSION['flash_message'] = 'La plantilla no existe.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog/importaciones');
+        }
+        $this->view('admin/blog/import_template_edit', [
+            'title' => 'Editar plantilla de importación',
+            'profile' => $profile,
+            'mapping' => $profile['mapping'],
+            'profileName' => $profile['name'],
+            'csrfToken' => (new BlogCsvImporter())->csrfToken(),
+            'globalError' => null,
+        ], 'admin');
+    }
+
+    public function updateImportTemplate(int $id): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+        $importer = new BlogCsvImporter();
+        if (!$importer->verifyCsrfToken((string)($_POST['csrf_token'] ?? ''))) {
+            http_response_code(403);
+            $_SESSION['flash_message'] = 'La sesión expiró. Abre la plantilla e inténtalo de nuevo.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog/importaciones');
+        }
+        $profile = BlogImportProfile::findProfile($id);
+        if ($profile === null) {
+            http_response_code(404);
+            $_SESSION['flash_message'] = 'La plantilla no existe.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog/importaciones');
+        }
+        $mapping = is_array($_POST['mapping'] ?? null) ? $_POST['mapping'] : [];
+        $profileName = is_string($_POST['profile_name'] ?? null) ? $_POST['profile_name'] : '';
+        try {
+            $name = $this->importProfileName($profileName, (string)$profile['name']);
+            $mapping = BlogCsvImporter::validateMapping($profile['headers'], $mapping);
+            BlogImportProfile::saveProfile($id, $name, $mapping, $profile['headers'], (int)$_SESSION['admin_id']);
+            $_SESSION['flash_message'] = 'Plantilla actualizada correctamente.';
+            $_SESSION['flash_type'] = 'success';
+            $nextUrl = '/admin/blog/importaciones/plantilla/' . $id . '/editar';
+            if (isset($_POST['save_and_run'])) {
+                $nextUrl = '/admin/blog/importar?profile=' . $id;
+                if (BlogImportProfile::savedSource($profile) !== null) {
+                    $nextUrl .= '&reuse=1';
+                }
+            }
+            $this->redirect(BASE_URL . $nextUrl);
+        } catch (\Throwable $e) {
+            http_response_code(422);
+            $this->view('admin/blog/import_template_edit', [
+                'title' => 'Editar plantilla de importación',
+                'profile' => $profile,
+                'mapping' => $mapping,
+                'profileName' => $profileName,
+                'csrfToken' => $importer->csrfToken(),
+                'globalError' => $this->importErrorMessage($e),
+            ], 'admin');
+        }
+    }
+
+    public function undoImportRun(int $id): void
+    {
+        if (!isset($_SESSION['admin_id'])) {
+            $this->redirect(BASE_URL . '/admin/login');
+        }
+        $importer = new BlogCsvImporter();
+        if (!$importer->verifyCsrfToken((string)($_POST['csrf_token'] ?? ''))) {
+            http_response_code(403);
+            $_SESSION['flash_message'] = 'La sesión expiró. Vuelve a intentarlo.';
+            $_SESSION['flash_type'] = 'error';
+            $this->redirect(BASE_URL . '/admin/blog/importaciones');
+        }
+        try {
+            $result = BlogImportProfile::undoRun($id, (int)$_SESSION['admin_id']);
+            $_SESSION['flash_message'] = sprintf(
+                'Ejecución deshecha: %d posts eliminados y %d restaurados.',
+                $result['deleted_count'],
+                $result['restored_count']
+            );
+            $_SESSION['flash_type'] = 'success';
+        } catch (\Throwable $e) {
+            $_SESSION['flash_message'] = $this->importErrorMessage($e);
+            $_SESSION['flash_type'] = 'error';
+        }
+        $this->redirect(BASE_URL . '/admin/blog/importaciones');
+    }
+
     // ─── Categories CRUD ─────────────────────────────────────────────
+
+    private function importProfileName(mixed $value, string $sourceName): string
+    {
+        if (!is_string($value)) {
+            throw new \RuntimeException('El nombre de la importación es inválido.');
+        }
+        $name = trim($value);
+        if ($name === '') {
+            $name = pathinfo($sourceName, PATHINFO_FILENAME) ?: 'Importación del blog';
+        }
+        if (mb_strlen($name, 'UTF-8') > 150) {
+            throw new \RuntimeException('El nombre de la importación excede 150 caracteres.');
+        }
+        return $name;
+    }
 
     private function normalizePostSlug(string $slug, string $title): string
     {
@@ -398,13 +750,23 @@ class BlogController extends Controller
         BlogCsvImporter $importer,
         ?array $preview,
         ?string $batchToken,
-        ?string $globalError
+        ?string $globalError,
+        ?array $source = null,
+        array $mapping = [],
+        array $categoryChoices = [],
+        string $profileName = ''
     ): void {
+        $profileId = isset($source['profile_id']) ? (int)$source['profile_id'] : null;
+        $profile = $profileId !== null ? BlogImportProfile::findProfile($profileId) : null;
         $this->view('admin/blog/import', [
             'title' => 'Importar Artículos',
             'csrfToken' => $importer->csrfToken(),
-            'expectedHeaders' => BlogCsvImporter::expectedHeaders(),
             'preview' => $preview,
+            'source' => $source,
+            'mapping' => $mapping,
+            'profile' => $profile,
+            'profileName' => $profileName !== '' ? $profileName : ($profile['name'] ?? ''),
+            'categoryChoices' => $categoryChoices,
             'batchToken' => $batchToken,
             'globalError' => $globalError,
         ], 'admin');
@@ -416,7 +778,7 @@ class BlogController extends Controller
             return $e->getMessage();
         }
 
-        error_log('Blog CSV import failed: ' . $e->getMessage());
+        error_log('Blog import failed: ' . $e->getMessage());
         return 'Ocurrió un error inesperado durante la importación.';
     }
 

@@ -2,6 +2,9 @@
   <div class="container mx-auto px-4 md:px-8 max-w-4xl">
     
     <?php if ($post): ?>
+      <?php if (!empty($isPreview)): ?>
+        <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800">Vista previa privada del post</div>
+      <?php endif; ?>
       <a href="<?= BASE_URL ?>/blog" class="inline-flex items-center text-ca-green hover:text-ca-navy transition-colors mb-8">
         <i class="fas fa-arrow-left mr-2"></i> Volver al blog
       </a>

@@ -46,7 +46,8 @@ class BlogController extends Controller
 
     public function show(string $slug): void
     {
-        $post = BlogPost::findPublishedBySlug($slug);
+        $isPreview = isset($_SESSION['admin_id']) && ($_GET['preview'] ?? '') === '1';
+        $post = $isPreview ? BlogPost::findBySlug($slug) : BlogPost::findPublishedBySlug($slug);
 
         if (!$post) {
             http_response_code(404);
@@ -104,6 +105,8 @@ class BlogController extends Controller
             'ogImage'       => $post['featured_image'] ?? '',
             'ogImageAlt'    => $post['title'],
             'ogType'        => 'article',
+            'isPreview'     => $isPreview,
+            'robotsContent' => $isPreview ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
         ]);
     }
 }

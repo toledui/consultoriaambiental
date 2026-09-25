@@ -21,6 +21,9 @@ final class BlogCsvImporterTest
             $this->testValidCsvAndHtmlNormalization();
             $this->testHeaderValidation();
             $this->testDangerousHtmlAndUnsupportedColumns();
+            $this->testMappedCsvAndSourceOwnership();
+            $this->testMappedXlsx();
+            $this->testCategoryOverridesInPreview();
             $this->testBatchOwnershipAndSingleUse();
 
             if ($realCsvPath !== null) {
@@ -100,6 +103,164 @@ final class BlogCsvImporterTest
         $this->assertContains('URL HTTPS de embed válida', implode(' ', $preview['rows'][1]['errors']));
     }
 
+    private function testMappedCsvAndSourceOwnership(): void
+    {
+        $path = $this->writeRawCsv(
+            ['Body', 'Heading', 'Group', 'Extra', 'Image'],
+            [['Texto principal', 'Artículo flexible', 'Noticias', 'detalle', 'https://example.com/imagen.webp']]
+        );
+        $source = $this->importer->prepareUploadedFile([
+            'error' => UPLOAD_ERR_OK,
+            'name' => 'columnas.csv',
+            'size' => filesize($path),
+            'tmp_name' => $path,
+        ], 10);
+        $storedSource = $this->importer->prepareStoredSource($this->importer->getPreparedSourceData($source['token'], 10), 10, 4);
+        $this->assertTrue($storedSource['reused'], 'Debe poder preparar una nueva corrida desde las filas guardadas.');
+        $this->assertSame($source['headers'], $storedSource['headers'], 'La nueva corrida debe conservar las columnas de la plantilla.');
+        $this->assertSame(['Body', 'Heading', 'Group', 'Extra', 'Image'], $source['headers'], 'Debe aceptar encabezados libres.');
+        $this->assertSame(['{Body}', '{Heading}', '{Group}', '{Extra}', '{Image}'], $source['column_tokens'], 'Debe mostrar los encabezados en los marcadores.');
+        $this->assertSame(
+            ['{Título}', '{Título (2)}', '{Meta Descripción}'],
+            BlogCsvImporter::columnTokens(['Título', 'Título', 'Meta Descripción']),
+            'Los encabezados duplicados deben tener marcadores únicos.'
+        );
+        $denied = false;
+        try {
+            $this->importer->getPreparedSource($source['token'], 11);
+        } catch (RuntimeException) {
+            $denied = true;
+        }
+        $this->assertTrue($denied, 'Otro administrador no debe leer el origen temporal.');
+
+        $preview = $this->importer->previewMappedSource($source['token'], 10, [
+            'Título' => '{Heading}',
+            'Contenido' => '<h2>{Heading}</h2>{Body} y {Extra}',
+            'Extracto' => 'Resumen: {Extra}',
+            'Meta Título' => 'SEO: {Heading}',
+            'Categoría' => '{Group}',
+            'Imagen destacada' => '{Image}',
+        ]);
+        $this->assertTrue($preview['can_import'], 'El mapeo debe producir un post válido.');
+        $this->assertSame('Artículo flexible', $preview['rows'][0]['title'], 'Debe tomar la columna elegida.');
+        $this->assertContains('<p>Texto principal y detalle</p>', $preview['rows'][0]['content']);
+        $this->assertSame('Resumen: detalle', $preview['rows'][0]['data']['excerpt'], 'Debe combinar texto fijo en el extracto.');
+        $this->assertSame('SEO: Artículo flexible', $preview['rows'][0]['data']['meta_title'], 'Debe mapear el meta título.');
+        $this->assertSame('Noticias', $preview['rows'][0]['category_name'], 'Debe mapear categoría.');
+        $this->assertSame('https://example.com/imagen.webp', $preview['rows'][0]['data']['featured_image'], 'Debe mapear la imagen destacada.');
+        $savedMapping = BlogCsvImporter::validateMapping($source['headers'], [
+            'Título' => '{Heading}',
+            'Contenido' => '<h2>{Heading}</h2>{Body}',
+        ]);
+        $this->assertSame('<h2>{Heading}</h2>{Body}', $savedMapping['Contenido'], 'Debe validar una plantilla sin volver a subir el archivo.');
+        $invalidSavedMapping = false;
+        try {
+            BlogCsvImporter::validateMapping($source['headers'], ['Título' => '{Columna inexistente}']);
+        } catch (RuntimeException) {
+            $invalidSavedMapping = true;
+        }
+        $this->assertTrue($invalidSavedMapping, 'No debe guardarse una plantilla con una columna desconocida.');
+
+        $invalidImage = $this->importer->previewMappedSource($source['token'], 10, [
+            'Título' => '{Heading}',
+            'Contenido' => '{Body}',
+            'Imagen destacada' => 'javascript:alert(1)',
+        ]);
+        $this->assertFalse($invalidImage['can_import'], 'Debe rechazar una imagen con esquema no permitido.');
+
+        $invalid = false;
+        try {
+            $this->importer->previewMappedSource($source['token'], 10, ['Título' => '{No existe}']);
+        } catch (RuntimeException) {
+            $invalid = true;
+        }
+        $this->assertTrue($invalid, 'Debe rechazar encabezados inexistentes.');
+    }
+
+    private function testMappedXlsx(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'blog_xlsx_test_');
+        if ($path === false) {
+            throw new RuntimeException('No se pudo crear el Excel de prueba.');
+        }
+        $this->temporaryFiles[] = $path;
+        $zip = new ZipArchive();
+        if ($zip->open($path, ZipArchive::OVERWRITE) !== true) {
+            throw new RuntimeException('No se pudo abrir el Excel de prueba.');
+        }
+        $zip->addFromString('xl/workbook.xml', '<?xml version="1.0"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Artículos" sheetId="1" r:id="rId1"/></sheets></workbook>');
+        $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Target="worksheets/sheet1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/></Relationships>');
+        $zip->addFromString('xl/sharedStrings.xml', '<?xml version="1.0"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>Nombre</t></si><si><t>Texto</t></si></sst>');
+        $zip->addFromString('xl/worksheets/sheet1.xml', '<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>Artículo Excel</t></is></c><c r="B2" t="inlineStr"><is><t>Contenido de hoja</t></is></c></row></sheetData></worksheet>');
+        $zip->close();
+
+        $source = $this->importer->prepareUploadedFile([
+            'error' => UPLOAD_ERR_OK,
+            'name' => 'articulos.xlsx',
+            'size' => filesize($path),
+            'tmp_name' => $path,
+        ], 10);
+        $this->assertSame(['Nombre', 'Texto'], $source['headers'], 'Debe leer los encabezados del Excel.');
+        $preview = $this->importer->previewMappedSource($source['token'], 10, [
+            'Título' => '{Nombre}',
+            'Introducción' => '{Texto}',
+        ]);
+        $this->assertTrue($preview['can_import'], 'Debe importar la primera hoja de Excel.');
+        $this->assertSame('Artículo Excel', $preview['rows'][0]['title'], 'Debe leer celdas inline del Excel.');
+    }
+
+    private function testCategoryOverridesInPreview(): void
+    {
+        $badCategory = 'No puedo determinar la categoría correcta porque la lista de categorías posibles que proporcionaste está vacía.';
+        $path = $this->writeRawCsv(
+            ['Nombre', 'Texto', 'Grupo'],
+            [
+                ['Artículo uno', 'Texto uno', $badCategory],
+                ['Artículo dos', 'Texto dos', 'Otra propuesta'],
+            ]
+        );
+        $source = $this->importer->prepareUploadedFile([
+            'error' => UPLOAD_ERR_OK,
+            'name' => 'categorias.csv',
+            'size' => filesize($path),
+            'tmp_name' => $path,
+        ], 10);
+        $mapping = ['Título' => '{Nombre}', 'Contenido' => '{Texto}', 'Categoría' => '{Grupo}'];
+        $existing = [['id' => 7, 'name' => 'Noticias', 'slug' => 'noticias']];
+
+        $original = $this->importer->previewMappedSource($source['token'], 10, $mapping, [], $existing);
+        $this->assertFalse($original['can_import'], 'Una categoría larga del archivo debe bloquear la fila.');
+
+        $preserved = [
+            hash('sha256', 'articulo-uno') => 'Noticias',
+            hash('sha256', 'articulo-dos') => 'Noticias',
+        ];
+        $reused = $this->importer->previewMappedSource($source['token'], 10, $mapping, [], $existing, [], null, $preserved);
+        $this->assertTrue($reused['can_import'], 'Repetir el archivo debe conservar las categorías corregidas anteriormente.');
+        $this->assertSame('Noticias', $reused['rows'][0]['category_name'], 'La categoría previa debe sustituir el texto inválido del archivo guardado.');
+        $reusedOverride = $this->importer->previewMappedSource($source['token'], 10, $mapping, [], $existing, [2 => 'Nueva sección'], null, $preserved);
+        $this->assertSame('Nueva sección', $reusedOverride['rows'][0]['category_name'], 'Una corrección manual debe prevalecer sobre la categoría conservada.');
+
+        $fixed = $this->importer->previewMappedSource($source['token'], 10, $mapping, [], $existing, [
+            2 => 'noticias',
+            3 => 'Nueva sección',
+        ]);
+        $this->assertTrue($fixed['can_import'], 'Debe validar con categorías corregidas por post.');
+        $this->assertSame('Noticias', $fixed['rows'][0]['category_name'], 'Debe usar el nombre canónico de una categoría existente.');
+        $this->assertFalse($fixed['rows'][0]['category_is_new'], 'La categoría existente no debe crearse otra vez.');
+        $this->assertTrue($fixed['rows'][1]['category_is_new'], 'Una categoría escrita debe marcarse como nueva.');
+        $this->assertSame('Nueva sección', $fixed['rows'][1]['data']['category_name'], 'El lote debe conservar la elección individual.');
+
+        $bulk = $this->importer->previewMappedSource($source['token'], 10, $mapping, [], $existing, [2 => 'Otra'], 'Noticias');
+        $this->assertTrue($bulk['can_import'], 'La asignación masiva debe corregir todo el lote.');
+        $this->assertSame('Noticias', $bulk['rows'][0]['category_name'], 'La asignación masiva debe prevalecer.');
+        $this->assertSame('Noticias', $bulk['rows'][1]['category_name'], 'La asignación masiva debe alcanzar cada post.');
+
+        $none = $this->importer->previewMappedSource($source['token'], 10, $mapping, [], $existing, [], '');
+        $this->assertTrue($none['can_import'], 'Debe poder importar todos los posts sin categoría.');
+        $this->assertSame('', $none['rows'][0]['category_name'], 'La categoría vacía debe quitar la asignación.');
+    }
+
     private function testBatchOwnershipAndSingleUse(): void
     {
         $preview = $this->importer->parseFile($this->writeCsv([$this->baseRow()]));
@@ -110,7 +271,7 @@ final class BlogCsvImporterTest
         $this->assertTrue($this->importer->verifyCsrfToken($csrf), 'El token CSRF debe validarse.');
         $this->assertFalse($this->importer->verifyCsrfToken('incorrecto'), 'Un CSRF distinto debe fallar.');
 
-        $token = $this->importer->createBatch($preview, 10);
+        $token = $this->importer->createBatch($preview, 10, ['profile_id' => 4]);
         $wrongOwnerRejected = false;
         try {
             $this->importer->consumeBatch($token, 11);
@@ -119,7 +280,9 @@ final class BlogCsvImporterTest
         }
         $this->assertTrue($wrongOwnerRejected, 'Otro administrador no debe consumir el lote.');
 
-        $rows = $this->importer->consumeBatch($token, 10);
+        $batch = $this->importer->consumeBatchPayload($token, 10);
+        $this->assertSame(4, $batch['context']['profile_id'], 'El lote debe conservar la importación guardada.');
+        $rows = $batch['rows'];
         $this->assertSame(1, count($rows), 'El dueño debe consumir el lote.');
 
         $replayRejected = false;

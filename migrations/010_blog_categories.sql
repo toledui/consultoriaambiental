@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS blog_categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Insert default categories
-INSERT INTO blog_categories (name, slug, description) VALUES
+INSERT IGNORE INTO blog_categories (name, slug, description) VALUES
     ('Normatividad Ambiental', 'normatividad-ambiental', 'Artículos sobre leyes, reglamentos y normativas ambientales vigentes en México.'),
     ('Sostenibilidad', 'sostenibilidad', 'Contenido relacionado con prácticas sostenibles y desarrollo sustentable.'),
     ('Gestión de Residuos', 'gestion-de-residuos', 'Información sobre manejo, tratamiento y disposición de residuos.'),
